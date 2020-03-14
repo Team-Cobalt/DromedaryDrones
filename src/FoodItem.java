@@ -1,5 +1,5 @@
 /**
- * Class that pertains to the food items
+ * Class pertaining to the creation of Food items
  * @author Isabella Patnode
  *
  */
@@ -42,7 +42,7 @@ public class FoodItem {
 	}
 	
 	/**
-	 * Method to access the name of a food item
+	 * Method to get the name of a food item
 	 * @return the name of the current food item
 	 */
 	public String getName() {
@@ -50,7 +50,7 @@ public class FoodItem {
 	}
 	
 	/**
-	 * Method to access the weight of a food item
+	 * Method to get the weight of a food item
 	 * @return the weight of the current food item
 	 */
 	public double getWeight() {
