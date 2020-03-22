@@ -1,3 +1,5 @@
+package food;
+
 /**
  * Class pertaining to the creation of Food items
  * @author Isabella Patnode
