@@ -24,7 +24,10 @@ public class Simulation extends Application {
 	private Stage window;
 	private Scene mainMenu;
 	private Scene simPage;
-	private Scene editSim;
+	private Scene genEditPg;
+	private Scene foodEditPg;
+	private Scene mealEditPg;
+	private Scene mapEditPg;
 	private StackPane root;
 	
 	
@@ -72,7 +75,7 @@ public class Simulation extends Application {
 		
 		Button btnEdit = new Button("Settings");
 		btnEdit.setMinWidth(buttons.getPrefWidth());
-		btnEdit.setOnAction(e -> editSim());
+		btnEdit.setOnAction(e -> genEditPage());
 		
 		Button btnExit = new Button("Exit Simulation");
 		btnExit.setMinWidth(buttons.getPrefWidth());
@@ -159,8 +162,20 @@ public class Simulation extends Application {
 		//TODO: change window to results page
 	}
 	
-	public void editSim() {
-		//TODO: complete edit simulation gui and such
+	public void genEditPage() {
+		//TODO: complete general simulation gui page
+	}
+	
+	public void editFoodPage() {
+		//TODO: complete food items gui page
+	}
+	
+	public void editMealsPage() {
+		//TODO: complete meals gui page
+	}
+	
+	public void editMapPage() {
+		//TODO: complete map gui page
 	}
 	
 	public void runSimulation() {
