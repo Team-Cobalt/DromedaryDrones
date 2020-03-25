@@ -1,5 +1,9 @@
 package location;
 
+import xml.annotations.XmlAttribute;
+import xml.annotations.XmlElementList;
+import xml.annotations.XmlSerializable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -9,10 +13,15 @@ import java.util.function.Consumer;
  * Class to keep track of all delivery points and their relative locations.
  * @author Christian Burns
  */
+@XmlSerializable
 public class DeliveryPoints implements Iterable<Point> {
 
-    private ArrayList<Point> points;
+    @XmlAttribute
     private Point origin;
+
+    @XmlElementList(embed=false)
+    private ArrayList<Point> points;
+
     private Random rand;
 
     public DeliveryPoints() {
@@ -20,6 +29,14 @@ public class DeliveryPoints implements Iterable<Point> {
         rand = new Random();
         origin = new Point("", 0, 0, null);
         _tmpLoadPoints(); //TODO: remove this when points are loaded in from a file
+    }
+
+    public DeliveryPoints(DeliveryPoints other) {
+        points = new ArrayList<>();
+        rand = new Random();
+        origin = new Point("", 0, 0, null);
+        for (Point pt : other) points.add(new Point(pt, origin));
+        setOrigin(other.origin.getName());
     }
 
     private void _tmpLoadPoints() {
@@ -63,6 +80,7 @@ public class DeliveryPoints implements Iterable<Point> {
             if (p.getName().equals(name)) {
                 origin.setLatitude(p.getLatitude());
                 origin.setLongitude(p.getLongitude());
+                origin.setName(name);
                 points.forEach(Point::refreshOrigin);
                 return;
             }

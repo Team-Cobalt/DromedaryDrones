@@ -1,15 +1,25 @@
 package location;
 
+import xml.annotations.XmlAttribute;
+import xml.annotations.XmlSerializable;
+
 import java.util.Objects;
 
 /**
  * @author Christian Burns
  */
+@XmlSerializable
 public class Point {
 
+    @XmlAttribute
     private String name;
+
+    @XmlAttribute
     private double latitude;
+
+    @XmlAttribute
     private double longitude;
+
     private Point origin;
     private int x;
     private int y;
@@ -20,6 +30,15 @@ public class Point {
         this.longitude = longitude;
         this.origin = origin;
         refreshOrigin();
+    }
+
+    Point(Point other, Point origin) {
+        this.name = other.name;
+        this.latitude = other.latitude;
+        this.longitude = other.longitude;
+        this.origin = origin;
+        this.x = other.x;
+        this.y = other.y;
     }
 
     /* INTERNAL METHODS */
@@ -83,6 +102,11 @@ public class Point {
         int xDiff = other != null ? Math.abs(getX() - other.getX()) : getX();
         int yDiff = other != null ? Math.abs(getY() - other.getY()) : getY();
         return Math.sqrt(xDiff*xDiff + yDiff*yDiff);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     @Override
