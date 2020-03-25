@@ -36,7 +36,7 @@ public class Simulation extends Application {
 		//Image image = new Image(new FileInputStream("C:\\Users\\PatnodeIA17\\Pictures\\Camel.png"));
 		Image image = new Image("https://cdn.hswstatic.com/gif/how-to-draw-animals-117.jpg");
 		
-		ImageView imgView = new ImageView(image);
+		ImageView imgView = new javafx.scene.image.ImageView(image);
 		
 		imgView.setX(50);
 		imgView.setY(50);
