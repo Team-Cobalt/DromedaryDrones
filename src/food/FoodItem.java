@@ -1,5 +1,11 @@
 package food;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import java.util.Objects;
+
 /**
  * Class pertaining to the creation of Food items
  * @author Isabella Patnode
@@ -7,7 +13,7 @@ package food;
  */
 public class FoodItem {
 	private String name; //name of the food item
-	private double weight; //weight of food item
+	private double weight; //weight of food item (in oz.)
 	
 	/**
 	 * Default constructor for FoodItem class
@@ -58,5 +64,29 @@ public class FoodItem {
 	public double getWeight() {
 		return weight;
 	}
+	
+	public Element toXml(Document document) {
+        Element foodItemElement = document.createElement("fooditem");
+        Attr nameAttr = document.createAttribute("name");
+        Attr weightAttr = document.createAttribute("weight");
+        nameAttr.setValue(name);
+        weightAttr.setValue(String.valueOf(weight));
+        foodItemElement.setAttributeNode(nameAttr);
+        foodItemElement.setAttributeNode(weightAttr);
+        return foodItemElement;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FoodItem foodItem = (FoodItem) o;
+        return name.equals(foodItem.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
 	
 }
