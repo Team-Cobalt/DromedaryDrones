@@ -142,9 +142,10 @@ public class Simulation extends Application {
 		simBtns.getChildren().add(cancelBtn);
 		simBtns.setAlignment(Pos.BOTTOM_CENTER);
 		
-		VBox simLayout = new VBox(40);
+		VBox simLayout = new VBox(35);
 		simLayout.getChildren().addAll(text, simPic, simBtns);
 		simLayout.setAlignment(Pos.CENTER);
+		simLayout.setStyle("-fx-background-color: WHITE");
 		
 		root = new StackPane();
 		root.getChildren().add(simLayout);
@@ -166,6 +167,5 @@ public class Simulation extends Application {
 		for (int i = 0; i < 50; i++) {
 			//TODO: run trial
 		}
-	}
-	
+	}	
 }
