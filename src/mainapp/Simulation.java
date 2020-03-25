@@ -36,7 +36,7 @@ public class Simulation extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
 	
-		Image image = new Image("https://cdn.hswstatic.com/gif/how-to-draw-animals-117.jpg");
+		Image image = new Image("Camel.jpg");
 		
 		ImageView imgView = new ImageView(image);
 		
@@ -106,7 +106,6 @@ public class Simulation extends Application {
 	}
 	
 	public void startSim() {
-		
 		Text simText = new Text("Simulation is Running...");
 		simText.setFont(Font.font("Serif", 30));
 		simText.setFill(Color.BLACK);
