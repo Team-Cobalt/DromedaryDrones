@@ -33,7 +33,8 @@ public class Simulation extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
 		
-		Image image = new Image(new FileInputStream("C:\\Users\\PatnodeIA17\\Pictures\\Camel.png"));
+		//Image image = new Image(new FileInputStream("C:\\Users\\PatnodeIA17\\Pictures\\Camel.png"));
+		Image image = new Image("https://cdn.hswstatic.com/gif/how-to-draw-animals-117.jpg");
 		
 		ImageView imgView = new ImageView(image);
 		
@@ -56,20 +57,25 @@ public class Simulation extends Application {
 		simName.setWrappingWidth(450);
 		simName.setTextAlignment(TextAlignment.CENTER);
 		
-		Button btnStart = new Button("Start Simulation");
-		btnStart.setOnAction(e-> startSim());
-		
-		Button btnEdit = new Button("Settings");
-		btnEdit.setOnAction(e -> editSim());
-		
-		Button btnExit = new Button("Exit Simulation");
-		btnExit.setOnAction(e->System.exit(0));
-		
 		HBox simTitle = new HBox(20);
 		simTitle.getChildren().add(simName);
 		simTitle.setAlignment(Pos.BASELINE_CENTER);
 		
 		VBox buttons = new VBox(10);
+		buttons.setPrefWidth(100);
+				
+		Button btnStart = new Button("Start Simulation");
+		btnStart.setMinWidth(buttons.getPrefWidth());
+		btnStart.setOnAction(e-> startSim());
+		
+		Button btnEdit = new Button("Settings");
+		btnEdit.setMinWidth(buttons.getPrefWidth());
+		btnEdit.setOnAction(e -> editSim());
+		
+		Button btnExit = new Button("Exit Simulation");
+		btnExit.setMinWidth(buttons.getPrefWidth());
+		btnExit.setOnAction(e->System.exit(0));
+		
 		buttons.getChildren().addAll(btnStart, btnEdit, btnExit);
 		buttons.setAlignment(Pos.BOTTOM_CENTER);
 		
@@ -81,6 +87,7 @@ public class Simulation extends Application {
 		menuLayout.getChildren().addAll(picture, firstLayout);
 		menuLayout.setSpacing(10);
 		menuLayout.setAlignment(Pos.CENTER);
+		menuLayout.setStyle("-fx-background-color: WHITE");
 		
 		
 		root = new StackPane();
