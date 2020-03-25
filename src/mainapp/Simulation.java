@@ -1,7 +1,5 @@
 package mainapp;
 
-import java.io.FileInputStream;
-
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,6 +15,11 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+/**
+ * Class that runs the simulation
+ * @author Isabella Patnode, Rachel Franklin, Brendan Ortmann, and Christian Burns
+ *
+ */
 public class Simulation extends Application {
 	private Stage window;
 	private Scene mainMenu;
@@ -32,9 +35,8 @@ public class Simulation extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
-		
-		//Image image = new Image(new FileInputStream("C:\\Users\\PatnodeIA17\\Pictures\\Camel.png"));
-		Image image = new Image("https://cdn.hswstatic.com/gif/how-to-draw-animals-117.jpg");
+	
+		Image image = new Image("Camel.jpg");
 		
 		ImageView imgView = new javafx.scene.image.ImageView(image);
 		
@@ -74,7 +76,7 @@ public class Simulation extends Application {
 		
 		Button btnExit = new Button("Exit Simulation");
 		btnExit.setMinWidth(buttons.getPrefWidth());
-		btnExit.setOnAction(e->System.exit(0));
+		btnExit.setOnAction(e-> System.exit(0));
 		
 		buttons.getChildren().addAll(btnStart, btnEdit, btnExit);
 		buttons.setAlignment(Pos.BOTTOM_CENTER);
@@ -95,7 +97,6 @@ public class Simulation extends Application {
 		
 		mainMenu = new Scene(root, 800, 600);
 		
-		
 		window.setScene(mainMenu);
 		window.sizeToScene();
 		window.centerOnScreen();
@@ -105,11 +106,66 @@ public class Simulation extends Application {
 	}
 	
 	public void startSim() {
-	
+		Text simText = new Text("Simulation is Running...");
+		simText.setFont(Font.font("Serif", 30));
+		simText.setFill(Color.BLACK);
+		simText.setWrappingWidth(400);
+		simText.setTextAlignment(TextAlignment.CENTER);
+		
+		HBox text = new HBox(20);
+		text.getChildren().add(simText);
+		text.setAlignment(Pos.TOP_CENTER);
+		
+		Image simImg = new Image("DrCameltine.jpg");
+		
+		ImageView view = new ImageView(simImg);
+		
+		view.setX(50);
+		view.setY(50);
+		
+		view.setFitHeight(300);
+		view.setFitWidth(300);
+		
+		view.setPreserveRatio(true);
+		
+		VBox simPic = new VBox(20);
+		simPic.getChildren().add(view);
+		simPic.setAlignment(Pos.CENTER);
+		
+		//TODO: Set camel to rotate!
+		
+		Button cancelBtn = new Button("Cancel Simulation");
+		cancelBtn.setStyle("-fx-font-size: 14");
+		cancelBtn.setOnAction(e-> window.setScene(mainMenu));
+		
+		HBox simBtns = new HBox(20);
+		simBtns.getChildren().add(cancelBtn);
+		simBtns.setAlignment(Pos.BOTTOM_CENTER);
+		
+		VBox simLayout = new VBox(40);
+		simLayout.getChildren().addAll(text, simPic, simBtns);
+		simLayout.setAlignment(Pos.CENTER);
+		
+		root = new StackPane();
+		root.getChildren().add(simLayout);
+		
+		simPage = new Scene(root, 800, 600);
+		
+		window.setScene(simPage);
+		
+		runSimulation();
+		
+		//TODO: change window to results page
 	}
 	
 	public void editSim() {
-		
+		//TODO: complete edit simulation gui and such
+	}
+	
+	public void runSimulation() {
+		for (int i = 0; i < 50; i++) {
+			//TODO: run trial
+		}
 	}
 	
 }
