@@ -20,25 +20,27 @@ import javafx.scene.image.ImageView;
  * @author Isabella Patnode, Rachel Franklin, Brendan Ortmann, and Christian Burns
  *
  */
-public class Simulation extends Application {
-	private Stage window;
-	private Scene mainMenu;
-	private Scene simPage;
-	private Scene genEditPg;
-	private Scene foodEditPg;
-	private Scene mealEditPg;
-	private Scene mapEditPg;
+public class MainClass extends Application {
+	private Stage window; //used for creating gui
+	private Scene mainMenu; //main menu page
+	private Scene simPage; //running sim page
+	private Scene genEditPg; //general settings page
+	private Scene foodEditPg; //food item settings page
+	private Scene mealEditPg; //meal settings page
+	private Scene mapEditPg; //map settings page
 	private StackPane root;
 	
 	
 	public static void main(String[] args) {
+		//launches GUI
 		launch(args); 
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
-	
+		
+		//adds camel image to main menu
 		Image image = new Image("Camel.jpg");
 		
 		ImageView imgView = new javafx.scene.image.ImageView(image);
@@ -55,7 +57,7 @@ public class Simulation extends Application {
 		picture.getChildren().add(imgView);
 		picture.setAlignment(Pos.TOP_CENTER);
 		
-		
+		//adds opening heading to main menu
 		Text simName = new Text("Welcome to Dromedary Drones!");
 		simName.setFont(Font.font("Serif", 50));
 		simName.setFill(Color.BLACK);
@@ -66,28 +68,37 @@ public class Simulation extends Application {
 		simTitle.getChildren().add(simName);
 		simTitle.setAlignment(Pos.BASELINE_CENTER);
 		
+		//adds buttons to main menu
 		VBox buttons = new VBox(10);
 		buttons.setPrefWidth(100);
-				
+			
+		//button for starting the simulation
 		Button btnStart = new Button("Start Simulation");
 		btnStart.setMinWidth(buttons.getPrefWidth());
+		//takes user to intermediate page when pressed/starts simulation
 		btnStart.setOnAction(e-> startSim());
 		
+		//button for editing the simulation
 		Button btnEdit = new Button("Settings");
 		btnEdit.setMinWidth(buttons.getPrefWidth());
+		//takes user to general settings page when clicked
 		btnEdit.setOnAction(e -> genEditPage());
 		
+		//button for exiting the gui
 		Button btnExit = new Button("Exit Simulation");
 		btnExit.setMinWidth(buttons.getPrefWidth());
+		//exits the screen (gui) when clicked
 		btnExit.setOnAction(e-> System.exit(0));
 		
 		buttons.getChildren().addAll(btnStart, btnEdit, btnExit);
 		buttons.setAlignment(Pos.BOTTOM_CENTER);
 		
+		//arranges title and buttons on the screen
 		VBox firstLayout = new VBox(30);
 		firstLayout.getChildren().addAll(simTitle, buttons);
 		firstLayout.setAlignment(Pos.CENTER);
 		
+		//arranges all elements of the main menu on the screen
 		VBox menuLayout = new VBox(30);
 		menuLayout.getChildren().addAll(picture, firstLayout);
 		menuLayout.setSpacing(10);
@@ -100,6 +111,7 @@ public class Simulation extends Application {
 		
 		mainMenu = new Scene(root, 800, 600);
 		
+		//sets starting window to the main menu
 		window.setScene(mainMenu);
 		window.sizeToScene();
 		window.centerOnScreen();
@@ -108,7 +120,12 @@ public class Simulation extends Application {
 
 	}
 	
+	/**
+	 * Method for creating page that is displayed while the simulation is running
+	 */
 	public void startSim() {
+		
+		//Adds necessary text to the display
 		Text simText = new Text("Simulation is Running...");
 		simText.setFont(Font.font("Serif", 30));
 		simText.setFill(Color.BLACK);
@@ -119,6 +136,7 @@ public class Simulation extends Application {
 		text.getChildren().add(simText);
 		text.setAlignment(Pos.TOP_CENTER);
 		
+		//Adds camel image to the display
 		Image simImg = new Image("DrCameltine.jpg");
 		
 		ImageView view = new ImageView(simImg);
@@ -137,14 +155,18 @@ public class Simulation extends Application {
 		
 		//TODO: Set camel to rotate!
 		
+		//button that allows user to cancel the sim
 		Button cancelBtn = new Button("Cancel Simulation");
 		cancelBtn.setStyle("-fx-font-size: 14");
+		//takes user back to main menu
 		cancelBtn.setOnAction(e-> window.setScene(mainMenu));
 		
+		//adds button to the display
 		HBox simBtns = new HBox(20);
 		simBtns.getChildren().add(cancelBtn);
 		simBtns.setAlignment(Pos.BOTTOM_CENTER);
 		
+		//arranges all elements of the page on the screen
 		VBox simLayout = new VBox(35);
 		simLayout.getChildren().addAll(text, simPic, simBtns);
 		simLayout.setAlignment(Pos.CENTER);
@@ -155,9 +177,10 @@ public class Simulation extends Application {
 		
 		simPage = new Scene(root, 800, 600);
 		
+		//sets screen to display page
 		window.setScene(simPage);
 		
-		runSimulation();
+		//TODO: run simulation??
 		
 		//TODO: change window to results page
 	}
@@ -178,9 +201,4 @@ public class Simulation extends Application {
 		//TODO: complete map gui page
 	}
 	
-	public void runSimulation() {
-		for (int i = 0; i < 50; i++) {
-			//TODO: run trial
-		}
-	}	
 }
