@@ -41,7 +41,7 @@ public class Simulation extends Application {
 	
 		Image image = new Image("Camel.jpg");
 		
-		ImageView imgView = new ImageView(image);
+		ImageView imgView = new javafx.scene.image.ImageView(image);
 		
 		imgView.setX(50);
 		imgView.setY(50);
