@@ -132,6 +132,8 @@ public class Simulation extends Application {
 		simPic.getChildren().add(view);
 		simPic.setAlignment(Pos.CENTER);
 		
+		//TODO: Set camel to rotate!
+		
 		Button cancelBtn = new Button("Cancel Simulation");
 		cancelBtn.setStyle("-fx-font-size: 14");
 		cancelBtn.setOnAction(e-> window.setScene(mainMenu));
@@ -152,15 +154,17 @@ public class Simulation extends Application {
 		window.setScene(simPage);
 		
 		runSimulation();
+		
+		//TODO: change window to results page
 	}
 	
 	public void editSim() {
-		
+		//TODO: complete edit simulation gui and such
 	}
 	
 	public void runSimulation() {
 		for (int i = 0; i < 50; i++) {
-			//run trial
+			//TODO: run trial
 		}
 	}
 	
