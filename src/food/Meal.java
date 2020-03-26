@@ -1,5 +1,9 @@
 package food;
 
+import xml.annotations.XmlAttribute;
+import xml.annotations.XmlElementList;
+import xml.annotations.XmlSerializable;
+
 import java.util.ArrayList;
 
 /**
@@ -7,9 +11,12 @@ import java.util.ArrayList;
  * @author Isabella Patnode
  *
  */
+@XmlSerializable
 public class Meal {
+	@XmlElementList
 	private ArrayList<FoodItem> foods; //list of foods in the meal
 	private String name; //name of the meal
+	@XmlAttribute
 	private double probability; //probability a customer orders the meal
 	private double totalWeight; //the weight of the meal
 	private final double DRONEWEIGHT = 12; 
@@ -26,14 +33,14 @@ public class Meal {
 	
 	/**
 	 * Copy constructor for Meal class
-	 * @param foods //list of foods that make up the meal
+	 * @param mealFoods //list of foods that make up the meal
 	 * @param name //name of the meal
 	 * @param probability //probability a customer orders the meal
 	 */
 	public Meal(ArrayList<FoodItem> mealFoods, String name, double probability) {
 		double mealWeight = 0.0;
 		
-		for(FoodItem food: foods) {
+		for(FoodItem food: mealFoods) {
 			mealWeight += food.getWeight();
 		}
 		

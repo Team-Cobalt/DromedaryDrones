@@ -6,7 +6,7 @@ import xml.annotations.XmlSerializable;
 import java.util.Objects;
 
 /**
- * @author Christian Burns
+ * @author  Christian Burns
  */
 @XmlSerializable
 public class Point {

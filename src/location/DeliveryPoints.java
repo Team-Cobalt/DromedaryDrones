@@ -18,10 +18,8 @@ public class DeliveryPoints implements Iterable<Point> {
 
     @XmlAttribute
     private Point origin;
-
     @XmlElementList(embed=false)
     private ArrayList<Point> points;
-
     private Random rand;
 
     public DeliveryPoints() {
@@ -89,7 +87,9 @@ public class DeliveryPoints implements Iterable<Point> {
     }
 
     public void addPoint(String name, double latitude, double longitude) {
-        points.add(new Point(name, latitude, longitude, origin));
+        Point newPoint = new Point(name, latitude, longitude, origin);
+        newPoint.refreshOrigin();
+        points.add(newPoint);
     }
 
     /**

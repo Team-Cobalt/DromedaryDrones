@@ -1,8 +1,7 @@
 package food;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import xml.annotations.XmlAttribute;
+import xml.annotations.XmlSerializable;
 
 import java.util.Objects;
 
@@ -11,8 +10,12 @@ import java.util.Objects;
  * @author Isabella Patnode
  *
  */
+@XmlSerializable
 public class FoodItem {
+
+	@XmlAttribute
 	private String name; //name of the food item
+	@XmlAttribute
 	private double weight; //weight of food item (in oz.)
 	
 	/**
@@ -24,13 +27,23 @@ public class FoodItem {
 	}
 	
 	/**
-	 * Copy constructor for FoodItem class
+	 * Constructor for FoodItem class
 	 * @param name the name of the food item
 	 * @param weight the weight of the food item
 	 */
 	public FoodItem(String name, double weight) {
 		this.name = name;
 		this.weight = weight;
+	}
+
+	/**
+	 * Copy constructor to create a deep copy of
+	 * an existing food item
+	 * @param other  other food item to copy
+	 */
+	public FoodItem(FoodItem other) {
+		this.name = other.name;
+		this.weight = other.weight;
 	}
 	
 	/**
@@ -64,17 +77,11 @@ public class FoodItem {
 	public double getWeight() {
 		return weight;
 	}
-	
-	public Element toXml(Document document) {
-        Element foodItemElement = document.createElement("fooditem");
-        Attr nameAttr = document.createAttribute("name");
-        Attr weightAttr = document.createAttribute("weight");
-        nameAttr.setValue(name);
-        weightAttr.setValue(String.valueOf(weight));
-        foodItemElement.setAttributeNode(nameAttr);
-        foodItemElement.setAttributeNode(weightAttr);
-        return foodItemElement;
-    }
+
+	@Override
+	public String toString() {
+		return name.toLowerCase();
+	}
 
     @Override
     public boolean equals(Object o) {

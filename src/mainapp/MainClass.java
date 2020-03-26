@@ -1,6 +1,7 @@
 package mainapp;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -21,7 +22,7 @@ import javafx.scene.image.ImageView;
  * Class that runs the simulation
  * @author Isabella Patnode, Rachel Franklin, Brendan Ortmann, and Christian Burns
  *
- *SAVING SIMULATION RESULTS WILL HAVE TO OCCUR AFTER SIMULATION IS RUN?????
+ *SAVING SIMULATION RESULTS WILL HAVE TO OCCUR AFTER SIMULATION IS RUN????? Yes
  */
 public class MainClass extends Application {
 	private Stage window; //used for creating gui
@@ -40,8 +41,20 @@ public class MainClass extends Application {
 		File loadedFile = new File("simulations.xml");
 		
 		//loads specified configuration settings
-		Configuration config = new Configuration();
-		config.initialize(loadedFile);
+		Configuration config = Configuration.getInstance();
+
+		try {
+			// try loading the file
+			config.initialize(loadedFile);
+		} catch (FileNotFoundException fnf) {
+			try {
+				// try loading the default GCC data
+				config.initialize(null);
+			} catch (Exception e) {
+				// something went very wrong
+				e.printStackTrace();
+			}
+		}
 
 		//launches GUI and simulation
 		launch(args); 

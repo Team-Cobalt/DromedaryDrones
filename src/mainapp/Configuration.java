@@ -1,73 +1,161 @@
 package mainapp;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import food.FoodItem;
+import food.Meal;
+import xml.XmlFactory;
+import xml.annotations.XmlAttribute;
+import xml.annotations.XmlElementList;
+import xml.annotations.XmlSerializable;
+import xml.exceptions.XmlSerializationException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
+/**
+ * Master configuration class to track of each separate saved
+ * simulation state/configuration. Controls saving and loading
+ * configuration save data and swapping between saved simulations.
+ * @author  Christian Burns
+ */
+@XmlSerializable(name="simulations")
 public class Configuration {
-	private Simulation currentSim; //the current simulation config.
-	private ArrayList<Simulation> simulations; //all saved simulation configs.
-	
-	public Configuration() {
+
+    /* ensures only one instance of the configuration class exists */
+    private static final Configuration INSTANCE = new Configuration();
+    /** Returns an instance of the {@link Configuration} class. */
+    public static Configuration getInstance() { return INSTANCE; }
+
+    @XmlAttribute(name="current")
+	private Simulation currentSim; // the current simulation state
+
+    @XmlElementList(embed=false)
+	private ArrayList<Simulation> simulations; // all saved simulation states
+
+    /**
+     * Default constructor for internal use.
+     * @see Configuration#getInstance()
+     */
+	private Configuration() {
 		currentSim = null;
 		simulations = new ArrayList<>();
 	}
-	
-	public boolean initialize(File loadedFile) {
-		//TODO: replace with loading in an actual file and parsing it
-		Simulation newSim = new Simulation("Grove City College");
-		
-		//ADD DEFAULT HERE??
-		
-		currentSim = newSim;
-		simulations.add(newSim);
-		return true;
-	}
-	
-	public boolean save(File saveFile) {
-        try {
-            // create document
-            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-            Document document = documentBuilder.newDocument();
 
-            // create root element
-            Element root = document.createElement("simulations");
-            Attr lastRun = document.createAttribute("current");
-            lastRun.setValue(currentSim != null ? currentSim.getName() : "");
-            root.setAttributeNode(lastRun);
-            document.appendChild(root);
+    /**
+     * Retrieves the simulation state by its name.
+     * @param name  name of the simulation state
+     * @return  the simulation state or null if not found
+     */
+    public Simulation getSimulation(String name) {
+        for (Simulation sim : simulations)
+            if (sim.getName().equals(name))
+                return sim;
+        return null;
+    }
 
-            // create child elements
-            for (Simulation sim : simulations) {
-                root.appendChild(sim.toXml(document));
+    /**
+     * Returns the simulation state currently being used.
+     */
+    public Simulation getCurrentSimulation() {
+        return currentSim;
+    }
+
+    /**
+     * Changes the simulation state currently in use.
+     * @param simulation  new current simulation
+     */
+    public void setCurrentSimulation(Simulation simulation) {
+        if (!simulations.contains(simulation)) simulations.add(simulation);
+        currentSim = simulation;
+    }
+
+    /**
+     * Adds a new simulation to be saved and loaded.
+     * @param simulation  new simulation, not null
+     */
+    public void addSimulation(Simulation simulation) {
+        if (!simulations.contains(simulation))
+            simulations.add(simulation);
+        else throw new IllegalArgumentException(
+                "simulation " + simulation.getName() + " already exists");
+    }
+
+    /**
+     * Deletes the specified simulation from the save data.
+     * @param simulation  simulation to be deleted
+     * @return  {@code true} if the simulation state was removed.
+     *          {@code false} if the simulation didn't exist or was
+     *          currently the active simulation.
+     */
+    public boolean removeSimulation(Simulation simulation) {
+        if (currentSim.equals(simulation)) return false;
+        return simulations.remove(simulation);
+    }
+
+    /**
+     * Loads in all simulations from the specified save file.
+     * @param saveFile  save file containing simulation configuration data
+     */
+	public void initialize(File saveFile) throws FileNotFoundException {
+	    simulations.clear();
+
+        // TODO replace this with (saveFile == null) once xml loading is finished
+	    boolean usedefault = true;
+
+	    if (usedefault) {
+
+            Simulation newSim = new Simulation("Grove City College");
+            FoodItem burger = new FoodItem("Burger", 6);
+            FoodItem fries = new FoodItem("Fries", 4);
+            FoodItem drink = new FoodItem("Drink", 14);
+            newSim.addFoodItem(burger);
+            newSim.addFoodItem(fries);
+            newSim.addFoodItem(drink);
+            newSim.addMealType(new Meal(
+                    new ArrayList<>(List.of(burger, fries, drink)),
+                    "meal1", 0.55));
+            newSim.addMealType(new Meal(
+                    new ArrayList<>(List.of(burger, burger, fries, drink)),
+                    "meal2", 0.1));
+            newSim.addMealType(new Meal(
+                    new ArrayList<>(List.of(burger, fries)),
+                    "meal3", 0.2));
+            newSim.addMealType(new Meal(
+                    new ArrayList<>(List.of(burger, burger, fries)),
+                    "meal4", 0.15));
+            currentSim = newSim;
+            simulations.add(newSim);
+
+        } else {
+
+	        StringBuilder sb = new StringBuilder();
+	        try (Scanner scnr = new Scanner(saveFile)) {
+	            while (scnr.hasNextLine())
+	                sb.append(scnr.nextLine().trim());
             }
+	        String xmlString = sb.toString();
+	        //TODO parse xml string to reload all classes
 
-            // save xml to file
-            // transform the DOM Object into an XML file
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            DOMSource domSource = new DOMSource(document);
-            StreamResult streamResult = new StreamResult(saveFile);
-            transformer.transform(domSource, streamResult);
+        }
+	}
+
+    /**
+     * Saves all simulation states to the specified file.
+     * @param saveFile  save file to save the data to
+     * @return  {@code true} if all data was successfully saved
+     *          {@code false} if the data was unable to be parsed or saved
+     * @throws FileNotFoundException  if the save file did not exist
+     */
+	public boolean save(File saveFile) throws FileNotFoundException {
+        try (PrintWriter pw = new PrintWriter(saveFile)) {
+            String xmlSaveData = XmlFactory.toXmlString(this);
+            pw.println(xmlSaveData);
             return true;
-        } catch (ParserConfigurationException | TransformerException pce) {
-            pce.printStackTrace();
+        } catch (XmlSerializationException xse) {
+            xse.printStackTrace();
             return false;
         }
     }

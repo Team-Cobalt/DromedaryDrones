@@ -1,22 +1,26 @@
 package xml;
 
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 import xml.exceptions.XmlSerializationException;
 import xml.annotations.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * Converts Objects into XML Strings as structured by their XML Annotations.
@@ -56,14 +60,100 @@ public class XmlFactory {
         }
     }
 
+//
+//    public static Object fromXmlString(String xml, Class<?> clazz) {
+//        try {
+//
+//            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//            DocumentBuilder builder = factory.newDocumentBuilder();
+//            ByteArrayInputStream input = new ByteArrayInputStream(
+//                    xml.getBytes(StandardCharsets.UTF_8));
+//            Document document = builder.parse(input);
+//            Element root = document.getDocumentElement();
+//
+//            return xmlToObject(document, root, clazz);
+//        } catch (Exception e) {
+//            throw new XmlSerializationException(e);
+//        }
+//    }
+//
+//    private static Object xmlToObject(Document document, Element root, Class<?> clazz) throws Exception {
+//        if (checkIfXmlSerializable(clazz)) {
+//
+//            Object object = clazz.getConstructor().newInstance();
+//            HashMap<String, ArrayList<Element>> children = new HashMap<>();
+//            NodeList nodes = root.getChildNodes();
+//
+//            // get all child elements
+//            for (int i = 0; i < nodes.getLength(); i++) {
+//                Node n = nodes.item(i);
+//                if (n.getNodeType() == Node.ELEMENT_NODE) {
+//                    String name = ((Element)n).getTagName();
+//                    children.putIfAbsent(name, new ArrayList<>());
+//                    children.get(name).add(((Element) n));
+//                }
+//            }
+//
+//            for (Field field : clazz.getDeclaredFields()) {
+//                field.setAccessible(true);
+//                if (field.isAnnotationPresent(XmlAttribute.class)) {
+//                    XmlAttribute xmlA = field.getAnnotation(XmlAttribute.class);
+//                    String tag = xmlA.name().isEmpty() ? field.getName().toLowerCase() : xmlA.name();
+//                    String attrValue = root.getAttribute(toXmlTag(tag));
+//                    //field.set(object, attrValue);
+//                } else if (field.isAnnotationPresent(XmlElement.class)) {
+//
+//                } else if (field.isAnnotationPresent(XmlElementList.class)) {
+//
+//                }
+//            }
+//        } else {
+//            if (clazz.isPrimitive()) {
+//                if (clazz.isAssignableFrom(boolean.class)) {
+//                    return Boolean.parseBoolean(root.getTextContent());
+//                } else if (clazz.isAssignableFrom(char.class)) {
+//                    return root.getTextContent().charAt(0);
+//                } else if (clazz.isAssignableFrom(byte.class)) {
+//                    return Byte.parseByte(root.getTextContent());
+//                } else if (clazz.isAssignableFrom(short.class)) {
+//                    return Short.parseShort(root.getTextContent());
+//                } else if (clazz.isAssignableFrom(int.class)) {
+//                    return Integer.parseInt(root.getTextContent());
+//                } else if (clazz.isAssignableFrom(long.class)) {
+//                    return Long.parseLong(root.getTextContent());
+//                } else if (clazz.isAssignableFrom(float.class)) {
+//                    return Float.parseFloat(root.getTextContent());
+//                } else if (clazz.isAssignableFrom(double.class)) {
+//                    return Double.parseDouble(root.getTextContent());
+//                }
+//            } else if (clazz.isAssignableFrom(Boolean.class)) {
+//                return Boolean.valueOf(root.getTextContent());
+//            } else if (clazz.isAssignableFrom(Character.class)) {
+//                return root.getTextContent().charAt(0);
+//            } else if (clazz.isAssignableFrom(Byte.class)) {
+//                return Byte.valueOf(root.getTextContent());
+//            } else if (clazz.isAssignableFrom(Short.class)) {
+//                return Short.valueOf(root.getTextContent());
+//            } else if (clazz.isAssignableFrom(Integer.class)) {
+//                return Integer.valueOf(root.getTextContent());
+//            } else if (clazz.isAssignableFrom(Long.class)) {
+//                return Long.valueOf(root.getTextContent());
+//            } else if (clazz.isAssignableFrom(Float.class)) {
+//                return Float.valueOf(root.getTextContent());
+//            } else if (clazz.isAssignableFrom(Double.class)) {
+//                return Double.valueOf(root.getTextContent());
+//            }
+//        }
+//    }
+//
+
     /**
-     * Checks if the Object has the XmlSerializable Annotation.
-     * @param object  object to check
+     * Checks if the Class has the XmlSerializable Annotation.
+     * @param clazz  class to check
      * @return  {@code true} if the Annotation was found
      */
-    private static boolean checkIfXmlSerializable(Object object) {
-        if (Objects.isNull(object)) return false;
-        return object.getClass().isAnnotationPresent(XmlSerializable.class);
+    private static boolean checkIfXmlSerializable(Class<?> clazz) {
+        return clazz.isAnnotationPresent(XmlSerializable.class);
     }
 
     /**
@@ -82,13 +172,13 @@ public class XmlFactory {
 
         // construct the new element tag name
         if (name == null || name.isBlank()) {
-            if (checkIfXmlSerializable(object)) {
+            if (checkIfXmlSerializable(clazz)) {
                 tagName = clazz.getAnnotation(XmlSerializable.class).name();
                 if (tagName.isEmpty()) tagName = clazz.getSimpleName().toLowerCase();
             }
         }
 
-        if (checkIfXmlSerializable(object)) {
+        if (checkIfXmlSerializable(clazz)) {
 
             // create the new element for the object
             Element xmlElement = document.createElement(toXmlTag(tagName));
@@ -125,8 +215,13 @@ public class XmlFactory {
                         } else {
                             xmlChildElement = xmlElement;
                         }
-                        for (Object o : (Collection<Object>) field.get(object))
-                            objectToXml(document, xmlChildElement, childName, o);
+                        for (Object o : (Collection<Object>) field.get(object)) {
+                            if (anno.stringify()) {
+                                objectToXml(document, xmlChildElement, toXmlTag(o.toString()), o);
+                            } else {
+                                objectToXml(document, xmlChildElement, childName, o);
+                            }
+                        }
 
                     } else if (field.getType().isArray()) {                        // field is an array
 
@@ -146,7 +241,11 @@ public class XmlFactory {
                         int length = Array.getLength(field.get(object));
                         for (int i = 0; i < length; i++) {
                             Object o = Array.get(array, i);
-                            objectToXml(document, xmlChildElement, childName, o);
+                            if (anno.stringify()) {
+                                objectToXml(document, xmlChildElement, toXmlTag(o.toString()), o);
+                            } else {
+                                objectToXml(document, xmlChildElement, childName, o);
+                            }
                         }
 
                     } else if (Map.class.isAssignableFrom(field.getType())) {  // field is a map
