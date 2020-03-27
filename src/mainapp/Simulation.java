@@ -6,29 +6,23 @@ import java.util.Objects;
 import location.DeliveryPoints;
 import food.FoodItem;
 import food.Meal;
-import xml.annotations.XmlAttribute;
-import xml.annotations.XmlElement;
-import xml.annotations.XmlElementList;
-import xml.annotations.XmlSerializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import xml.XmlFactory;
+import xml.XmlSerializable;
 
 /**
  * A standalone configuration of a simulation containing
  * meals, food items, and delivery points.
  * @author  Christian Burns
  */
-@XmlSerializable
-public class Simulation {
+public class Simulation implements XmlSerializable {
 
-    @XmlAttribute(name="name")
 	private String simulationName;          // name of the simulation
-
-    @XmlElementList
     private ArrayList<FoodItem> foodItems;  // all known food items
-
-    @XmlElementList
     private ArrayList<Meal> mealTypes;      // all known meals
-
-    @XmlElement
     private DeliveryPoints deliveryPoints;  // all known delivery points
 
     /**
@@ -51,6 +45,7 @@ public class Simulation {
     public Simulation(Simulation other) {
         this.simulationName = other.simulationName;
         this.foodItems = new ArrayList<>();
+        this.mealTypes = new ArrayList<>();
         for (FoodItem food : other.foodItems)
             this.foodItems.add(new FoodItem(food));
         this.mealTypes = new ArrayList<>();
@@ -62,6 +57,55 @@ public class Simulation {
             mealTypes.add(newType);
         }
         this.deliveryPoints = new DeliveryPoints(other.deliveryPoints);
+    }
+
+    /**
+     * Load Simulation from an XML object.
+     * @param root  element containing simulation data
+     */
+    public Simulation(Element root) {
+        simulationName = root.getAttribute("name");
+        foodItems = new ArrayList<>();
+        mealTypes = new ArrayList<>();
+
+        // load food items
+        Element foods = (Element) root.getElementsByTagName("fooditems").item(0);
+        NodeList foodChildren = foods.getElementsByTagName("fooditem");
+        for (int i = 0; i < foodChildren.getLength(); i++)
+            foodItems.add(new FoodItem((Element) foodChildren.item(i)));
+
+        // load meal items
+        Element meals = (Element) root.getElementsByTagName("mealtypes").item(0);
+        NodeList mealChildren = meals.getElementsByTagName("meal");
+        for (int i = 0; i < mealChildren.getLength(); i++) {
+            Element mealChild = (Element) mealChildren.item(i);
+            String mealName = mealChild.getAttribute("name");
+            double mealProb = Double.parseDouble(mealChild.getAttribute("probability"));
+            ArrayList<FoodItem> mealFoodItems = new ArrayList<>();
+
+            // load foods within the meal
+            NodeList mealFoods = mealChild.getChildNodes();
+            for (int f = 0; f < mealFoods.getLength(); f++) {
+                if (mealFoods.item(f).getNodeType() == Node.ELEMENT_NODE) {
+                    Element mealFood = (Element) mealFoods.item(f);
+                    String foodName = mealFood.getTagName();
+                    int amount = Integer.parseInt(mealFood.getTextContent());
+                    FoodItem food = foodItems.stream()
+                            .filter(fi -> XmlFactory.toXmlTag(fi.getName()).equals(foodName))
+                            .findFirst().orElse(null);
+                    if (food != null) {
+                        for (int a = 0; a < amount; a++)
+                            mealFoodItems.add(food);
+                    }
+                }
+            }
+
+            mealTypes.add(new Meal(mealFoodItems, mealName, mealProb));
+        }
+
+        // load delivery points
+        Element points = (Element) root.getElementsByTagName("deliverypoints").item(0);
+        deliveryPoints = new DeliveryPoints(points);
     }
 
     /**
@@ -145,6 +189,20 @@ public class Simulation {
 //    public boolean removeMeal(Meal meal) {
 //        return mealTypes.remove(meal);
 //    }
+
+    @Override
+    public Element toXml(Document doc) {
+        Element root = doc.createElement("simulation");
+        root.setAttribute("name", simulationName);
+        Element foods = doc.createElement("fooditems");
+        for (FoodItem food : foodItems) foods.appendChild(food.toXml(doc));
+        Element meals = doc.createElement("mealtypes");
+        for (Meal meal : mealTypes) meals.appendChild(meal.toXml(doc));
+        root.appendChild(foods);
+        root.appendChild(meals);
+        root.appendChild(deliveryPoints.toXml(doc));
+        return root;
+    }
 
     @Override
     public String toString() {

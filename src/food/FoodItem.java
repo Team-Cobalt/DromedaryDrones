@@ -1,7 +1,8 @@
 package food;
 
-import xml.annotations.XmlAttribute;
-import xml.annotations.XmlSerializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import xml.XmlSerializable;
 
 import java.util.Objects;
 
@@ -10,12 +11,9 @@ import java.util.Objects;
  * @author Isabella Patnode
  *
  */
-@XmlSerializable
-public class FoodItem {
+public class FoodItem implements XmlSerializable {
 
-	@XmlAttribute
 	private String name; //name of the food item
-	@XmlAttribute
 	private double weight; //weight of food item (in oz.)
 	
 	/**
@@ -44,6 +42,11 @@ public class FoodItem {
 	public FoodItem(FoodItem other) {
 		this.name = other.name;
 		this.weight = other.weight;
+	}
+
+	public FoodItem(Element root) {
+		name = root.getAttribute("name");
+		weight = Double.parseDouble(root.getAttribute("weight"));
 	}
 	
 	/**
@@ -76,6 +79,14 @@ public class FoodItem {
 	 */
 	public double getWeight() {
 		return weight;
+	}
+
+	@Override
+	public Element toXml(Document doc) {
+		Element root = doc.createElement("fooditem");
+		root.setAttribute("name", name);
+		root.setAttribute("weight", String.valueOf(weight));
+		return root;
 	}
 
 	@Override

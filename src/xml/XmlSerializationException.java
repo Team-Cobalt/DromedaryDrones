@@ -1,4 +1,4 @@
-package xml.exceptions;
+package xml;
 
 /**
  * {@code XmlSerializationException} is the superclass of those

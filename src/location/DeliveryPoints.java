@@ -1,8 +1,9 @@
 package location;
 
-import xml.annotations.XmlAttribute;
-import xml.annotations.XmlElementList;
-import xml.annotations.XmlSerializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import xml.XmlSerializable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,12 +14,9 @@ import java.util.function.Consumer;
  * Class to keep track of all delivery points and their relative locations.
  * @author Christian Burns
  */
-@XmlSerializable
-public class DeliveryPoints implements Iterable<Point> {
+public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
 
-    @XmlAttribute
     private Point origin;
-    @XmlElementList(embed=false)
     private ArrayList<Point> points;
     private Random rand;
 
@@ -35,6 +33,24 @@ public class DeliveryPoints implements Iterable<Point> {
         origin = new Point("", 0, 0, null);
         for (Point pt : other) points.add(new Point(pt, origin));
         setOrigin(other.origin.getName());
+    }
+
+    public DeliveryPoints(Element root) {
+        origin = new Point("", 0, 0, null);
+        points = new ArrayList<>();
+        rand = new Random();
+        String originName = root.getAttribute("origin");
+        NodeList children = root.getElementsByTagName("point");
+        for (int i = 0; i < children.getLength(); i++) {
+            Point pt = new Point((Element) children.item(i), origin);
+            points.add(pt);
+            if (pt.getName().equals(originName)) {
+                origin.setName(originName);
+                origin.setLatitude(pt.getLatitude());
+                origin.setLongitude(pt.getLongitude());
+                points.forEach(Point::refreshOrigin);
+            }
+        }
     }
 
     private void _tmpLoadPoints() {
@@ -133,5 +149,13 @@ public class DeliveryPoints implements Iterable<Point> {
     @Override
     public void forEach(Consumer<? super Point> action) {
         points.forEach(action);
+    }
+
+    @Override
+    public Element toXml(Document doc) {
+        Element root = doc.createElement("deliverypoints");
+        root.setAttribute("origin", origin.getName());
+        for (Point pt : points) root.appendChild(pt.toXml(doc));
+        return root;
     }
 }

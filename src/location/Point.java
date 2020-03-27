@@ -1,28 +1,23 @@
 package location;
 
-import xml.annotations.XmlAttribute;
-import xml.annotations.XmlSerializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import xml.XmlSerializable;
 
 import java.util.Objects;
 
 /**
  * @author  Christian Burns
  */
-@XmlSerializable
-public class Point {
+public class Point implements XmlSerializable {
 
-    @XmlAttribute
     private String name;
-
-    @XmlAttribute
     private double latitude;
-
-    @XmlAttribute
     private double longitude;
 
     private Point origin;
-    private int x;
-    private int y;
+    private int x = 0;
+    private int y = 0;
 
     Point(String name, double latitude, double longitude, Point origin) {
         this.name = name;
@@ -39,6 +34,14 @@ public class Point {
         this.origin = origin;
         this.x = other.x;
         this.y = other.y;
+    }
+
+    Point(Element root, Point origin) {
+        this.name = root.getAttribute("name");
+        this.latitude = Double.parseDouble(root.getAttribute("latitude"));
+        this.longitude = Double.parseDouble(root.getAttribute("longitude"));
+        this.origin = origin;
+        refreshOrigin();
     }
 
     /* INTERNAL METHODS */
@@ -102,6 +105,15 @@ public class Point {
         int xDiff = other != null ? Math.abs(getX() - other.getX()) : getX();
         int yDiff = other != null ? Math.abs(getY() - other.getY()) : getY();
         return Math.sqrt(xDiff*xDiff + yDiff*yDiff);
+    }
+
+    @Override
+    public Element toXml(Document doc) {
+        Element root = doc.createElement("point");
+        root.setAttribute("name", name);
+        root.setAttribute("latitude", String.valueOf(latitude));
+        root.setAttribute("longitude", String.valueOf(longitude));
+        return root;
     }
 
     @Override

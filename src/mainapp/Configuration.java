@@ -2,11 +2,12 @@ package mainapp;
 
 import food.FoodItem;
 import food.Meal;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import xml.XmlFactory;
-import xml.annotations.XmlAttribute;
-import xml.annotations.XmlElementList;
-import xml.annotations.XmlSerializable;
-import xml.exceptions.XmlSerializationException;
+import xml.XmlSerializationException;
+import xml.XmlSerializable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,18 +22,14 @@ import java.util.Scanner;
  * configuration save data and swapping between saved simulations.
  * @author  Christian Burns
  */
-@XmlSerializable(name="simulations")
-public class Configuration {
+public class Configuration implements XmlSerializable {
 
     /* ensures only one instance of the configuration class exists */
     private static final Configuration INSTANCE = new Configuration();
     /** Returns an instance of the {@link Configuration} class. */
     public static Configuration getInstance() { return INSTANCE; }
 
-    @XmlAttribute(name="current")
 	private Simulation currentSim; // the current simulation state
-
-    @XmlElementList(embed=false)
 	private ArrayList<Simulation> simulations; // all saved simulation states
 
     /**
@@ -102,10 +99,7 @@ public class Configuration {
 	public void initialize(File saveFile) throws FileNotFoundException {
 	    simulations.clear();
 
-        // TODO replace this with (saveFile == null) once xml loading is finished
-	    boolean usedefault = true;
-
-	    if (usedefault) {
+	    if (saveFile == null || !saveFile.exists()) {
 
             Simulation newSim = new Simulation("Grove City College");
             FoodItem burger = new FoodItem("Burger", 6);
@@ -137,7 +131,19 @@ public class Configuration {
 	                sb.append(scnr.nextLine().trim());
             }
 	        String xmlString = sb.toString();
-	        //TODO parse xml string to reload all classes
+	        Document doc = XmlFactory.fromXmlString(xmlString);
+	        Element root = doc.getDocumentElement();
+
+	        String currentName = root.getAttribute("current");
+
+            NodeList children = root.getElementsByTagName("simulation");
+            for (int i = 0; i < children.getLength(); i++) {
+                Element child = (Element) children.item(i);
+                Simulation sim = new Simulation(child);
+                simulations.add(sim);
+                if (sim.getName().equals(currentName))
+                    currentSim = sim;
+            }
 
         }
 	}
@@ -158,5 +164,13 @@ public class Configuration {
             xse.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public Element toXml(Document doc) {
+        Element root = doc.createElement("simulations");
+        root.setAttribute("current", currentSim.getName());
+        for (Simulation sim : simulations) root.appendChild(sim.toXml(doc));
+        return root;
     }
 }

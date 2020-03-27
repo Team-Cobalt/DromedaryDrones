@@ -1,22 +1,22 @@
 package food;
 
-import xml.annotations.XmlAttribute;
-import xml.annotations.XmlElementList;
-import xml.annotations.XmlSerializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import xml.XmlFactory;
+import xml.XmlSerializable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class pertaining to the creation of meals
  * @author Isabella Patnode
  *
  */
-@XmlSerializable
-public class Meal {
-	@XmlElementList
+public class Meal implements XmlSerializable {
 	private ArrayList<FoodItem> foods; //list of foods in the meal
 	private String name; //name of the meal
-	@XmlAttribute
 	private double probability; //probability a customer orders the meal
 	private double totalWeight; //the weight of the meal
 	private final double DRONEWEIGHT = 12; 
@@ -131,5 +131,22 @@ public class Meal {
 			System.out.println("Food not contained in meal");
 		}
 	}
-	
+
+	@Override
+	public Element toXml(Document doc) {
+		Element root = doc.createElement("meal");
+		root.setAttribute("name", name);
+		root.setAttribute("probability", String.valueOf(probability));
+		HashMap<FoodItem, Integer> foodQuantities = new HashMap<>();
+		for (FoodItem food : foods) {
+			foodQuantities.putIfAbsent(food, 0);
+			foodQuantities.put(food, foodQuantities.get(food) + 1);
+		}
+		for (Map.Entry<FoodItem, Integer> entry : foodQuantities.entrySet()) {
+			Element foodElem = doc.createElement(XmlFactory.toXmlTag(entry.getKey().getName()));
+			foodElem.appendChild(doc.createTextNode(entry.getValue().toString()));
+			root.appendChild(foodElem);
+		}
+		return root;
+	}
 }
