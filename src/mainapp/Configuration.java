@@ -101,30 +101,55 @@ public class Configuration implements XmlSerializable {
 
 	    if (saveFile == null || !saveFile.exists()) {
 
+	        //creates default simulation with all default food items and meal types
             Simulation newSim = new Simulation("Grove City College");
+
+            //creates default food items with default weights
             FoodItem burger = new FoodItem("Burger", 6);
             FoodItem fries = new FoodItem("Fries", 4);
             FoodItem drink = new FoodItem("Drink", 14);
             newSim.addFoodItem(burger);
             newSim.addFoodItem(fries);
             newSim.addFoodItem(drink);
-            newSim.addMealType(new Meal(
-                    new ArrayList<>(List.of(burger, fries, drink)),
-                    "meal1", 0.55));
-            newSim.addMealType(new Meal(
-                    new ArrayList<>(List.of(burger, burger, fries, drink)),
-                    "meal2", 0.1));
-            newSim.addMealType(new Meal(
-                    new ArrayList<>(List.of(burger, fries)),
-                    "meal3", 0.2));
-            newSim.addMealType(new Meal(
-                    new ArrayList<>(List.of(burger, burger, fries)),
-                    "meal4", 0.15));
+
+            //creates default meal types with default probabilities
+            ArrayList<FoodItem> basic = new ArrayList<>();
+            basic.add(burger);
+            basic.add(fries);
+            basic.add(drink);
+
+            Meal basicCombo = new Meal(basic, "Basic Combo", 0.55);
+            newSim.addMealType(basicCombo);
+
+            ArrayList<FoodItem> deluxe = new ArrayList<>();
+            deluxe.add(burger);
+            deluxe.add(burger);
+            deluxe.add(fries);
+            deluxe.add(drink);
+
+            Meal deluxeCombo= new Meal(deluxe, "Deluxe Combo", 0.10);
+            newSim.addMealType(deluxeCombo);
+
+            ArrayList<FoodItem> basicNoDrk = new ArrayList<>();
+            basicNoDrk.add(burger);
+            basicNoDrk.add(fries);
+
+            Meal basicNoDrink = new Meal(basicNoDrk, "Basic No Drink", 0.2);
+            newSim.addMealType(basicNoDrink);
+
+            ArrayList<FoodItem> deluxeNoDrk = new ArrayList<>();
+            deluxeNoDrk.add(burger);
+            deluxeNoDrk.add(burger);
+            deluxeNoDrk.add(fries);
+
+            Meal deluxeNoDrink = new Meal(deluxeNoDrk, "Deluxe No Drink", 0.15);
+            newSim.addMealType(deluxeNoDrink);
+
+            //sets the default simulation as the current simulation to run
             currentSim = newSim;
             simulations.add(newSim);
 
         } else {
-
 	        StringBuilder sb = new StringBuilder();
 	        try (Scanner scnr = new Scanner(saveFile)) {
 	            while (scnr.hasNextLine())
