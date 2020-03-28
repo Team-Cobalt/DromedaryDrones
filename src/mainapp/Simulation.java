@@ -123,72 +123,85 @@ public class Simulation implements XmlSerializable {
         simulationName = name;
     }
 
+    /**
+     * Adds specified food item to ArrayList of known foods
+     * @param food the food item to be added
+     */
     public void addFoodItem(FoodItem food) {
         if (!foodItems.contains(food))
             foodItems.add(food);
     }
 
+    /**
+     * Adds specified meal to ArrayList of known meals
+     * @param meal the meal to be added
+     */
     public void addMealType(Meal meal) {
         if (!mealTypes.contains(meal))
             mealTypes.add(meal);
     }
 
-//    /**
-//     * Creates a brand new food item with the specified name and weight.
-//     * @param name    name of the new food
-//     * @param weight  weight of the food in ounces
-//     * @return        the newly created food item
-//     * @throws IllegalArgumentException  if the food already exists
-//     */
-//    public FoodItem createFoodItem(String name, int weight) {
-//        FoodItem food = new FoodItem(name, weight);
-//        if (foodItems.contains(food))
-//            throw new IllegalArgumentException(
-//                    "food item " + name + " already exists");
-//        foodItems.add(food);
-//        return food;
-//    }
+    /**
+     * Creates a brand new food item with the specified name and weight.
+    * @param name    name of the new food
+     * @param weight  weight of the food in ounces
+     * @return        the newly created food item
+     * @throws IllegalArgumentException  if the food already exists
+     */
+      public FoodItem createFoodItem(String name, double weight) {
+          FoodItem food = new FoodItem(name, weight);
+          if (foodItems.contains(food))
+              throw new IllegalArgumentException("food item " + name + " already exists");
+          foodItems.add(food);
+          return food;
+      }
 
-//    /**
-//     * Removes the specified food item from the simulation.
-//     * @param food  food item to be removed
-//     * @return  {@code true} if the item was removed.
-//     *          {@code false} if the item did not exist.
-//     * @see Simulation#getFoodItem(String name)
-//     */
-//    public boolean removeFoodItem(FoodItem food) {
-//        return foodItems.remove(food);
-//    }
+    /**
+     * Removes the specified food item from the simulation.
+     * @param food  food item to be removed
+     * @return  {@code true} if the item was removed.
+     *          {@code false} if the item did not exist.
+     * @see Simulation#getFoodItem(String name)
+     */
+    public boolean removeFoodItem(FoodItem food) {
+        return foodItems.remove(food);
+    }
 
     /**
      * Retrieves an existing food item by name.
      * @param name  name of the food
-     * @return      the food item or null if not found
+     * @return  the food item or null if not found
      */
     public FoodItem getFoodItem(String name) {
         return foodItems.stream().filter(food -> food.getName().equals(name)).findFirst().orElse(null);
     }
 
-//    /**
-//     * Creates a brand new meal type with the specified probability.
-//     * @param probability  probability of occurrence
-//     * @return  the newly created meal
-//     */
-//    public Meal createMeal(double probability) {
-//        Meal type = new Meal(probability);
-//        mealTypes.add(type);
-//        return type;
-//    }
+    /**
+     * Creates a brand new meal type with the specified probability.
+     * @param probability  probability of occurrence
+     * @return  the newly created meal
+     * @throws IllegalArgumentException  if the meal type already exists
+     */
+    public Meal createMeal(ArrayList<FoodItem> mealFoods, String name, double probability) {
+        Meal type = new Meal(mealFoods, name, probability);
+        if(mealTypes.contains(type)) {
+            throw new IllegalArgumentException(("Meal type " + name + " already exists"));
+        }
 
-//    /**
-//     * Removes the specified meal type from the simulation.
-//     * @param meal  meal to be removed
-//     * @return  {@code true} if the meal was removed.
-//     *          {@code false} if the meal did not exist.
-//     */
-//    public boolean removeMeal(Meal meal) {
-//        return mealTypes.remove(meal);
-//    }
+        mealTypes.add(type);
+        return type;
+
+    }
+
+    /**
+     * Removes the specified meal type from the simulation.
+     * @param meal  meal to be removed
+     * @return  {@code true} if the meal was removed.
+     *          {@code false} if the meal did not exist.
+     */
+    public boolean removeMeal(Meal meal) {
+        return mealTypes.remove(meal);
+    }
 
     @Override
     public Element toXml(Document doc) {
@@ -221,5 +234,4 @@ public class Simulation implements XmlSerializable {
     public int hashCode() {
         return Objects.hash(simulationName);
     }
-
 }
