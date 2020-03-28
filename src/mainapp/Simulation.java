@@ -21,6 +21,7 @@ import xml.XmlSerializable;
 public class Simulation implements XmlSerializable {
 
 	private String simulationName;          // name of the simulation
+    private ArrayList<Integer> stocFlow;   //stochastic flow for simulation
     private ArrayList<FoodItem> foodItems;  // all known food items
     private ArrayList<Meal> mealTypes;      // all known meals
     private DeliveryPoints deliveryPoints;  // all known delivery points
@@ -31,6 +32,7 @@ public class Simulation implements XmlSerializable {
      */
     public Simulation(String name) {
         simulationName = name;
+        stocFlow = new ArrayList<>();
         foodItems = new ArrayList<>();
         mealTypes = new ArrayList<>();
         deliveryPoints = new DeliveryPoints();
@@ -44,18 +46,32 @@ public class Simulation implements XmlSerializable {
      */
     public Simulation(Simulation other) {
         this.simulationName = other.simulationName;
+
+        //copies stochastic flow of existing sim.
+        this.stocFlow = new ArrayList<>();
+        for(Integer numMeals: other.stocFlow) {
+            this.stocFlow.add(numMeals);
+        }
+
+        //copies known foods from existing sim.
         this.foodItems = new ArrayList<>();
-        this.mealTypes = new ArrayList<>();
-        for (FoodItem food : other.foodItems)
+        for (FoodItem food : other.foodItems) {
             this.foodItems.add(new FoodItem(food));
+        }
+
+        //copies known meals from existing sim.
         this.mealTypes = new ArrayList<>();
         for (Meal meal : other.mealTypes) {
             ArrayList<FoodItem> foods = new ArrayList<>();
-            for (FoodItem food : meal.getFoods())
+            for (FoodItem food : meal.getFoods()) {
                 foods.add(getFoodItem(food.getName()));
+            }
+
             Meal newType = new Meal(foods, meal.getName(), meal.getProbability());
             mealTypes.add(newType);
         }
+
+        //copies known delivery points from existing sim.
         this.deliveryPoints = new DeliveryPoints(other.deliveryPoints);
     }
 
@@ -142,8 +158,26 @@ public class Simulation implements XmlSerializable {
     }
 
     /**
+     * Makes specified stochastic flow the model for current simulation
+     * @param numMeals the number of meals per hour for each hour
+     * @throws IllegalArgumentException  if number of hours per shift is not 4
+     */
+    public void addStochasticFlow(ArrayList<Integer> numMeals) {
+        //throws exception if number of hours per shift is not 4
+        if(numMeals.size() != 4) {
+            throw new IllegalArgumentException("Number of hours per shift must be 4");
+        }
+
+        //copies over number of meals per hour
+        this.stocFlow = new ArrayList<>();
+        for(Integer hour: numMeals) {
+            this.stocFlow.add(hour);
+        }
+    }
+
+    /**
      * Creates a brand new food item with the specified name and weight.
-    * @param name    name of the new food
+     * @param name    name of the new food
      * @param weight  weight of the food in ounces
      * @return        the newly created food item
      * @throws IllegalArgumentException  if the food already exists
@@ -190,7 +224,6 @@ public class Simulation implements XmlSerializable {
 
         mealTypes.add(type);
         return type;
-
     }
 
     /**
