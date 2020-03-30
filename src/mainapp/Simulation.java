@@ -117,7 +117,6 @@ public class Simulation implements XmlSerializable {
                     }
                 }
             }
-
             mealTypes.add(new Meal(mealFoodItems, mealName, mealProb));
         }
 
@@ -159,7 +158,7 @@ public class Simulation implements XmlSerializable {
             mealTypes.add(meal);
     }
 
-    //TODO: MIGHT NEED To ADD ANOTHER METHOD FOR STOCHASTIC FLOW
+    //TODO: MIGHT NEED TO ADD ANOTHER METHOD FOR STOCHASTIC FLOW
 
     /**
      * Makes specified stochastic flow the model for current simulation
