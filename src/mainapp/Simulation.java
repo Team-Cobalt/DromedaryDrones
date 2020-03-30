@@ -177,14 +177,14 @@ public class Simulation implements XmlSerializable {
             this.stocFlow.add(hour);
         }
     }
-
+    /*
     /**
      * Method to get the simulation's stochastic flow
      * @return the simulation's stochastic flow model
-     */
+     *
     public ArrayList<Integer> getStochasticFlow() {
         return stocFlow;
-    }
+    } */
 
     /**
      * Creates a brand new food item with the specified name and weight.
