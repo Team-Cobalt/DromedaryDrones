@@ -7,7 +7,6 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -34,6 +33,11 @@ public class MainClass extends Application {
 	private Scene mealEditPg; //meal settings page
 	private Scene mapEditPg; //map settings page
 	private StackPane root;
+	private Text title; //title of page
+	private HBox titleLayout; //layout regarding title of page
+	private HBox iconLayout; //layout of home icon
+	private VBox btnLayout; //layout of setting's menu btns
+	private VBox settingLayout; //layout of all icons in setting pages
 	
 	
 	public static void main(String[] args) {
@@ -83,15 +87,15 @@ public class MainClass extends Application {
 		picture.setAlignment(Pos.TOP_CENTER);
 		
 		//adds opening heading to main menu
-		Text simName = new Text("Welcome to Dromedary Drones!");
-		simName.setFont(Font.font("Serif", 50));
-		simName.setFill(Color.BLACK);
-		simName.setWrappingWidth(450);
-		simName.setTextAlignment(TextAlignment.CENTER);
+		title = new Text("Welcome to Dromedary Drones!");
+		title.setFont(Font.font("Serif", 50));
+		title.setFill(Color.BLACK);
+		title.setWrappingWidth(450);
+		title.setTextAlignment(TextAlignment.CENTER);
 
-		HBox simTitle = new HBox(20);
-		simTitle.getChildren().add(simName);
-		simTitle.setAlignment(Pos.BASELINE_CENTER);
+		titleLayout = new HBox(20);
+		titleLayout.getChildren().add(title);
+		titleLayout.setAlignment(Pos.BASELINE_CENTER);
 		
 		//adds buttons to main menu
 		VBox buttons = new VBox(10);
@@ -120,7 +124,7 @@ public class MainClass extends Application {
 		
 		//arranges title and buttons on the screen
 		VBox firstLayout = new VBox(30);
-		firstLayout.getChildren().addAll(simTitle, buttons);
+		firstLayout.getChildren().addAll(titleLayout, buttons);
 		firstLayout.setAlignment(Pos.CENTER);
 		
 		//arranges all elements of the main menu on the screen
@@ -151,15 +155,15 @@ public class MainClass extends Application {
 	public void startSim() {
 		
 		//Adds necessary text to the display
-		Text simText = new Text("Simulation is Running...");
-		simText.setFont(Font.font("Serif", 30));
-		simText.setFill(Color.BLACK);
-		simText.setWrappingWidth(400);
-		simText.setTextAlignment(TextAlignment.CENTER);
+		title = new Text("Simulation is Running...");
+		title.setFont(Font.font("Serif", 30));
+		title.setFill(Color.BLACK);
+		title.setWrappingWidth(400);
+		title.setTextAlignment(TextAlignment.CENTER);
 		
-		HBox text = new HBox(20);
-		text.getChildren().add(simText);
-		text.setAlignment(Pos.TOP_CENTER);
+		titleLayout = new HBox(20);
+		titleLayout.getChildren().add(title);
+		titleLayout.setAlignment(Pos.TOP_CENTER);
 		
 		//Adds camel image to the display
 		Image simImg = new Image("DrCameltine.jpg");
@@ -193,7 +197,7 @@ public class MainClass extends Application {
 		
 		//arranges all elements of the page on the screen
 		VBox simLayout = new VBox(35);
-		simLayout.getChildren().addAll(text, simPic, simBtns);
+		simLayout.getChildren().addAll(titleLayout, simPic, simBtns);
 		simLayout.setAlignment(Pos.CENTER);
 		simLayout.setStyle("-fx-background-color: WHITE");
 		
@@ -210,76 +214,187 @@ public class MainClass extends Application {
 		//TODO: change window to results page
 	}
 
-	public GridPane settingBtns() {
+	/**
+	 * Creates title (Simulation Settings) for settings pages
+	 */
+	public void settingTitle() {
+		//adds title to general settings page
+		title = new Text("Simulation Settings");
+		title.setFont(Font.font("Serif", 30));
+		title.setFill(Color.BLACK);
+		title.setWrappingWidth(400);
+		title.setTextAlignment(TextAlignment.CENTER);
+
+		titleLayout = new HBox(5);
+		titleLayout.getChildren().add(title);
+		titleLayout.setAlignment(Pos.TOP_CENTER);
+	}
+
+	/**
+	 * Creates home button icon
+	 */
+	public void homeBtn() {
+		Image homeIcon = new Image("HomeButton.jpg");
+
+		ImageView homeView = new ImageView(homeIcon);
+
+		Button homeBtn = new Button("", homeView);
+		homeBtn.setStyle("-fx-background-color: WHITE");
+		homeBtn.setOnAction(e-> window.setScene(mainMenu));
+
+		iconLayout = new HBox(5);
+		iconLayout.setAlignment(Pos.TOP_LEFT);
+		iconLayout.getChildren().add(homeBtn);
+		iconLayout.setStyle("-fx-background-color: WHITE");
+	}
+
+	/**
+	 * Creates menu buttons for settings pages
+	 */
+	public void menuBtns() {
+		btnLayout = new VBox(15);
+		btnLayout.setPrefWidth(100);
 
 		Button genBtn = new Button("General");
+		genBtn.setMinWidth(btnLayout.getPrefWidth());
 		genBtn.setOnAction(e -> genEditPage());
 
 		Button foodBtn = new Button("Food Items");
-		foodBtn.setOnAction((e -> editFoodPage()));
+		foodBtn.setMinWidth(btnLayout.getPrefWidth());
+		foodBtn.setOnAction(e -> editFoodPage());
 
-		Button mealsBtn = new Button("Meals");
-		mealsBtn.setOnAction(e -> editMealsPage());
+		Button mealBtn = new Button("Meals");
+		mealBtn.setMinWidth(btnLayout.getPrefWidth());
+		mealBtn.setOnAction(e -> editMealsPage());
 
 		Button mapBtn = new Button("Map");
+		mapBtn.setMinWidth(btnLayout.getPrefWidth());
 		mapBtn.setOnAction(e -> editMapPage());
 
-		Button startSim = new Button("Start Simulation");
-		startSim.setOnAction(e -> startSim());
+		Button startBtn = new Button("Start Simulation");
+		startBtn.setMinWidth(btnLayout.getPrefWidth());
+		startBtn.setOnAction(e -> startSim());
 
-		GridPane buttonList = new GridPane();
-		buttonList.setAlignment(Pos.CENTER_LEFT);
+		btnLayout.getChildren().addAll(genBtn, foodBtn, mealBtn, mapBtn, startBtn);
+		btnLayout.setAlignment(Pos.CENTER_LEFT);
+		btnLayout.setStyle("-fx-background-color: WHITE");
 
-		buttonList.add(genBtn, 0, 0);
-		buttonList.add(foodBtn, 0, 1);
-		buttonList.add(mealsBtn, 0, 2);
-		buttonList.add(mapBtn, 0, 3);
-		buttonList.add(startSim, 0, 4);
-
-		return buttonList;
 	}
-	
+
+	/**
+	 * Creates GUI page for general settings (i.e. stochastic flow)
+	 */
 	public void genEditPage() {
-		//adds title to general settings page
-		Text genTitle = new Text("General Settings");
-		genTitle.setFont(Font.font("Serif", 30));
-		genTitle.setFill(Color.BLACK);
-		genTitle.setWrappingWidth(400);
-		genTitle.setTextAlignment(TextAlignment.CENTER);
+		//creates heading of page
+		settingTitle();
 
-		HBox genSettingTitle = new HBox(20);
-		genSettingTitle.getChildren().add(genTitle);
-		genSettingTitle.setAlignment(Pos.TOP_CENTER);
+		//sets up home button icon
+		homeBtn();
 
-		GridPane buttons = settingBtns();
+		//sets up menu buttons
+		menuBtns();
 
 		//TODO: complete general simulation GUI page
 
 		//arranges all elements of the page on the screen
-		VBox genLayout = new VBox(35);
-		genLayout.getChildren().addAll(genSettingTitle, buttons);
-		genLayout.setAlignment(Pos.CENTER);
-		genLayout.setStyle("-fx-background-color: WHITE");
+		settingLayout = new VBox(35);
+		settingLayout.getChildren().addAll(iconLayout, titleLayout, btnLayout);
+		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
-		root.getChildren().add(genLayout);
+		root.getChildren().add(settingLayout);
 
 		genEditPg = new Scene(root, 800, 600);
 
 		//sets screen to display page
 		window.setScene(genEditPg);
 	}
-	
+
+	/**
+	 * Creates GUI page for food items settings
+	 */
 	public void editFoodPage() {
-		//TODO: complete food items gui page
+		//creates heading of page
+		settingTitle();
+
+		//sets up home button icon
+		homeBtn();
+
+		//sets up menu buttons
+		menuBtns();
+
+		//TODO: complete food items settings GUI page
+
+		//arranges all elements of the page on the screen
+		settingLayout = new VBox(35);
+		settingLayout.getChildren().addAll(iconLayout, titleLayout, btnLayout);
+		settingLayout.setStyle("-fx-background-color: WHITE");
+
+		root = new StackPane();
+		root.getChildren().add(settingLayout);
+
+		foodEditPg = new Scene(root, 800, 600);
+
+		//sets screen to display page
+		window.setScene(foodEditPg);
 	}
-	
+
+	/**
+	 * Creates GUI page for meal settings
+	 */
 	public void editMealsPage() {
-		//TODO: complete meals GUI page
+		//creates heading of page
+		settingTitle();
+
+		//sets up home button icon
+		homeBtn();
+
+		//sets up menu buttons
+		menuBtns();
+
+		//TODO: complete meals settings GUI page
+
+		//arranges all elements of the page on the screen
+		settingLayout = new VBox(35);
+		settingLayout.getChildren().addAll(iconLayout, titleLayout, btnLayout);
+		settingLayout.setStyle("-fx-background-color: WHITE");
+
+		root = new StackPane();
+		root.getChildren().add(settingLayout);
+
+		mealEditPg = new Scene(root, 800, 600);
+
+		//sets screen to display page
+		window.setScene(mealEditPg);
 	}
-	
+
+	/**
+	 * Creates GUI page for map settings
+	 */
 	public void editMapPage() {
+		//creates heading of page
+		settingTitle();
+
+		//sets up home button icon
+		homeBtn();
+
+		//sets up menu buttons
+		menuBtns();
+
 		//TODO: complete map GUI page
+
+		//arranges all elements of the page on the screen
+		settingLayout = new VBox(35);
+		settingLayout.getChildren().addAll(iconLayout, titleLayout, btnLayout);
+		settingLayout.setStyle("-fx-background-color: WHITE");
+
+		root = new StackPane();
+		root.getChildren().add(settingLayout);
+
+		mapEditPg = new Scene(root, 800, 600);
+
+		//sets screen to display page
+		window.setScene(mapEditPg);
 	}
 	
 }
