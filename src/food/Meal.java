@@ -19,13 +19,13 @@ public class Meal implements XmlSerializable {
 	private String name; //name of the meal
 	private double probability; //probability a customer orders the meal
 	private double totalWeight; //the weight of the meal
-	private final double DRONEWEIGHT = 12; 
+	private final double DRONE_WEIGHT = 192; //max cargo weight in ounces
 	
 	/**
 	 * Default constructor for Meal class
 	 */
 	public Meal() {
-		foods = new ArrayList<FoodItem>();
+		foods = new ArrayList<>();
 		name = "";
 		probability = 0.0;
 		totalWeight = 0.0;
@@ -36,6 +36,7 @@ public class Meal implements XmlSerializable {
 	 * @param mealFoods //list of foods that make up the meal
 	 * @param name //name of the meal
 	 * @param probability //probability a customer orders the meal
+	 * @throws IllegalArgumentException if meal weight exceeds drone's cargo weight limit
 	 */
 	public Meal(ArrayList<FoodItem> mealFoods, String name, double probability) {
 		double mealWeight = 0.0;
@@ -44,14 +45,15 @@ public class Meal implements XmlSerializable {
 			mealWeight += food.getWeight();
 		}
 		
-		if(totalWeight <= DRONEWEIGHT) {
-			foods = new ArrayList<FoodItem>(mealFoods);
+		if(mealWeight <= DRONE_WEIGHT) {
+			//MAKE SURE THIS COPYING DOESN'T RUIN ANYTHING
+			foods = new ArrayList<>(mealFoods);
 			this.name = name;
 			this.probability = probability;
 			totalWeight = mealWeight;
 		}
-		else { //THROW ERROR???
-			System.out.println("Meal too heavy");
+		else {
+			throw new IllegalArgumentException(name + " exceeds maximum cargo weight");
 		}
 	}
 	
@@ -65,7 +67,7 @@ public class Meal implements XmlSerializable {
 	
 	/**
 	 * Method that updates the probability of the meal
-	 * @param prob
+	 * @param prob new probability of the meal
 	 */
 	public void setProbability(double prob) {
 		this.probability = prob;
@@ -106,14 +108,15 @@ public class Meal implements XmlSerializable {
 	/**
 	 * Method that adds a food item to the meal
 	 * @param food the food item to be added to the meal
+	 * @throws IllegalArgumentException if food causes weight to exceed 12 pounds
 	 */
 	public void addItem(FoodItem food) {
 		
-		if(totalWeight + food.getWeight() <= DRONEWEIGHT) {
+		if(totalWeight + food.getWeight() <= DRONE_WEIGHT) {
 			foods.add(food);
 		}
 		else { //THROW ERROR
-			System.out.println("Weight too heavy");
+			throw new IllegalArgumentException("Unable to add " + food + " due to weight restrictions");
 		}
 	
 	}
