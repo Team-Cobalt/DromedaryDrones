@@ -7,9 +7,8 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -227,7 +226,7 @@ public class MainClass extends Application {
 
 		titleLayout = new HBox(5);
 		titleLayout.getChildren().add(title);
-		titleLayout.setAlignment(Pos.TOP_CENTER);
+		titleLayout.setAlignment(Pos.BASELINE_CENTER);
 	}
 
 	/**
@@ -294,11 +293,33 @@ public class MainClass extends Application {
 		//sets up menu buttons
 		menuBtns();
 
+		Text hourOne = new Text("Hour 1: ");
+		Text hourTwo = new Text("Hour 2: ");
+		Text hourThree = new Text("Hour 3: ");
+		Text hourFour = new Text("Hour 4: ");
+
+		TextField hrOneMeals = new TextField();
+		TextField hrTwoMeals = new TextField();
+		TextField hrThreeMeals = new TextField();
+		TextField hrFourMeals = new TextField();
+
 		//TODO: complete general simulation GUI page
 
+		GridPane genSettings = new GridPane();
+		genSettings.setAlignment(Pos.CENTER);
+
+		genSettings.add(hourOne, 0, 0);
+		genSettings.add(hrOneMeals, 1, 0);
+		genSettings.add(hourTwo, 0, 1);
+		genSettings.add(hrTwoMeals, 1, 1);
+		genSettings.add(hourThree, 0, 2);
+		genSettings.add(hrThreeMeals, 1, 2);
+		genSettings.add(hourFour, 0, 3);
+		genSettings.add(hrFourMeals, 1, 3);
+
+
 		//arranges all elements of the page on the screen
-		settingLayout = new VBox(35);
-		settingLayout.getChildren().addAll(iconLayout, titleLayout, btnLayout);
+		settingLayout = new VBox();
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
@@ -396,5 +417,5 @@ public class MainClass extends Application {
 		//sets screen to display page
 		window.setScene(mapEditPg);
 	}
-	
+
 }
