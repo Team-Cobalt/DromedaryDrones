@@ -87,7 +87,7 @@ public class MainClass extends Application {
 		simName.setFill(Color.BLACK);
 		simName.setWrappingWidth(450);
 		simName.setTextAlignment(TextAlignment.CENTER);
-		
+
 		HBox simTitle = new HBox(20);
 		simTitle.getChildren().add(simName);
 		simTitle.setAlignment(Pos.BASELINE_CENTER);
@@ -210,7 +210,32 @@ public class MainClass extends Application {
 	}
 	
 	public void genEditPage() {
-		//TODO: complete general simulation gui page
+		//adds title to general settings page
+		Text genTitle = new Text("General Settings");
+		genTitle.setFont(Font.font("Serif", 30));
+		genTitle.setFill(Color.BLACK);
+		genTitle.setWrappingWidth(400);
+		genTitle.setTextAlignment(TextAlignment.CENTER);
+
+		HBox genSettingTitle = new HBox(20);
+		genSettingTitle.getChildren().add(genTitle);
+		genSettingTitle.setAlignment(Pos.BASELINE_CENTER);
+
+		//TODO: complete general simulation GUI page
+
+		//arranges all elements of the page on the screen
+		VBox genLayout = new VBox(35);
+		genLayout.getChildren().addAll(genSettingTitle);
+		genLayout.setAlignment(Pos.CENTER);
+		genLayout.setStyle("-fx-background-color: WHITE");
+
+		root = new StackPane();
+		root.getChildren().add(genLayout);
+
+		genEditPg = new Scene(root, 800, 600);
+
+		//sets screen to display page
+		window.setScene(genEditPg);
 	}
 	
 	public void editFoodPage() {
@@ -218,11 +243,11 @@ public class MainClass extends Application {
 	}
 	
 	public void editMealsPage() {
-		//TODO: complete meals gui page
+		//TODO: complete meals GUI page
 	}
 	
 	public void editMapPage() {
-		//TODO: complete map gui page
+		//TODO: complete map GUI page
 	}
 	
 }

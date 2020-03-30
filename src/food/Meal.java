@@ -19,7 +19,7 @@ public class Meal implements XmlSerializable {
 	private String name; //name of the meal
 	private double probability; //probability a customer orders the meal
 	private double totalWeight; //the weight of the meal
-	private final double DRONE_WEIGHT = 12;
+	private final double DRONE_WEIGHT = 192; //max cargo weight in ounces
 	
 	/**
 	 * Default constructor for Meal class
