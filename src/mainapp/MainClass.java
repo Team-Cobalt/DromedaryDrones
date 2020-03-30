@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -208,6 +209,35 @@ public class MainClass extends Application {
 		
 		//TODO: change window to results page
 	}
+
+	public GridPane settingBtns() {
+
+		Button genBtn = new Button("General");
+		genBtn.setOnAction(e -> genEditPage());
+
+		Button foodBtn = new Button("Food Items");
+		foodBtn.setOnAction((e -> editFoodPage()));
+
+		Button mealsBtn = new Button("Meals");
+		mealsBtn.setOnAction(e -> editMealsPage());
+
+		Button mapBtn = new Button("Map");
+		mapBtn.setOnAction(e -> editMapPage());
+
+		Button startSim = new Button("Start Simulation");
+		startSim.setOnAction(e -> startSim());
+
+		GridPane buttonList = new GridPane();
+		buttonList.setAlignment(Pos.CENTER_LEFT);
+
+		buttonList.add(genBtn, 0, 0);
+		buttonList.add(foodBtn, 0, 1);
+		buttonList.add(mealsBtn, 0, 2);
+		buttonList.add(mapBtn, 0, 3);
+		buttonList.add(startSim, 0, 4);
+
+		return buttonList;
+	}
 	
 	public void genEditPage() {
 		//adds title to general settings page
@@ -219,13 +249,15 @@ public class MainClass extends Application {
 
 		HBox genSettingTitle = new HBox(20);
 		genSettingTitle.getChildren().add(genTitle);
-		genSettingTitle.setAlignment(Pos.BASELINE_CENTER);
+		genSettingTitle.setAlignment(Pos.TOP_CENTER);
+
+		GridPane buttons = settingBtns();
 
 		//TODO: complete general simulation GUI page
 
 		//arranges all elements of the page on the screen
 		VBox genLayout = new VBox(35);
-		genLayout.getChildren().addAll(genSettingTitle);
+		genLayout.getChildren().addAll(genSettingTitle, buttons);
 		genLayout.setAlignment(Pos.CENTER);
 		genLayout.setStyle("-fx-background-color: WHITE");
 
