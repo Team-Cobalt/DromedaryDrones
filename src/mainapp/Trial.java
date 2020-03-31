@@ -55,6 +55,7 @@ public class Trial {
         //sorts list of order times in increasing order
         Collections.sort(orderTimes);
 
+
         //creates order for each specific order time
         for(Integer orderTime : orderTimes) {
             Order newOrder = new Order(getRandomMeal(), orderTime, simPoints.getRandomPoint());
