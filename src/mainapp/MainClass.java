@@ -2,8 +2,10 @@ package mainapp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -37,6 +39,7 @@ public class MainClass extends Application {
 	private HBox iconLayout; //layout of home icon
 	private VBox btnLayout; //layout of setting's menu btns
 	private VBox settingLayout; //layout of all icons in setting pages
+	private Simulation currentSim;
 	
 	
 	public static void main(String[] args) {
@@ -67,7 +70,10 @@ public class MainClass extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
-		
+
+		//grabs current simulation for accessing necessary values
+		currentSim = Configuration.getInstance().getCurrentSimulation();
+
 		//adds camel image to main menu
 		Image image = new Image("Camel.jpg");
 		
@@ -224,9 +230,9 @@ public class MainClass extends Application {
 		title.setWrappingWidth(400);
 		title.setTextAlignment(TextAlignment.CENTER);
 
-		titleLayout = new HBox(5);
+		titleLayout = new HBox();
 		titleLayout.getChildren().add(title);
-		titleLayout.setAlignment(Pos.BASELINE_CENTER);
+		titleLayout.setAlignment(Pos.CENTER);
 	}
 
 	/**
@@ -241,7 +247,7 @@ public class MainClass extends Application {
 		homeBtn.setStyle("-fx-background-color: WHITE");
 		homeBtn.setOnAction(e-> window.setScene(mainMenu));
 
-		iconLayout = new HBox(5);
+		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
 		iconLayout.getChildren().add(homeBtn);
 		iconLayout.setStyle("-fx-background-color: WHITE");
@@ -251,8 +257,9 @@ public class MainClass extends Application {
 	 * Creates menu buttons for settings pages
 	 */
 	public void menuBtns() {
-		btnLayout = new VBox(15);
-		btnLayout.setPrefWidth(100);
+		btnLayout = new VBox();
+		btnLayout.setPrefWidth(110);
+		btnLayout.setSpacing(5);
 
 		Button genBtn = new Button("General");
 		genBtn.setMinWidth(btnLayout.getPrefWidth());
@@ -277,6 +284,7 @@ public class MainClass extends Application {
 		btnLayout.getChildren().addAll(genBtn, foodBtn, mealBtn, mapBtn, startBtn);
 		btnLayout.setAlignment(Pos.CENTER_LEFT);
 		btnLayout.setStyle("-fx-background-color: WHITE");
+		btnLayout.setPadding(new Insets(0, 0, 0, 5));
 
 	}
 
@@ -290,24 +298,44 @@ public class MainClass extends Application {
 		//sets up home button icon
 		homeBtn();
 
+		//configures display of home button and page title
+		HBox topLayout = new HBox();
+		topLayout.setSpacing(125);
+		topLayout.setAlignment(Pos.TOP_LEFT);
+		topLayout.getChildren().addAll(iconLayout, titleLayout);
+
 		//sets up menu buttons
 		menuBtns();
 
+		//creates table heading for model
+		Text gridHeading = new Text("Order Volume per Hour");
+		gridHeading.setFont(Font.font("Serif", 15));
+		gridHeading.setFill(Color.BLACK);
+		gridHeading.setWrappingWidth(200);
+		gridHeading.setTextAlignment(TextAlignment.CENTER);
+		gridHeading.setStyle("-fx-font-weight: bold");
+
+		//creates gridpane containing the current stochastic flow values
 		Text hourOne = new Text("Hour 1: ");
 		Text hourTwo = new Text("Hour 2: ");
 		Text hourThree = new Text("Hour 3: ");
 		Text hourFour = new Text("Hour 4: ");
 
-		TextField hrOneMeals = new TextField();
-		TextField hrTwoMeals = new TextField();
-		TextField hrThreeMeals = new TextField();
-		TextField hrFourMeals = new TextField();
+		//adds current simulation's stochastic flow values to the gridpane
+		ArrayList<Integer> currentModel = new ArrayList<>(currentSim.getStochasticFlow());
 
-		//TODO: complete general simulation GUI page
+		TextField hrOneMeals = new TextField(currentModel.get(0).toString());
+		TextField hrTwoMeals = new TextField(currentModel.get(1).toString());
+		TextField hrThreeMeals = new TextField(currentModel.get(2).toString());
+		TextField hrFourMeals = new TextField(currentModel.get(3).toString());
 
+		//creates gridpane for stochastic flow values
 		GridPane genSettings = new GridPane();
 		genSettings.setAlignment(Pos.CENTER);
+		genSettings.setVgap(5);
+		genSettings.setMinSize(50, 100);
 
+		//adds cells to gridpane
 		genSettings.add(hourOne, 0, 0);
 		genSettings.add(hrOneMeals, 1, 0);
 		genSettings.add(hourTwo, 0, 1);
@@ -317,10 +345,38 @@ public class MainClass extends Application {
 		genSettings.add(hourFour, 0, 3);
 		genSettings.add(hrFourMeals, 1, 3);
 
+		VBox gridLayout = new VBox();
+		gridLayout.setSpacing(5);
+		gridLayout.setAlignment(Pos.CENTER);
+		gridLayout.getChildren().addAll(gridHeading, genSettings);
 
-		//arranges all elements of the page on the screen
+		//configures display of menu buttons and gridpane
+		HBox centerLayout = new HBox();
+		centerLayout.setSpacing(200);
+		centerLayout.setAlignment(Pos.CENTER_LEFT);
+		centerLayout.getChildren().addAll(btnLayout, gridLayout);
+
+		//arranges btns for loading and saving model
+		VBox svLdBtns = new VBox();
+		svLdBtns.setPrefWidth(100);
+		svLdBtns.setSpacing(10);
+		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
+		svLdBtns.setPadding(new Insets(0, 80, 100, 0));
+
+		//adds buttons for loading and saving model
+		Button saveBtn = new Button("Save Changes");
+		saveBtn.setMinWidth(svLdBtns.getPrefWidth());
+
+		Button loadBtn = new Button("Load Model");
+		loadBtn.setMinWidth(svLdBtns.getPrefWidth());
+
+		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
+
+		//arranges top layout (home btn and title) and center layout (menu btn and gridpane)
 		settingLayout = new VBox();
+		settingLayout.setSpacing(105);
 		settingLayout.setStyle("-fx-background-color: WHITE");
+		settingLayout.getChildren().addAll(topLayout, centerLayout, svLdBtns);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -341,6 +397,12 @@ public class MainClass extends Application {
 		//sets up home button icon
 		homeBtn();
 
+		//configures display of home button and page title
+		HBox topLayout = new HBox();
+		topLayout.setSpacing(125);
+		topLayout.setAlignment(Pos.TOP_LEFT);
+		topLayout.getChildren().addAll(iconLayout, titleLayout);
+
 		//sets up menu buttons
 		menuBtns();
 
@@ -348,7 +410,7 @@ public class MainClass extends Application {
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(35);
-		settingLayout.getChildren().addAll(iconLayout, titleLayout, btnLayout);
+		settingLayout.getChildren().addAll(topLayout, btnLayout);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
@@ -370,14 +432,21 @@ public class MainClass extends Application {
 		//sets up home button icon
 		homeBtn();
 
+		//configures display of home button and page title
+		HBox topLayout = new HBox();
+		topLayout.setSpacing(125);
+		topLayout.setAlignment(Pos.TOP_LEFT);
+		topLayout.getChildren().addAll(iconLayout, titleLayout);
+
 		//sets up menu buttons
 		menuBtns();
 
 		//TODO: complete meals settings GUI page
 
+
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(35);
-		settingLayout.getChildren().addAll(iconLayout, titleLayout, btnLayout);
+		settingLayout.getChildren().addAll(topLayout, btnLayout);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
@@ -399,6 +468,12 @@ public class MainClass extends Application {
 		//sets up home button icon
 		homeBtn();
 
+		//configures display of home button and page title
+		HBox topLayout = new HBox();
+		topLayout.setSpacing(125);
+		topLayout.setAlignment(Pos.TOP_LEFT);
+		topLayout.getChildren().addAll(iconLayout, titleLayout);
+
 		//sets up menu buttons
 		menuBtns();
 
@@ -406,7 +481,7 @@ public class MainClass extends Application {
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(35);
-		settingLayout.getChildren().addAll(iconLayout, titleLayout, btnLayout);
+		settingLayout.getChildren().addAll(topLayout, btnLayout);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
