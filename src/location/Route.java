@@ -10,14 +10,14 @@ import java.util.LinkedList;
 
 //Taking in LL<Orders> and constructing LL<Points>: route
 public class Route {
-    private DeliveryPoints points;
+    private LinkedList<Point> points;
     private double distanceTraveled;
     private int currPoint;
     private Iterator<Point> pointIterator;
     private LinkedList<Point> route;
 
-    public Route(DeliveryPoints points){
-        this.points = points;
+    public Route(LinkedList<Point> points){
+        this.points = new LinkedList<>(points);
         pointIterator = points.iterator();
         distanceTraveled = 0;
         currPoint = 0;
