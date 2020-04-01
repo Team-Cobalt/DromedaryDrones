@@ -36,10 +36,15 @@ public class Trial {
     public void runFifoDeliveries() {
         double cargoWeight = 0.0;
         double currentMealWeight;
+        int index;
 
-        //TODO: Need to get the timing
+        //add all orders to fifo queue
+        for(index = 0; index < simOrders.size(); index++) {
+            fifoDeliveries.add(simOrders.get(index));
+        }
 
-        while(cargoWeight < MAX_CARGO_WEIGHT && !fifoDeliveries.isEmpty()) {
+        //runs delivery routes while there are orders to be delivered
+        while(!fifoDeliveries.isEmpty()) {
             currentMealWeight = fifoDeliveries.peek().getMealOrdered().getTotalWeight();
 
             //add order to drone if the drone can take it
@@ -50,12 +55,12 @@ public class Trial {
             //send drone to make deliveries if drone is full
             else {
                 //TODO: run route deliveries
-
-                //keep making deliveries while there are orders
-                runFifoDeliveries();
+                //60,000ms in 1 minute
             }
         }
     }
+
+    //TODO: write make deliveries method that takes in a list of orders
 
     /**
      * Randomly generates the list of orders for the shift
