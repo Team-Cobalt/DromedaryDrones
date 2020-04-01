@@ -55,6 +55,7 @@ public class Trial {
         //sorts list of order times in increasing order
         Collections.sort(orderTimes);
 
+
         //creates order for each specific order time
         for(Integer orderTime : orderTimes) {
             Order newOrder = new Order(getRandomMeal(), orderTime, simPoints.getRandomPoint());
@@ -67,7 +68,25 @@ public class Trial {
      * @return the specific meal that is ordered
      */
     public Meal getRandomMeal() {
-        //TODO: write the code for randomly generating the meal
-        return simMeals.get(0);
+
+        double [] mealProbs = new double[simMeals.size()];    //array of meal probabilities
+        double upperBound;  //upper bound of possible ranges for random double
+        int i; //index for loops and identifying randomly selected meal
+
+        for (i = 0; i < simMeals.size(); i++){  //get probabilities
+            mealProbs[i] = simMeals.get(i).getProbability();
+        }
+
+        double meal = rand.nextDouble();    //get decimal between 0.0 and 1.0
+
+        upperBound = 0.0;
+        for (i = 0; i < mealProbs.length; i++){
+            upperBound += mealProbs[i];  //set upperBound to previous value + probability
+            if (meal < upperBound){     //index i is the randomly selected meal
+                break;
+            }
+        }
+
+        return simMeals.get(i);
     }
 }
