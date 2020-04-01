@@ -22,6 +22,9 @@ public class Order {
 	public Meal getMealOrdered() {
 		return mealOrdered;
 	}
-	
+
+	public Point getDestination(){
+		return destination;
+	}
 
 }
