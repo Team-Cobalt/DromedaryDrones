@@ -14,6 +14,14 @@ public class Order {
 		this.timeOrdered = timeOrdered;
 		this.destination = destination;
 	}
+
+	public int getTimeOrdered() {
+		return timeOrdered;
+	}
+
+	public Meal getMealOrdered() {
+		return mealOrdered;
+	}
 	
 
 }
