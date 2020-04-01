@@ -86,6 +86,13 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
     }
 
     /**
+     * Returns the number of known delivery points.
+     */
+    public int numPoints() {
+        return points.size();
+    }
+
+    /**
      * Sets all points's coordinates relative to the location of the specified point.
      * @param name  name of the new origin point
      */
