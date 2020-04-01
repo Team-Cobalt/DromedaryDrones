@@ -1,8 +1,6 @@
 package mainapp;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Collections;
+import java.util.*;
 
 import food.Meal;
 import location.DeliveryPoints;
@@ -13,8 +11,11 @@ public class Trial {
     private ArrayList<Integer> simFlow; //current sim's stochastic flow
     private ArrayList<Order> simOrders; //list of orders generated during shift
     private DeliveryPoints simPoints; //list of current sim's delivery points
+    private Queue<Order> fifoDeliveries;
     private Random rand;
     private final int MINUTES = 60;
+    private final double MAX_CARGO_WEIGHT = 12;
+    private LinkedList<Order> droneCargo;
 
     /**
      * Constructor for creating a single four-hour shift
@@ -28,6 +29,32 @@ public class Trial {
         simOrders = new ArrayList<>();
         simPoints = new DeliveryPoints(points);
         rand = new Random();
+        fifoDeliveries = new LinkedList<>();
+        droneCargo = new LinkedList<>();
+    }
+
+    public void runFifoDeliveries() {
+        double cargoWeight = 0.0;
+        double currentMealWeight;
+
+        //TODO: Need to get the timing
+
+        while(cargoWeight < MAX_CARGO_WEIGHT && !fifoDeliveries.isEmpty()) {
+            currentMealWeight = fifoDeliveries.peek().getMealOrdered().getTotalWeight();
+
+            //add order to drone if the drone can take it
+            if(cargoWeight + currentMealWeight <= 12) {
+                droneCargo.add(fifoDeliveries.remove());
+                cargoWeight += currentMealWeight;
+            }
+            //send drone to make deliveries if drone is full
+            else {
+                //TODO: run route deliveries
+
+                //keep making deliveries while there are orders
+                runFifoDeliveries();
+            }
+        }
     }
 
     /**
