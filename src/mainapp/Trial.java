@@ -151,6 +151,7 @@ public class Trial {
 
     /**
      * Method for randomly generating the meal to be ordered based on meal's probability
+     * @author Rachel Franklin
      * @return the specific meal that is ordered
      */
     public Meal getRandomMeal() {
