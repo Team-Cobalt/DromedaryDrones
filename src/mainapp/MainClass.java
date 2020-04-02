@@ -155,7 +155,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(menuLayout);
 		
-		mainMenu = new Scene(root, 800, 600);
+		mainMenu = new Scene(root, 900, 600);
 		
 		//sets starting window to the main menu
 		window.setScene(mainMenu);
@@ -222,7 +222,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(simLayout);
 		
-		simPage = new Scene(root, 800, 600);
+		simPage = new Scene(root, 900, 600);
 		
 		//sets screen to display page
 		window.setScene(simPage);
@@ -317,7 +317,7 @@ public class MainClass extends Application {
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
-		topLayout.setSpacing(125);
+		topLayout.setSpacing(141);
 		topLayout.setAlignment(Pos.TOP_LEFT);
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
@@ -350,7 +350,7 @@ public class MainClass extends Application {
 		GridPane genSettings = new GridPane();
 		genSettings.setAlignment(Pos.CENTER);
 		genSettings.setVgap(5);
-		genSettings.setMinSize(50, 100);
+		genSettings.setMaxSize(200, 200);
 
 		//adds cells to gridpane
 		genSettings.add(hourOne, 0, 0);
@@ -369,7 +369,7 @@ public class MainClass extends Application {
 
 		//configures display of menu buttons and gridpane
 		HBox centerLayout = new HBox();
-		centerLayout.setSpacing(200);
+		centerLayout.setSpacing(220);
 		centerLayout.setAlignment(Pos.CENTER_LEFT);
 		centerLayout.getChildren().addAll(btnLayout, gridLayout);
 
@@ -398,7 +398,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		genEditPg = new Scene(root, 800, 600);
+		genEditPg = new Scene(root, 900, 600);
 
 		//sets screen to display page
 		window.setScene(genEditPg);
@@ -406,6 +406,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for food items settings
+	 * @author Rachel Franklin
 	 */
 	public void editFoodPage() {
 		//creates heading of page
@@ -416,14 +417,12 @@ public class MainClass extends Application {
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
-		topLayout.setSpacing(125);
+		topLayout.setSpacing(141);
 		topLayout.setAlignment(Pos.TOP_LEFT);
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
 		//sets up menu buttons
 		menuBtns();
-
-		//TODO: complete food items settings GUI page
 
 		//create table of food items in simulation
 		TableView foodTable = new TableView();
@@ -471,7 +470,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		foodEditPg = new Scene(root, 800, 600);
+		foodEditPg = new Scene(root, 900, 600);
 
 		//sets screen to display page
 		window.setScene(foodEditPg);
@@ -489,7 +488,7 @@ public class MainClass extends Application {
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
-		topLayout.setSpacing(125);
+		topLayout.setSpacing(141);
 		topLayout.setAlignment(Pos.TOP_LEFT);
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
@@ -507,7 +506,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		mealEditPg = new Scene(root, 800, 600);
+		mealEditPg = new Scene(root, 900, 600);
 
 		//sets screen to display page
 		window.setScene(mealEditPg);
@@ -526,7 +525,7 @@ public class MainClass extends Application {
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
-		topLayout.setSpacing(125);
+		topLayout.setSpacing(141);
 		topLayout.setAlignment(Pos.TOP_LEFT);
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
@@ -534,12 +533,34 @@ public class MainClass extends Application {
 		menuBtns();
 
 		ObservableList<Point> mapPoints = currentSim.getDeliveryPoints().getPoints();
+		int maxY = mapPoints.get(0).getY();
+		int maxX = mapPoints.get(0).getX();
+		int minY = mapPoints.get(0).getY();
+		int minX = mapPoints.get(0).getX();
+
+		for(Point point : mapPoints) {
+			int currentY = point.getY();
+			int currentX = point.getX();
+
+			if (currentY >= maxY) {
+				maxY = currentY;
+			}
+			if(currentY <= minY) {
+				minY = currentY;
+			}
+			if(currentX >= maxX) {
+				maxX = currentX;
+			}
+			if(currentX <= minX) {
+				minX = currentX;
+			}
+		}
 
 		//creates the axes for the map scatter plot
-		NumberAxis xAxis = new NumberAxis(-2000, 1000, 100);
+		NumberAxis xAxis = new NumberAxis(minX - 100, maxX + 100, 100);
 		xAxis.setLabel("");
 		xAxis.setTickMarkVisible(false);
-		NumberAxis yAxis = new NumberAxis(-2000, 2000, 100);
+		NumberAxis yAxis = new NumberAxis(minY - 100, maxY + 100, 100);
 		yAxis.setLabel("");
 		yAxis.setTickMarkVisible(false);
 
@@ -556,9 +577,10 @@ public class MainClass extends Application {
 
 		map.getData().add(mapValues);
 
-		StackPane mapLayout = new StackPane();
-		mapLayout.setMaxSize(300, 250);
-		mapLayout.getChildren().add(map);
+		StackPane plotLayout = new StackPane();
+		plotLayout.setMaxSize(300, 300);
+		plotLayout.getChildren().add(map);
+		plotLayout.setAlignment(Pos.CENTER);
 
 		//creates table of current simulation's points
 		TableView mapTable = new TableView();
@@ -573,14 +595,34 @@ public class MainClass extends Application {
 
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
 		mapTable.setPrefWidth(275);
-		mapTable.setPrefHeight(250);
+		mapTable.setPrefHeight(300);
 
-		//TODO: make add and delete buttons for table
+		Button addBtn = new Button("Add");
+		Button delBtn = new Button("Delete");
+
+		HBox buttonHB = new HBox(5);
+		buttonHB.setAlignment(Pos.CENTER);
+		buttonHB.getChildren().addAll(addBtn, delBtn);
+
+		StackPane tableLayout = new StackPane();
+		tableLayout.setMaxSize(300, 300);
+		tableLayout.setAlignment(Pos.CENTER);
+		tableLayout.getChildren().add(mapTable);
+
+		VBox tableBox = new VBox(10);
+		tableBox.getChildren().addAll(tableLayout, buttonHB);
+		tableBox.setAlignment(Pos.BOTTOM_RIGHT);
+		tableBox.setPadding(new Insets(0, 5, 0, 0));
+
+		HBox mapLayout = new HBox();
+		mapLayout.setSpacing(50);
+		mapLayout.setAlignment(Pos.CENTER_RIGHT);
+		mapLayout.getChildren().addAll(plotLayout, tableBox);
 
 		HBox centerLayout = new HBox();
-		centerLayout.setSpacing(40);
+		centerLayout.setSpacing(158);
 		centerLayout.setAlignment(Pos.CENTER_LEFT);
-		centerLayout.getChildren().addAll(btnLayout, mapLayout, mapTable);
+		centerLayout.getChildren().addAll(btnLayout, mapLayout);
 
 		//arranges btns for loading and saving model
 		VBox svLdBtns = new VBox();
@@ -598,15 +640,19 @@ public class MainClass extends Application {
 
 		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
 
+		VBox mainLayout = new VBox();
+		mainLayout.getChildren().addAll(centerLayout, svLdBtns);
+		mainLayout.setSpacing(50);
+
 		//arranges all elements of the page on the screen
-		settingLayout = new VBox(52);
-		settingLayout.getChildren().addAll(topLayout, centerLayout, svLdBtns);
+		settingLayout = new VBox(30);
+		settingLayout.getChildren().addAll(topLayout, mainLayout);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		mapEditPg = new Scene(root, 800, 600);
+		mapEditPg = new Scene(root, 900, 600);
 
 		//sets screen to display page
 		window.setScene(mapEditPg);
