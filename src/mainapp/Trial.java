@@ -39,10 +39,15 @@ public class Trial {
         droneDestinations = new LinkedList<>();
     }
 
+    /**
+     * Method that uses FIFO to deliver the orders
+     */
     public void runFifoDeliveries() {
         double cargoWeight = 0.0; //weight of cargo already on drone
         double currentMealWeight; //weight of the current meal
         int index; //loop variable
+
+        //TODO: IMPLEMENT TIMING
 
         //calculates generates list of orders based on time they are ordered
         simOrders = generateOrders();
@@ -55,6 +60,9 @@ public class Trial {
         //runs delivery routes while there are orders to be delivered
         while(!fifoDeliveries.isEmpty()) {
             currentMealWeight = fifoDeliveries.peek().getMealOrdered().getTotalWeight();
+
+            //TODO: IMPLEMENT TIMING
+            //60,000ms in 1 minute
 
             //add order to drone if the drone can take it
             if(cargoWeight + currentMealWeight <= MAX_CARGO_WEIGHT) {
@@ -75,14 +83,34 @@ public class Trial {
                 //delivers orders to specified destinations using calculated route
                 makeDeliveries(droneCargo, droneDestinations);
 
-                //TODO: TIMING
-                //60,000ms in 1 minute
+                cargoWeight = 0.0;
+
             }
         }
     }
 
+    /** NEED TO TEST!!!!!!!!!!
+     * Method that has the drone make deliveries to order destinations
+     * @param droneOrders the orders currently loaded on the drone
+     * @param route the route the drone is to take
+     */
     public void makeDeliveries(LinkedList<Order> droneOrders, LinkedList<Point> route) {
-        //TODO: write make deliveries method that takes in a list of orders
+        //TODO: IMPLEMENT TIMING
+        //while the route has points the drone makes deliveries
+        if(!route.isEmpty()) {
+            //the current destination of the drone
+            Point currentDestination = route.remove();
+
+            //drops off all orders that are to be delivered to the current destination
+            for(int i = 0; i < droneOrders.size(); i++) {
+                if(droneOrders.get(i).getDestination().equals(currentDestination)) {
+                    droneOrders.remove(i);
+                }
+            }
+
+            //continues to make deliveries
+            makeDeliveries(droneOrders, route);
+        }
     }
 
     /**
