@@ -228,6 +228,14 @@ public class Simulation implements XmlSerializable {
         return deliveryPoints;
     }
 
+    /**Method to get list of simulation's food items
+     * @author Rachel Franklin
+     * @return the simulation's list of food items
+     */
+    public ArrayList<FoodItem> getFoodItems() {
+        return foodItems;
+    }
+
     /**
      * Creates a brand new food item with the specified name and weight.
      * @author Christian Burns
