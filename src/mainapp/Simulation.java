@@ -3,6 +3,8 @@ package mainapp;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import location.DeliveryPoints;
 import food.FoodItem;
 import food.Meal;
@@ -230,10 +232,10 @@ public class Simulation implements XmlSerializable {
 
     /**Method to get list of simulation's food items
      * @author Rachel Franklin
-     * @return the simulation's list of food items
+     * @return the simulation's list of food items available for javafx
      */
-    public ArrayList<FoodItem> getFoodItems() {
-        return foodItems;
+    public ObservableList<FoodItem> getFoodItems() {
+        return FXCollections.observableList(foodItems);
     }
 
     /**
