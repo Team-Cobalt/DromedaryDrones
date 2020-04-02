@@ -49,9 +49,7 @@ public class Simulation implements XmlSerializable {
 
         //copies stochastic flow of existing simulation
         this.stocFlow = new ArrayList<>();
-        for(Integer numMeals: other.stocFlow) {
-            this.stocFlow.add(numMeals);
-        }
+        this.stocFlow.addAll(other.stocFlow);
 
         //copies known foods from existing simulation
         this.foodItems = new ArrayList<>();
@@ -77,52 +75,84 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Load Simulation from an XML object.
+     * @author  Christian Burns
      * @param root  element containing simulation data
      */
     public Simulation(Element root) {
         simulationName = root.getAttribute("name");
         foodItems = new ArrayList<>();
         mealTypes = new ArrayList<>();
+        stocFlow = new ArrayList<>();
 
-        //TODO: Load stochastic flow
+        NodeList stochasticNodeList = root.getElementsByTagName("stochastic");
+        NodeList foodItemNodeList = root.getElementsByTagName("fooditems");
+        NodeList mealTypeNodeList = root.getElementsByTagName("mealtypes");
+        NodeList deliveryPointNodeList = root.getElementsByTagName("deliverypoints");
+
+        // load stochastic values
+        if (stochasticNodeList.getLength() > 0) {
+            Element stochasticRoot = (Element) stochasticNodeList.item(0);
+            int hourIndex = 0;
+            NodeList stochasticHourNodes = stochasticRoot.getElementsByTagName("hour" + hourIndex);
+            while (stochasticHourNodes.getLength() > 0) {
+                Element stochasticHour = (Element) stochasticHourNodes.item(0);
+                stocFlow.add(Integer.parseInt(stochasticHour.getAttribute("orders")));
+                stochasticHourNodes = stochasticRoot.getElementsByTagName(String.format("hour%d", ++hourIndex));
+            }
+        } else {
+            System.err.println(String.format("simulation \"%s\" missing the \"stochastic\" element", simulationName));
+        }
 
         // load food items
-        Element foods = (Element) root.getElementsByTagName("fooditems").item(0);
-        NodeList foodChildren = foods.getElementsByTagName("fooditem");
-        for (int i = 0; i < foodChildren.getLength(); i++)
-            foodItems.add(new FoodItem((Element) foodChildren.item(i)));
+        if (foodItemNodeList.getLength() > 0) {
+            Element foodItemRoot = (Element) foodItemNodeList.item(0);
+            NodeList foodChildren = foodItemRoot.getElementsByTagName("fooditem");
+            for (int i = 0; i < foodChildren.getLength(); i++)
+                foodItems.add(new FoodItem((Element) foodChildren.item(i)));
+        } else {
+            System.err.println(String.format("simulation \"%s\" missing the \"fooditems\" element", simulationName));
+        }
 
         // load meal items
-        Element meals = (Element) root.getElementsByTagName("mealtypes").item(0);
-        NodeList mealChildren = meals.getElementsByTagName("meal");
-        for (int i = 0; i < mealChildren.getLength(); i++) {
-            Element mealChild = (Element) mealChildren.item(i);
-            String mealName = mealChild.getAttribute("name");
-            double mealProb = Double.parseDouble(mealChild.getAttribute("probability"));
-            ArrayList<FoodItem> mealFoodItems = new ArrayList<>();
+        if (mealTypeNodeList.getLength() > 0) {
+            Element mealTypeRoot = (Element) mealTypeNodeList.item(0);
+            NodeList mealChildren = mealTypeRoot.getElementsByTagName("meal");
+            for (int i = 0; i < mealChildren.getLength(); i++) {
+                Element mealChild = (Element) mealChildren.item(i);
+                String mealName = mealChild.getAttribute("name");
+                double mealProb = Double.parseDouble(mealChild.getAttribute("probability"));
+                ArrayList<FoodItem> mealFoodItems = new ArrayList<>();
 
-            // load foods within the meal
-            NodeList mealFoods = mealChild.getChildNodes();
-            for (int f = 0; f < mealFoods.getLength(); f++) {
-                if (mealFoods.item(f).getNodeType() == Node.ELEMENT_NODE) {
-                    Element mealFood = (Element) mealFoods.item(f);
-                    String foodName = mealFood.getTagName();
-                    int amount = Integer.parseInt(mealFood.getTextContent());
-                    FoodItem food = foodItems.stream()
-                            .filter(fi -> XmlFactory.toXmlTag(fi.getName()).equals(foodName))
-                            .findFirst().orElse(null);
-                    if (food != null) {
-                        for (int a = 0; a < amount; a++)
-                            mealFoodItems.add(food);
+                // load foods within the meal
+                NodeList mealFoods = mealChild.getChildNodes();
+                for (int f = 0; f < mealFoods.getLength(); f++) {
+                    if (mealFoods.item(f).getNodeType() == Node.ELEMENT_NODE) {
+                        Element mealFood = (Element) mealFoods.item(f);
+                        String foodName = mealFood.getTagName();
+                        int amount = Integer.parseInt(mealFood.getTextContent());
+                        FoodItem food = foodItems.stream()
+                                .filter(fi -> XmlFactory.toXmlTag(fi.getName()).equals(foodName))
+                                .findFirst().orElse(null);
+                        if (food != null) {
+                            for (int a = 0; a < amount; a++)
+                                mealFoodItems.add(food);
+                        }
                     }
                 }
+                mealTypes.add(new Meal(mealFoodItems, mealName, mealProb));
             }
-            mealTypes.add(new Meal(mealFoodItems, mealName, mealProb));
+        } else {
+            System.err.println(String.format("simulation \"%s\" missing the \"mealtypes\" element", simulationName));
         }
 
         // load delivery points
-        Element points = (Element) root.getElementsByTagName("deliverypoints").item(0);
-        deliveryPoints = new DeliveryPoints(points);
+        if (deliveryPointNodeList.getLength() > 0) {
+            Element deliveryPointRoot = (Element) deliveryPointNodeList.item(0);
+            deliveryPoints = new DeliveryPoints(deliveryPointRoot);
+        } else {
+            deliveryPoints = new DeliveryPoints();
+            System.err.println(String.format("simulation \"%s\" missing the \"deliverypoints\" element", simulationName));
+        }
     }
 
     /**
@@ -171,10 +201,7 @@ public class Simulation implements XmlSerializable {
         }
 
         //copies over number of meals per hour
-        this.stocFlow = new ArrayList<>();
-        for(Integer hour: numMeals) {
-            this.stocFlow.add(hour);
-        }
+        this.stocFlow = new ArrayList<>(numMeals);
     }
 
     /**
@@ -254,10 +281,17 @@ public class Simulation implements XmlSerializable {
     public Element toXml(Document doc) {
         Element root = doc.createElement("simulation");
         root.setAttribute("name", simulationName);
+        Element stocElement = doc.createElement("stochastic");
+        for (int i = 0; i < stocFlow.size(); i++) {
+            Element hr = doc.createElement("hour"+i);
+            hr.setAttribute("orders", String.valueOf(stocFlow.get(i)));
+            stocElement.appendChild(hr);
+        }
         Element foods = doc.createElement("fooditems");
         for (FoodItem food : foodItems) foods.appendChild(food.toXml(doc));
         Element meals = doc.createElement("mealtypes");
         for (Meal meal : mealTypes) meals.appendChild(meal.toXml(doc));
+        root.appendChild(stocElement);
         root.appendChild(foods);
         root.appendChild(meals);
         root.appendChild(deliveryPoints.toXml(doc));
