@@ -171,7 +171,7 @@ public class MainClass extends Application {
 		titleLayout.setAlignment(Pos.TOP_CENTER);
 		
 		//Adds camel image to the display
-		Image simImg = new Image("DrCameltine.jpg");
+		Image simImg = new Image("Camel.jpg");
 		
 		ImageView view = new ImageView(simImg);
 		
