@@ -9,6 +9,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -490,6 +492,15 @@ public class MainClass extends Application {
 
 		//sets up menu buttons
 		menuBtns();
+
+		NumberAxis xAxis = new NumberAxis(-1000, 1000, 1);
+		xAxis.setLabel("");
+		xAxis.setTickMarkVisible(false);
+		NumberAxis yAxis = new NumberAxis(-1000, 1000, 1);
+		yAxis.setLabel("");
+		yAxis.setTickMarkVisible(false);
+
+		ScatterChart map = new ScatterChart(xAxis, yAxis);
 
 		TableView mapTable = new TableView();
 
