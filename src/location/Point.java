@@ -96,6 +96,10 @@ public class Point implements XmlSerializable {
         return y;
     }
 
+    /**
+     * @author Isabella Patnode
+     * @return the x,y coordinates formatted as a string
+     */
     public String getCoordinates() {
         return "(" + x + ", " + y + ")";
     }

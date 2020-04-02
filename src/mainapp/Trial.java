@@ -24,6 +24,7 @@ public class Trial {
 
     /**
      * Constructor for creating a single four-hour shift
+     * @author Isabella Patnode
      * @param meals current simulation's list of meals to be used
      * @param model current simulation's stochastic flow model
      * @param points current simulation's delivery points to be used
@@ -40,6 +41,7 @@ public class Trial {
     }
 
     /**
+     * @author Isabella Patnode
      * Method that uses FIFO to deliver the orders
      */
     public void runFifoDeliveries() {
@@ -91,6 +93,7 @@ public class Trial {
 
     /** NEED TO TEST!!!!!!!!!!
      * Method that has the drone make deliveries to order destinations
+     * @author Isabella Patnode
      * @param droneOrders the orders currently loaded on the drone
      * @param route the route the drone is to take
      */
@@ -114,7 +117,9 @@ public class Trial {
     }
 
     /**
-     * Randomly generates the list of orders for the shift
+     * Randomly generates a list of order times and creates a list of orders based on the times
+     * @author Isabella Patnode
+     * @return the list of orders and their order times
      */
     public ArrayList<Order> generateOrders() {
         int timeOfOrder;

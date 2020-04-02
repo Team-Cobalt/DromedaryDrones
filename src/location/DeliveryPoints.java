@@ -125,6 +125,11 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
         return points.get(rand.nextInt(points.size()));
     }
 
+    /**
+     * Makes the current simulation's list of delivery points into a list for javafx
+     * @author Isabella Patnode
+     * @return a list of points for javafx
+     */
     public ObservableList<Point> getPoints() {
         return FXCollections.observableList(points);
     }

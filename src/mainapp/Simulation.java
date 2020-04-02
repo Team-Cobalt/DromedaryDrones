@@ -16,7 +16,7 @@ import xml.XmlSerializable;
 /**
  * A standalone configuration of a simulation containing
  * meals, food items, and delivery points.
- * @author  Christian Burns
+ * @author  Christian Burns and Isabella Patnode
  */
 public class Simulation implements XmlSerializable {
 
@@ -28,6 +28,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Creates a new simulation configuration with the specified name.
+     * @author Christian Burns
      * @param name  name of the new configuration
      */
     public Simulation(String name) {
@@ -42,6 +43,7 @@ public class Simulation implements XmlSerializable {
      * Copy constructor to duplicate an existing simulation. All data
      * is deep copied so modifying this new configuration will not
      * change the data within the copied configuration.
+     * @author Christian Burns
      * @param other  existing configuration to clone
      */
     public Simulation(Simulation other) {
@@ -157,6 +159,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Returns the name of the simulation state.
+     * @author Christian Burns
      */
     public String getName() {
         return simulationName;
@@ -164,6 +167,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Changes the name of the simulation state to the one specified.
+     * @author Christian Burns
      * @param name  new name to use
      */
     public void setName(String name) {
@@ -172,6 +176,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Adds specified food item to ArrayList of known foods
+     * @author Christian Burns
      * @param food the food item to be added
      */
     public void addFoodItem(FoodItem food) {
@@ -181,6 +186,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Adds specified meal to ArrayList of known meals
+     * @author Christian Burns
      * @param meal the meal to be added
      */
     public void addMealType(Meal meal) {
@@ -191,6 +197,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Makes specified stochastic flow the model for current simulation
+     * @author Isabella Patnode
      * @param numMeals the number of meals per hour for each hour
      * @throws IllegalArgumentException  if number of hours per shift is not 4
      */
@@ -206,18 +213,24 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Method to get the simulation's stochastic flow
+     * @author Isabella Patnode
      * @return the simulation's stochastic flow model
      */
     public ArrayList<Integer> getStochasticFlow() {
         return stocFlow;
     }
 
+    /**Method to get list of simulation's delivery points
+     * @author Isabella Patnode
+     * @return the simulation's list of delivery points
+     */
     public DeliveryPoints getDeliveryPoints() {
         return deliveryPoints;
     }
 
     /**
      * Creates a brand new food item with the specified name and weight.
+     * @author Christian Burns
      * @param name    name of the new food
      * @param weight  weight of the food in ounces
      * @return        the newly created food item
@@ -233,6 +246,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Removes the specified food item from the simulation.
+     * @author Christian Burns
      * @param food  food item to be removed
      * @return  {@code true} if the item was removed.
      *          {@code false} if the item did not exist.
@@ -244,6 +258,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Retrieves an existing food item by name.
+     * @author Christian Burns
      * @param name  name of the food
      * @return  the food item or null if not found
      */
@@ -253,6 +268,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Creates a brand new meal type with the specified probability.
+     * @author Christian Burns
      * @param probability  probability of occurrence
      * @return  the newly created meal
      * @throws IllegalArgumentException  if the meal type already exists
@@ -269,6 +285,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Removes the specified meal type from the simulation.
+     * @author Christian Burns
      * @param meal  meal to be removed
      * @return  {@code true} if the meal was removed.
      *          {@code false} if the meal did not exist.

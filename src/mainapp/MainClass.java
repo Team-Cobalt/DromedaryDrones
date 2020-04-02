@@ -72,6 +72,9 @@ public class MainClass extends Application {
 		launch(args); 
 	}
 
+	/**
+	 * @author Isabella Patnode
+	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
@@ -161,6 +164,7 @@ public class MainClass extends Application {
 	
 	/**
 	 * Method for creating page that is displayed while the simulation is running
+	 * @author Isabella Patnode
 	 */
 	public void startSim() {
 		
@@ -226,6 +230,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates title (Simulation Settings) for settings pages
+	 * @author Isabella Patnode
 	 */
 	public void settingTitle() {
 		//adds title to general settings page
@@ -242,6 +247,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates home button icon
+	 * @author Isabella Patnode
 	 */
 	public void homeBtn() {
 		Image homeIcon = new Image("HomeButton.jpg");
@@ -260,6 +266,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates menu buttons for settings pages
+	 * @author Isabella Patnode
 	 */
 	public void menuBtns() {
 		btnLayout = new VBox();
@@ -295,6 +302,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for general settings (i.e. stochastic flow)
+	 * @author Isabella Patnode
 	 */
 	public void genEditPage() {
 		//creates heading of page
@@ -465,6 +473,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for map settings
+	 * @author Isabella Patnode
 	 */
 	public void editMapPage() {
 		//creates heading of page
