@@ -406,7 +406,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for food items settings
-	 * @author Rachel Franklin
+	 * @author Rachel Franklin (majority) and Isabella Patnode (minority)
 	 */
 	public void editFoodPage() {
 		//creates heading of page
@@ -597,39 +597,36 @@ public class MainClass extends Application {
 		mapTable.setPrefWidth(275);
 		mapTable.setPrefHeight(300);
 
-		Button addBtn = new Button("Add");
-		Button delBtn = new Button("Delete");
-
-		HBox buttonHB = new HBox(5);
-		buttonHB.setAlignment(Pos.CENTER);
-		buttonHB.getChildren().addAll(addBtn, delBtn);
-
 		StackPane tableLayout = new StackPane();
 		tableLayout.setMaxSize(300, 300);
 		tableLayout.setAlignment(Pos.CENTER);
 		tableLayout.getChildren().add(mapTable);
 
-		VBox tableBox = new VBox(10);
-		tableBox.getChildren().addAll(tableLayout, buttonHB);
-		tableBox.setAlignment(Pos.BOTTOM_RIGHT);
-		tableBox.setPadding(new Insets(0, 5, 0, 0));
 
 		HBox mapLayout = new HBox();
 		mapLayout.setSpacing(50);
 		mapLayout.setAlignment(Pos.CENTER_RIGHT);
-		mapLayout.getChildren().addAll(plotLayout, tableBox);
+		mapLayout.getChildren().addAll(plotLayout, tableLayout);
 
 		HBox centerLayout = new HBox();
 		centerLayout.setSpacing(158);
 		centerLayout.setAlignment(Pos.CENTER_LEFT);
 		centerLayout.getChildren().addAll(btnLayout, mapLayout);
 
+		Button addBtn = new Button("Add");
+		Button delBtn = new Button("Delete");
+
+		HBox addDelBtns = new HBox(5);
+		addDelBtns.setAlignment(Pos.CENTER_RIGHT);
+		addDelBtns.setPadding(new Insets(0, 10, 10, 0));
+		addDelBtns.getChildren().addAll(addBtn, delBtn);
+
 		//arranges btns for loading and saving model
 		VBox svLdBtns = new VBox();
 		svLdBtns.setPrefWidth(100);
 		svLdBtns.setSpacing(10);
 		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
-		svLdBtns.setPadding(new Insets(0, 10, 10, 0));
+		svLdBtns.setPadding(new Insets(0, 10, 0, 0));
 
 		//adds buttons for loading and saving model
 		Button saveBtn = new Button("Save Changes");
@@ -641,7 +638,7 @@ public class MainClass extends Application {
 		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
 
 		VBox mainLayout = new VBox();
-		mainLayout.getChildren().addAll(centerLayout, svLdBtns);
+		mainLayout.getChildren().addAll(centerLayout, addDelBtns, svLdBtns);
 		mainLayout.setSpacing(50);
 
 		//arranges all elements of the page on the screen
