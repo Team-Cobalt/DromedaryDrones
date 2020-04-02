@@ -74,7 +74,7 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
         addPoint("Rockwell", 41.155564, -80.079522);
         addPoint("Rathburn", 41.157172, -80.080232);
         addPoint("Harbison Chapel", 41.156663, -80.080897);
-        addPoint("Physical Learning Center Roundabout", 41.155958, -80.078417);
+        addPoint("PLC Roundabout", 41.155958, -80.078417);
         addPoint("Thorn Field", 41.157580, -80.084088);
         addPoint("Tennis Court", 41.157983, -80.084659);
         addPoint("Soccer Field", 41.157817, -80.078064);
@@ -82,8 +82,8 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
         addPoint("Baseball Field", 41.158164, -80.079528);
         addPoint("President's House", 41.154717, -80.082463);
         addPoint("Helen Harker Residence Hall", 41.155926, -80.079190);
-        addPoint("Mary Ethel Pew Residence Hall", 41.156695, -80.078691);
-        addPoint("Mary Anderson Pew Residence Hall", 41.156829, -80.079570);
+        addPoint("MEP Residence Hall", 41.156695, -80.078691);
+        addPoint("MAP Residence Hall", 41.156829, -80.079570);
         setOrigin("Student Union");
     }
 
