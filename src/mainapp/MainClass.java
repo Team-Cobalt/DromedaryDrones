@@ -11,6 +11,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -493,18 +494,35 @@ public class MainClass extends Application {
 		//sets up menu buttons
 		menuBtns();
 
-		NumberAxis xAxis = new NumberAxis(-1000, 1000, 1);
+		ObservableList<Point> mapPoints = currentSim.getDeliveryPoints().getPoints();
+
+		//creates the axes for the map scatter plot
+		NumberAxis xAxis = new NumberAxis(-2000, 1000, 100);
 		xAxis.setLabel("");
 		xAxis.setTickMarkVisible(false);
-		NumberAxis yAxis = new NumberAxis(-1000, 1000, 1);
+		NumberAxis yAxis = new NumberAxis(-2000, 2000, 100);
 		yAxis.setLabel("");
 		yAxis.setTickMarkVisible(false);
 
 		ScatterChart map = new ScatterChart(xAxis, yAxis);
+		map.setHorizontalGridLinesVisible(false);
+		map.setVerticalGridLinesVisible(false);
+		map.setLegendVisible(false);
 
+		XYChart.Series mapValues = new XYChart.Series();
+
+		for(int index = 0; index < mapPoints.size(); index++) {
+			mapValues.getData().add(new XYChart.Data(mapPoints.get(index).getX(), mapPoints.get(index).getY()));
+		}
+
+		map.getData().add(mapValues);
+
+		StackPane mapLayout = new StackPane();
+		mapLayout.setMaxSize(300, 250);
+		mapLayout.getChildren().add(map);
+
+		//creates table of current simulation's points
 		TableView mapTable = new TableView();
-
-		ObservableList<Point> mapPoints = currentSim.getDeliveryPoints().getPoints();
 
 		mapTable.setItems(mapPoints);
 
@@ -515,14 +533,35 @@ public class MainClass extends Application {
 
 
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
-		mapTable.setPrefWidth(40);
-		mapTable.setPrefHeight(300);
+		mapTable.setPrefWidth(275);
+		mapTable.setPrefHeight(250);
 
 		//TODO: make add and delete buttons for table
 
+		HBox centerLayout = new HBox();
+		centerLayout.setSpacing(40);
+		centerLayout.setAlignment(Pos.CENTER_LEFT);
+		centerLayout.getChildren().addAll(btnLayout, mapLayout, mapTable);
+
+		//arranges btns for loading and saving model
+		VBox svLdBtns = new VBox();
+		svLdBtns.setPrefWidth(100);
+		svLdBtns.setSpacing(10);
+		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
+		svLdBtns.setPadding(new Insets(0, 10, 10, 0));
+
+		//adds buttons for loading and saving model
+		Button saveBtn = new Button("Save Changes");
+		saveBtn.setMinWidth(svLdBtns.getPrefWidth());
+
+		Button loadBtn = new Button("Load Model");
+		loadBtn.setMinWidth(svLdBtns.getPrefWidth());
+
+		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
+
 		//arranges all elements of the page on the screen
-		settingLayout = new VBox(35);
-		settingLayout.getChildren().addAll(topLayout, btnLayout, mapTable);
+		settingLayout = new VBox(52);
+		settingLayout.getChildren().addAll(topLayout, centerLayout, svLdBtns);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
