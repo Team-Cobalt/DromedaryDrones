@@ -1,5 +1,6 @@
 package location;
 
+import javafx.beans.property.SimpleStringProperty;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import xml.XmlSerializable;
@@ -93,6 +94,10 @@ public class Point implements XmlSerializable {
      */
     public int getY() {
         return y;
+    }
+
+    public String getCoordinates() {
+        return "(" + x + ", " + y + ")";
     }
 
     /**

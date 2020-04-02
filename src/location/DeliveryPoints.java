@@ -1,5 +1,7 @@
 package location;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -121,6 +123,10 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
     public Point getRandomPoint() {
         if (points.size() == 0) return null;
         return points.get(rand.nextInt(points.size()));
+    }
+
+    public ObservableList<Point> getPoints() {
+        return FXCollections.observableList(points);
     }
 
     /**

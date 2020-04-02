@@ -5,11 +5,15 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -18,6 +22,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import location.Point;
 
 /**
  * Class that runs the simulation
@@ -477,11 +482,27 @@ public class MainClass extends Application {
 		//sets up menu buttons
 		menuBtns();
 
-		//TODO: complete map GUI page
+		TableView mapTable = new TableView();
+
+		ObservableList<Point> mapPoints = currentSim.getDeliveryPoints().getPoints();
+
+		mapTable.setItems(mapPoints);
+
+		TableColumn pointHeading = new TableColumn("Drop-Off Point");
+		pointHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("name"));
+		TableColumn xyHeading = new TableColumn("(x,y)");
+		xyHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("coordinates"));
+
+
+		mapTable.getColumns().setAll(pointHeading, xyHeading);
+		mapTable.setPrefWidth(40);
+		mapTable.setPrefHeight(300);
+
+		//TODO: make add and delete buttons for table
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(35);
-		settingLayout.getChildren().addAll(topLayout, btnLayout);
+		settingLayout.getChildren().addAll(topLayout, btnLayout, mapTable);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();

@@ -158,7 +158,6 @@ public class Simulation implements XmlSerializable {
             mealTypes.add(meal);
     }
 
-    //TODO: MIGHT NEED TO ADD ANOTHER METHOD FOR STOCHASTIC FLOW
 
     /**
      * Makes specified stochastic flow the model for current simulation
@@ -184,6 +183,10 @@ public class Simulation implements XmlSerializable {
      */
     public ArrayList<Integer> getStochasticFlow() {
         return stocFlow;
+    }
+
+    public DeliveryPoints getDeliveryPoints() {
+        return deliveryPoints;
     }
 
     /**
