@@ -162,6 +162,7 @@ public class MainClass extends Application {
 		window.sizeToScene();
 		window.centerOnScreen();
 		window.setTitle("Dromedary Drones");
+		window.setResizable(false);
 		window.show();
 
 	}
@@ -199,9 +200,7 @@ public class MainClass extends Application {
 		VBox simPic = new VBox(20);
 		simPic.getChildren().add(view);
 		simPic.setAlignment(Pos.CENTER);
-		
-		//TODO: Set camel to rotate!
-		
+
 		//button that allows user to cancel the sim
 		Button cancelBtn = new Button("Cancel Simulation");
 		cancelBtn.setStyle("-fx-font-size: 14");
@@ -532,7 +531,10 @@ public class MainClass extends Application {
 		//sets up menu buttons
 		menuBtns();
 
+		//gets list of current map destinations
 		ObservableList<Point> mapPoints = currentSim.getDeliveryPoints().getPoints();
+
+		//finds maximum and minimum destinations points (in coordinates)
 		int maxY = mapPoints.get(0).getY();
 		int maxX = mapPoints.get(0).getX();
 		int minY = mapPoints.get(0).getY();
@@ -564,19 +566,22 @@ public class MainClass extends Application {
 		yAxis.setLabel("");
 		yAxis.setTickMarkVisible(false);
 
+		//creates scatter plot for map
 		ScatterChart map = new ScatterChart(xAxis, yAxis);
 		map.setHorizontalGridLinesVisible(false);
 		map.setVerticalGridLinesVisible(false);
 		map.setLegendVisible(false);
 
+		//creates points from destination coordinates for scatter plot
 		XYChart.Series mapValues = new XYChart.Series();
 
 		for(int index = 0; index < mapPoints.size(); index++) {
 			mapValues.getData().add(new XYChart.Data(mapPoints.get(index).getX(), mapPoints.get(index).getY()));
 		}
-
+		//adds points to scatter plot
 		map.getData().add(mapValues);
 
+		//arranges map
 		StackPane plotLayout = new StackPane();
 		plotLayout.setMaxSize(300, 300);
 		plotLayout.getChildren().add(map);
@@ -585,48 +590,58 @@ public class MainClass extends Application {
 		//creates table of current simulation's points
 		TableView mapTable = new TableView();
 
+		//adds cell values to table
 		mapTable.setItems(mapPoints);
 
+		//creates columns for table
 		TableColumn pointHeading = new TableColumn("Drop-Off Point");
 		pointHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("name"));
 		TableColumn xyHeading = new TableColumn("(x,y)");
 		xyHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("coordinates"));
 
-
+		//adds column headings to table
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
 		mapTable.setPrefWidth(275);
 		mapTable.setPrefHeight(300);
 
+		//arranges table
 		StackPane tableLayout = new StackPane();
 		tableLayout.setMaxSize(300, 300);
 		tableLayout.setAlignment(Pos.CENTER);
 		tableLayout.getChildren().add(mapTable);
 
-
+		//arranges map and table of points with consideration to each other
 		HBox mapLayout = new HBox();
-		mapLayout.setSpacing(50);
+		mapLayout.setSpacing(40);
 		mapLayout.setAlignment(Pos.CENTER_RIGHT);
 		mapLayout.getChildren().addAll(plotLayout, tableLayout);
 
+		//arranges map and menu buttons in the center vertically
 		HBox centerLayout = new HBox();
-		centerLayout.setSpacing(158);
+		centerLayout.setSpacing(160);
 		centerLayout.setAlignment(Pos.CENTER_LEFT);
 		centerLayout.getChildren().addAll(btnLayout, mapLayout);
 
+		//buttons for adding and deleting table rows
 		Button addBtn = new Button("Add");
 		Button delBtn = new Button("Delete");
 
-		HBox addDelBtns = new HBox(5);
+		HBox addDelBtns = new HBox(10);
 		addDelBtns.setAlignment(Pos.CENTER_RIGHT);
-		addDelBtns.setPadding(new Insets(0, 10, 10, 0));
+		addDelBtns.setPadding(new Insets(0, 80, 0, 0));
 		addDelBtns.getChildren().addAll(addBtn, delBtn);
+
+		//arranges map, table, and table buttons together
+		VBox btnMap = new VBox();
+		btnMap.getChildren().addAll(centerLayout, addDelBtns);
+		btnMap.setSpacing(10);
 
 		//arranges btns for loading and saving model
 		VBox svLdBtns = new VBox();
 		svLdBtns.setPrefWidth(100);
 		svLdBtns.setSpacing(10);
 		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
-		svLdBtns.setPadding(new Insets(0, 10, 0, 0));
+		svLdBtns.setPadding(new Insets(0, 80, 0, 0));
 
 		//adds buttons for loading and saving model
 		Button saveBtn = new Button("Save Changes");
@@ -637,8 +652,9 @@ public class MainClass extends Application {
 
 		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
 
+		//arranges load/save buttons with map elements
 		VBox mainLayout = new VBox();
-		mainLayout.getChildren().addAll(centerLayout, addDelBtns, svLdBtns);
+		mainLayout.getChildren().addAll(btnMap, svLdBtns);
 		mainLayout.setSpacing(50);
 
 		//arranges all elements of the page on the screen
@@ -654,5 +670,4 @@ public class MainClass extends Application {
 		//sets screen to display page
 		window.setScene(mapEditPg);
 	}
-
 }
