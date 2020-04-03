@@ -349,7 +349,7 @@ public class MainClass extends Application {
 		GridPane genSettings = new GridPane();
 		genSettings.setAlignment(Pos.CENTER);
 		genSettings.setVgap(5);
-		genSettings.setMaxSize(200, 200);
+		genSettings.setMaxSize(300, 300);
 
 		//adds cells to gridpane
 		genSettings.add(hourOne, 0, 0);
@@ -391,6 +391,7 @@ public class MainClass extends Application {
 		//arranges top layout (home btn and title) and center layout (menu btn and gridpane)
 		settingLayout = new VBox();
 		settingLayout.setSpacing(105);
+		settingLayout.setPadding(new Insets(5, 0 , 0, 0));
 		settingLayout.setStyle("-fx-background-color: WHITE");
 		settingLayout.getChildren().addAll(topLayout, centerLayout, svLdBtns);
 
@@ -405,7 +406,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for food items settings
-	 * @author Rachel Franklin (majority) and Isabella Patnode (minority)
+	 * @author Rachel Franklin and Isabella Patnode
 	 */
 	public void editFoodPage() {
 		//creates heading of page
@@ -425,32 +426,49 @@ public class MainClass extends Application {
 
 		//create table of food items in simulation
 		TableView foodTable = new TableView();
-		ObservableList<FoodItem> foodItems = (ObservableList<FoodItem>) currentSim.getFoodItems();
+		ObservableList<FoodItem> foodItems = currentSim.getFoodItems();
 		foodTable.setItems(foodItems);
 
 		//Create table headings
 		TableColumn itemHeading = new TableColumn("Food Item");
 		itemHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("name"));
+		itemHeading.setPrefWidth(100);
+
 		TableColumn weightHeading = new TableColumn("Weight (oz)");
 		weightHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("weight"));
+		weightHeading.setPrefWidth(100);
 
 		foodTable.getColumns().setAll(itemHeading, weightHeading);
-		foodTable.setPrefWidth(275);
-		foodTable.setPrefHeight(250);
+		foodTable.setPrefWidth(200);
+		foodTable.setPrefHeight(300);
 
-		//TODO: make add and delete buttons for table
+		//arranges table on screen
+		StackPane tableLayout = new StackPane();
+		tableLayout.setAlignment(Pos.CENTER);
+		tableLayout.setMaxSize(300, 300);
+		tableLayout.getChildren().add(foodTable);
 
+		//arranges menu buttons and table in the center (vertically)
 		HBox centerLayout = new HBox();
-		centerLayout.setSpacing(40);
-		centerLayout.setAlignment(Pos.CENTER);	//it won't freaking go in the middle-middle
-		centerLayout.getChildren().addAll(btnLayout, foodTable);
+		centerLayout.setSpacing(220);
+		centerLayout.setAlignment(Pos.CENTER_LEFT);
+		centerLayout.getChildren().addAll(btnLayout, tableLayout);
+
+		//buttons for adding and deleting table rows
+		Button addBtn = new Button("Add");
+		Button delBtn = new Button("Delete");
+
+		//arranges add and delete buttons relative to each other
+		HBox editBtns = new HBox(10);
+		editBtns.setAlignment(Pos.TOP_CENTER);
+		editBtns.getChildren().addAll(addBtn, delBtn);
 
 		//arranges btns for loading and saving model
 		VBox svLdBtns = new VBox();
 		svLdBtns.setPrefWidth(100);
 		svLdBtns.setSpacing(10);
 		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
-		svLdBtns.setPadding(new Insets(0, 10, 10, 0));
+		svLdBtns.setPadding(new Insets(0, 100, 10, 0));
 
 		//adds buttons for loading and saving model
 		Button saveBtn = new Button("Save Changes");
@@ -461,9 +479,16 @@ public class MainClass extends Application {
 
 		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
 
+		HBox btnLayout = new HBox(210);
+		btnLayout.setAlignment(Pos.BOTTOM_RIGHT);
+		btnLayout.getChildren().addAll(editBtns, svLdBtns);
+
+		VBox displayLayout = new VBox(10);
+		displayLayout.getChildren().addAll(centerLayout, btnLayout);
+
 		//arranges all elements of the page on the screen
-		settingLayout = new VBox(35);
-		settingLayout.getChildren().addAll(topLayout, btnLayout, svLdBtns, centerLayout);
+		settingLayout = new VBox(30);
+		settingLayout.getChildren().addAll(topLayout, displayLayout);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
@@ -575,8 +600,8 @@ public class MainClass extends Application {
 		//creates points from destination coordinates for scatter plot
 		XYChart.Series mapValues = new XYChart.Series();
 
-		for(int index = 0; index < mapPoints.size(); index++) {
-			mapValues.getData().add(new XYChart.Data(mapPoints.get(index).getX(), mapPoints.get(index).getY()));
+		for(Point dest : mapPoints) {
+			mapValues.getData().add(new XYChart.Data(dest.getX(), dest.getY()));
 		}
 		//adds points to scatter plot
 		map.getData().add(mapValues);
