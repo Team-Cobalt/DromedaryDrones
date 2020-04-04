@@ -32,12 +32,13 @@ public class Trial {
     public Trial(ArrayList<Meal> meals, ArrayList<Integer> model, DeliveryPoints points) {
         simMeals = new ArrayList<>(meals);
         simFlow = new ArrayList<>(model);
-        simOrders = new ArrayList<>();
         simPoints = new DeliveryPoints(points);
         rand = new Random();
         fifoDeliveries = new LinkedList<>();
         droneCargo = new LinkedList<>();
         droneDestinations = new LinkedList<>();
+        //calculates generates list of orders based on time they are ordered
+        simOrders = generateOrders();
     }
 
     /**
@@ -50,9 +51,6 @@ public class Trial {
         int index; //loop variable
 
         //TODO: IMPLEMENT TIMING
-
-        //calculates generates list of orders based on time they are ordered
-        simOrders = generateOrders();
 
         //adds all orders to fifo queue
         for(index = 0; index < simOrders.size(); index++) {
