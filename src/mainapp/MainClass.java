@@ -333,22 +333,30 @@ public class MainClass extends Application {
 
 		//creates gridpane containing the current stochastic flow values
 		Text hourOne = new Text("Hour 1: ");
+		hourOne.setFont(Font.font("Serif", 15));
 		Text hourTwo = new Text("Hour 2: ");
+		hourTwo.setFont(Font.font("Serif", 15));
 		Text hourThree = new Text("Hour 3: ");
+		hourThree.setFont(Font.font("Serif", 15));
 		Text hourFour = new Text("Hour 4: ");
+		hourFour.setFont(Font.font("Serif", 15));
 
 		//adds current simulation's stochastic flow values to the gridpane
 		ArrayList<Integer> currentModel = new ArrayList<>(currentSim.getStochasticFlow());
 
 		TextField hrOneMeals = new TextField(currentModel.get(0).toString());
+		hrOneMeals.setMaxWidth(80);
 		TextField hrTwoMeals = new TextField(currentModel.get(1).toString());
+		hrTwoMeals.setMaxWidth(80);
 		TextField hrThreeMeals = new TextField(currentModel.get(2).toString());
+		hrThreeMeals.setMaxWidth(80);
 		TextField hrFourMeals = new TextField(currentModel.get(3).toString());
+		hrFourMeals.setMaxWidth(80);
 
 		//creates gridpane for stochastic flow values
 		GridPane genSettings = new GridPane();
 		genSettings.setAlignment(Pos.CENTER);
-		genSettings.setVgap(5);
+		genSettings.setVgap(10);
 		genSettings.setMaxSize(300, 300);
 
 		//adds cells to gridpane
@@ -438,6 +446,7 @@ public class MainClass extends Application {
 		weightHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("weight"));
 		weightHeading.setPrefWidth(100);
 
+		//adds columns to table
 		foodTable.getColumns().setAll(itemHeading, weightHeading);
 		foodTable.setPrefWidth(200);
 		foodTable.setPrefHeight(300);
@@ -462,13 +471,14 @@ public class MainClass extends Application {
 		HBox editBtns = new HBox(10);
 		editBtns.setAlignment(Pos.TOP_CENTER);
 		editBtns.getChildren().addAll(addBtn, delBtn);
+		editBtns.setPadding(new Insets(0, 20, 0, 0));
 
 		//arranges btns for loading and saving model
 		VBox svLdBtns = new VBox();
 		svLdBtns.setPrefWidth(100);
 		svLdBtns.setSpacing(10);
 		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
-		svLdBtns.setPadding(new Insets(0, 100, 10, 0));
+		svLdBtns.setPadding(new Insets(0, 80, 0, 0));
 
 		//adds buttons for loading and saving model
 		Button saveBtn = new Button("Save Changes");
@@ -479,12 +489,11 @@ public class MainClass extends Application {
 
 		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
 
-		HBox btnLayout = new HBox(210);
-		btnLayout.setAlignment(Pos.BOTTOM_RIGHT);
-		btnLayout.getChildren().addAll(editBtns, svLdBtns);
+		VBox tbBtnLayout = new VBox(10);
+		tbBtnLayout.getChildren().addAll(centerLayout, editBtns);
 
 		VBox displayLayout = new VBox(10);
-		displayLayout.getChildren().addAll(centerLayout, btnLayout);
+		displayLayout.getChildren().addAll(tbBtnLayout, svLdBtns);
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
@@ -520,7 +529,6 @@ public class MainClass extends Application {
 		menuBtns();
 
 		//TODO: complete meals settings GUI page
-
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(35);
