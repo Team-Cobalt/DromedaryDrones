@@ -20,7 +20,7 @@ public class Trial {
     private LinkedList<Point> droneDestinations; //list of destinations for drone's route
 
     private final int MINUTES = 60;
-    private final double MAX_CARGO_WEIGHT = 12;
+    private final double MAX_CARGO_WEIGHT = 192;
 
     /**
      * Constructor for creating a single four-hour shift
