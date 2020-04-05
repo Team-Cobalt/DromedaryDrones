@@ -80,7 +80,9 @@ public class Trial {
             if (!droneCargo.isEmpty()) {
                 //creates list of destinations the drone will need to visit
                 for(index = 0; index < droneCargo.size(); index++) {
-                    droneDestinations.add(droneCargo.get(index).getDestination());
+                    if(!droneDestinations.contains(droneCargo.get(index).getDestination())) {
+                        droneDestinations.add(droneCargo.get(index).getDestination());
+                    }
                 }
 
                 //calculates the most optimal route given the drone's list of destinations
@@ -107,7 +109,7 @@ public class Trial {
 
     /** NEED TO TEST!!!!!!!!!!
      * Method that has the drone make deliveries to order destinations
-     * @author Isabella Patnode
+     * @author Isabella Patnode and Christian Burns
      * @param droneOrders the orders currently loaded on the drone
      * @param route the route the drone is to take
      */
