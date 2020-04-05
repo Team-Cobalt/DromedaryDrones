@@ -18,9 +18,11 @@ public class Trial {
     private LinkedList<Order> droneCargo; //list of orders on drone
     private Route droneRoute;
     private LinkedList<Point> droneDestinations; //list of destinations for drone's route
+    private double simulationTime;
 
-    private final int MINUTES = 60;
-    private final double MAX_CARGO_WEIGHT = 192;
+    private static final int MINUTES = 60;
+    private static final double MAX_CARGO_WEIGHT = 192;             // 12 pounds in ounces
+    public static final double MAX_SPEED_FEET_PER_SEC = 20 * 1.467; // 20 mph -> 29.3333 feet per second
 
     /**
      * Constructor for creating a single four-hour shift
@@ -37,6 +39,7 @@ public class Trial {
         fifoDeliveries = new LinkedList<>();
         droneCargo = new LinkedList<>();
         droneDestinations = new LinkedList<>();
+        simulationTime = 0.0;
         //calculates generates list of orders based on time they are ordered
         simOrders = generateOrders();
     }
@@ -44,33 +47,37 @@ public class Trial {
     /**
      * @author Isabella Patnode
      * Method that uses FIFO to deliver the orders
+     * @return  list of orders used in the trial that contain their creation
+     *          and delivery times relative to the start of the trial
      */
-    public void runFifoDeliveries() {
+    public ArrayList<Order> runFifoDeliveries() {
         double cargoWeight = 0.0; //weight of cargo already on drone
         double currentMealWeight; //weight of the current meal
         int index; //loop variable
 
-        //TODO: IMPLEMENT TIMING
+        ArrayList<Order> fifoDeliveryResults = new ArrayList<>();
+        simulationTime = 0.0;
 
         //adds all orders to fifo queue
         for(index = 0; index < simOrders.size(); index++) {
-            fifoDeliveries.add(simOrders.get(index));
+            fifoDeliveries.add(new Order(simOrders.get(index)));
         }
 
         //runs delivery routes while there are orders to be delivered
         while(!fifoDeliveries.isEmpty()) {
-            currentMealWeight = fifoDeliveries.peek().getMealOrdered().getTotalWeight();
-
-            //TODO: IMPLEMENT TIMING
-            //60,000ms in 1 minute
-
-            //add order to drone if the drone can take it
-            if(cargoWeight + currentMealWeight <= MAX_CARGO_WEIGHT) {
+            simulationTime = Math.round(simulationTime);
+            // load up drone with meals ordered in the past that don't exceed payload capacity
+            while (true) {
+                Order nextOrder = fifoDeliveries.peek();
+                if (nextOrder == null || nextOrder.getTimeOrdered() > simulationTime) break;
+                currentMealWeight = nextOrder.getMealOrdered().getTotalWeight();
+                if (currentMealWeight + cargoWeight > MAX_CARGO_WEIGHT) break;
                 droneCargo.add(fifoDeliveries.remove());
                 cargoWeight += currentMealWeight;
             }
+
             //send drone to make deliveries if drone is full
-            else {
+            if (!droneCargo.isEmpty()) {
                 //creates list of destinations the drone will need to visit
                 for(index = 0; index < droneCargo.size(); index++) {
                     droneDestinations.add(droneCargo.get(index).getDestination());
@@ -81,12 +88,21 @@ public class Trial {
                 droneDestinations = droneRoute.getRoute();
 
                 //delivers orders to specified destinations using calculated route
+                simulationTime += 3.0;  // three minutes to load the drone
                 makeDeliveries(droneCargo, droneDestinations);
 
-                cargoWeight = 0.0;
+                // mark the delivery time for each order
+                droneCargo.forEach(order -> order.setTimeDelivered((int) simulationTime));
+                fifoDeliveryResults.addAll(droneCargo);
+                droneCargo.clear();
 
+                cargoWeight = 0.0;
+            } else {
+                simulationTime++;
             }
         }
+
+        return fifoDeliveryResults;
     }
 
     /** NEED TO TEST!!!!!!!!!!
@@ -96,21 +112,34 @@ public class Trial {
      * @param route the route the drone is to take
      */
     public void makeDeliveries(LinkedList<Order> droneOrders, LinkedList<Point> route) {
-        //TODO: IMPLEMENT TIMING
-        //while the route has points the drone makes deliveries
-        if(!route.isEmpty()) {
-            //the current destination of the drone
-            Point currentDestination = route.remove();
+        Point currentLocation = null;
+        double seconds;
+        double minutes;
 
-            //drops off all orders that are to be delivered to the current destination
-            for(int i = 0; i < droneOrders.size(); i++) {
-                if(droneOrders.get(i).getDestination().equals(currentDestination)) {
-                    droneOrders.remove(i);
-                }
+        // fly to each unique point on the route
+        while (!route.isEmpty()) {
+            Point nextPoint = route.removeFirst();
+            if (currentLocation == null) {
+                seconds = nextPoint.distanceFromPoint(null) / MAX_SPEED_FEET_PER_SEC;
+                minutes = seconds / 60;             // minutes to fly to the destination
+                simulationTime += minutes + 0.5;    // flight time + 30 seconds for delivery
+            } else if (!currentLocation.equals(nextPoint)) {
+                seconds = nextPoint.distanceFromPoint(currentLocation) / MAX_SPEED_FEET_PER_SEC;
+                minutes = seconds / 60;             // minutes to fly to the destination
+                simulationTime += minutes + 0.5;    // flight time + 30 seconds for delivery
             }
+            //System.out.println(String.format("[%.1f elapsed] Flying to %s", simulationTime, nextPoint.getName()));
+            // TODO: here is where we will set delivery time when determined by drop off
+            //       droneOrders::getOrder().setDeliveryTime(simulationTime);
+            currentLocation = nextPoint;
+        }
 
-            //continues to make deliveries
-            makeDeliveries(droneOrders, route);
+        // fly back to the origin
+        if (currentLocation != null) {
+            seconds = currentLocation.distanceFromPoint(null) / MAX_SPEED_FEET_PER_SEC;
+            minutes = seconds / 60;
+            simulationTime += minutes;
+            //System.out.println(String.format("[%.1f elapsed] Flying back to origin.\n", simulationTime));
         }
     }
 
@@ -123,7 +152,6 @@ public class Trial {
         int timeOfOrder;
         int mealsPerHour;
         int index;
-        ArrayList<Integer> orderTimes = new ArrayList<>();
         ArrayList<Order> orders = new ArrayList<>();
 
         //generates a list of random order times according to given stochastic flow
@@ -135,20 +163,12 @@ public class Trial {
             for(int mealNum = 0; mealNum < mealsPerHour; mealNum++) {
                 //calculates time of order using given hour (i.e. first hour, second hour, etc.)
                 timeOfOrder = (rand.nextInt(MINUTES) + 1) + (MINUTES * index);
-                orderTimes.add(timeOfOrder);
+                orders.add(new Order(getRandomMeal(), timeOfOrder, simPoints.getRandomPoint()));
             }
         }
 
         //sorts list of order times in increasing order
-        Collections.sort(orderTimes);
-
-
-        //creates order for each specific order time
-        for(Integer orderTime : orderTimes) {
-            Order newOrder = new Order(getRandomMeal(), orderTime, simPoints.getRandomPoint());
-            orders.add(newOrder);
-        }
-
+        Collections.sort(orders);
         return orders;
     }
 

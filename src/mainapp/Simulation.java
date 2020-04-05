@@ -196,6 +196,13 @@ public class Simulation implements XmlSerializable {
             mealTypes.add(meal);
     }
 
+    /**
+     * Returns a list of all known meals
+     * @author  Christian Burns
+     */
+    public ArrayList<Meal> getMealTypes() {
+        return new ArrayList<>(mealTypes);
+    }
 
     /**
      * Makes specified stochastic flow the model for current simulation
