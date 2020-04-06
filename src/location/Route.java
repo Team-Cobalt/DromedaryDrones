@@ -22,7 +22,7 @@ public class Route {
 
     /**
      * Function that calculates the minimum weight Hamiltonian cycle for the given list of {@link Point}s using recursive
-     * backtracking and alpha-beta pruning. Adapted from {@see https://www.win.tue.nl/~kbuchin/teaching/2IL15/backtracking.pdf}.
+     * backtracking and alpha-beta pruning. Adapted from <a href="https://www.win.tue.nl/~kbuchin/teaching/2IL15/backtracking.pdf">this paper</a>.
      * @author Brendan Ortmann
      * @param currentRoute the list of {@code Point}s
      * @param index the current index being looked at in the current cycle construction
