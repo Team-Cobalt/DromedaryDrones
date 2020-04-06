@@ -1,12 +1,12 @@
 package mainapp;
 
-import java.util.*;
-
 import food.Meal;
-import location.DeliveryPoints;
 import food.Order;
+import location.DeliveryPoints;
 import location.Point;
 import location.Route;
+
+import java.util.*;
 
 public class Trial {
     private ArrayList<Meal> simMeals; //list of current sim's meals
@@ -45,6 +45,82 @@ public class Trial {
     }
 
     /**
+     * TODO: Add Javadoc and comments to this method
+     * TODO: Test method
+     * @author Brendan Ortmann
+     * @return asdf
+     */
+    public ArrayList<Order> runKnapsackDeliveries(){
+        double cargoWeight = 0.0, currentMealWeight;
+        ArrayList<Order> knapsackResults = new ArrayList<>(); // Is this needed?
+        ArrayList<Order> knapsackDeliveries = new ArrayList<>();
+        ArrayList<Order> skippedOrders = new ArrayList<>();
+        simulationTime = 0.0;
+
+        for(Order o : simOrders)
+            knapsackDeliveries.add(new Order(o));
+
+        knapsackDeliveries.sort((a,b)-> Double.compare(b.getMealOrdered().getTotalWeight(),
+                a.getMealOrdered().getTotalWeight())); // Sort the meals in descending order based on weight
+
+        while(!knapsackDeliveries.isEmpty()){
+            simulationTime = Math.round(simulationTime);
+
+            Collections.sort(skippedOrders); // Sort skipped orders by time so that older orders get added first
+            for(Order s : skippedOrders){ // Query skipped orders first
+                if(s.getTimeOrdered() > simulationTime) continue;
+                currentMealWeight = s.getMealOrdered().getTotalWeight();
+                if(currentMealWeight + cargoWeight > MAX_CARGO_WEIGHT) continue; // If max weight exceeded, ignore
+                droneCargo.add(s);
+                cargoWeight += currentMealWeight;
+                skippedOrders.remove(s);
+            }
+
+            for(Order o : knapsackDeliveries){ // Query current set of orders to add to drone
+                if(o.getTimeOrdered() > simulationTime) continue;
+                currentMealWeight = o.getMealOrdered().getTotalWeight();
+                if(currentMealWeight + cargoWeight > MAX_CARGO_WEIGHT){
+                    skippedOrders.add(o);
+                    knapsackDeliveries.remove(o);
+                    continue;
+                }
+                droneCargo.add(o);
+                cargoWeight += currentMealWeight;
+                knapsackDeliveries.remove(o);
+            }
+
+            if (!droneCargo.isEmpty()) {
+                //creates list of destinations the drone will need to visit
+                for (Order cargo : droneCargo) {
+                    if (!droneDestinations.contains(cargo.getDestination())) {
+                        droneDestinations.add(cargo.getDestination());
+                    }
+                }
+
+                //calculates the most optimal route given the drone's list of destinations
+                droneRoute = new Route(droneDestinations);
+                droneDestinations = droneRoute.getRoute();
+
+                //delivers orders to specified destinations using calculated route
+                simulationTime += 3.0;  // three minutes to load the drone
+                makeDeliveries(droneCargo, droneDestinations);
+
+                // mark the delivery time for each order
+                droneCargo.forEach(order -> order.setTimeDelivered((int) simulationTime));
+                //.addAll(droneCargo);
+                droneCargo.clear();
+
+                cargoWeight = 0.0;
+            } else {
+                simulationTime++;
+            }
+
+        }
+
+        return knapsackDeliveries;
+    }
+
+    /**
      * @author Isabella Patnode
      * Method that uses FIFO to deliver the orders
      * @return  list of orders used in the trial that contain their creation
@@ -59,9 +135,8 @@ public class Trial {
         simulationTime = 0.0;
 
         //adds all orders to fifo queue
-        for(index = 0; index < simOrders.size(); index++) {
-            fifoDeliveries.add(new Order(simOrders.get(index)));
-        }
+        for(Order o : simOrders)
+            fifoDeliveries.add(new Order(o));
 
         //runs delivery routes while there are orders to be delivered
         while(!fifoDeliveries.isEmpty()) {
