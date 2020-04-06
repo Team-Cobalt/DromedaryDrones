@@ -311,6 +311,12 @@ public class Simulation implements XmlSerializable {
         return mealTypes.remove(meal);
     }
 
+    /*HAVE RUN TRIAL METHOD IN HERE???
+    **Would run 50 trials -> save each resuls (list of orders) to a file?
+    * Do avg, max, and min for each trial in Trial class
+    * Do avg, max, and min of entire simulation here
+     */
+
     @Override
     public Element toXml(Document doc) {
         Element root = doc.createElement("simulation");

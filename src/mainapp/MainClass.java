@@ -42,6 +42,7 @@ public class MainClass extends Application {
 	private Scene foodEditPg; //food item settings page
 	private Scene mealEditPg; //meal settings page
 	private Scene mapEditPg; //map settings page
+	private Scene resultsPg; //results page
 	private StackPane root;
 	private Text title; //title of page
 	private HBox titleLayout; //layout regarding title of page
@@ -227,8 +228,11 @@ public class MainClass extends Application {
 		window.setScene(simPage);
 		
 		//TODO: run simulation??
-		
-		//TODO: change window to results page
+		//run simulation method found in Simulation class
+		//have observable list of avg times from each trial so they can be graphed
+
+		//takes simulation to results page
+		window.setScene(resultsPg);
 	}
 
 	/**
@@ -702,5 +706,12 @@ public class MainClass extends Application {
 
 		//sets screen to display page
 		window.setScene(mapEditPg);
+	}
+
+	/**
+	 * Displays results from simulation
+	 */
+	public void resultsPage() {
+
 	}
 }

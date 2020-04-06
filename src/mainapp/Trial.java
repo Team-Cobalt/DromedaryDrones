@@ -180,7 +180,7 @@ public class Trial {
         return fifoDeliveryResults;
     }
 
-    /** NEED TO TEST!!!!!!!!!!
+    /**
      * Method that has the drone make deliveries to order destinations
      * @author Isabella Patnode and Christian Burns
      * @param droneOrders the orders currently loaded on the drone
