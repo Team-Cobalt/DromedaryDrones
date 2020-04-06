@@ -52,7 +52,6 @@ public class Trial {
      */
     public ArrayList<Order> runKnapsackDeliveries(){
         double cargoWeight = 0.0, currentMealWeight;
-        ArrayList<Order> knapsackResults = new ArrayList<>(); // Is this needed?
         ArrayList<Order> knapsackDeliveries = new ArrayList<>();
         ArrayList<Order> skippedOrders = new ArrayList<>();
         simulationTime = 0.0;
@@ -114,7 +113,6 @@ public class Trial {
             } else {
                 simulationTime++;
             }
-
         }
 
         return knapsackDeliveries;
