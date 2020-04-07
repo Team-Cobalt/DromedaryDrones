@@ -12,9 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
@@ -871,6 +869,48 @@ public class MainClass extends Application {
 	 * Displays results from simulation
 	 */
 	public void resultsPage() {
+
+		//creates heading of page
+		settingTitle();
+
+		//sets up home button icon
+		homeBtn();
+
+		//configures display of home button and page title
+		HBox topLayout = new HBox();
+		topLayout.setSpacing(141);
+		topLayout.setAlignment(Pos.TOP_LEFT);
+		topLayout.getChildren().addAll(iconLayout, titleLayout);
+
+		//sets up BarChart (histogram)
+		CategoryAxis xAxis = new CategoryAxis();
+		NumberAxis yAxis = new NumberAxis();
+		BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
+		barChart.setCategoryGap(0.2);
+		barChart.setBarGap(0.2);
+		xAxis.setLabel("Delivery Time (add units!)");
+		yAxis.setLabel("Number of Orders");
+
+		//sets up fifo and knapsack packing series of data
+		XYChart.Series fifoSeries = new XYChart.Series();
+		XYChart.Series knapsackSeries = new XYChart.Series();
+		fifoSeries.setName("FIFO");
+		knapsackSeries.setName("Knapsack Packing");
+
+		//add data from lists
+		//fifoSeries.getData().add(new XYChart.Data("1-2", numOrders);
+		//knapsackSeries.getData().add(new XYChart.Data("1-2", numOrders);
+
+		//add series data to bar chart
+		barChart.getData().addAll(fifoSeries);
+		barChart.getData().addAll(knapsackSeries);
+
+		VBox vBox = new VBox();
+		vBox.getChildren().addAll(barChart);//other stuff needs to be added
+
+
+		StackPane root = new StackPane();
+		root.getChildren().add(vBox);
 
 		Scene resultsPg = new Scene(root, 900, 600);
 
