@@ -583,7 +583,6 @@ public class MainClass extends Application {
 			mealFoods.setHgap(5);
 			mealFoods.setMaxSize(200, 200);
 
-			//TODO: fix errors
 			//counts the number of each food item in the meal (i.e. 2 burgers, 1, fries, etc.)
 			for(FoodItem mealItem: meal.getFoods()) {
 				String foodName = mealItem.getName();
@@ -606,7 +605,8 @@ public class MainClass extends Application {
 				foodName.setFont(Font.font("Serif", 15));
 				mealFoods.add(foodName, 0, index);
 
-				//TODO: fix errors
+				//TODO: SET UP DELETE BUTTON
+
 				//gets # of the specific food item in the meal
 				if(numPerFood.containsKey(currentFood)) {
 					TextField foodCount = new TextField(numPerFood.get(currentFood).toString());
@@ -871,7 +871,16 @@ public class MainClass extends Application {
 	public void resultsPage() {
 
 		//creates heading of page
-		settingTitle();
+		title = new Text("Simulation Results");
+		title.setFont(Font.font("Serif", 30));
+		title.setFill(Color.BLACK);
+		title.setWrappingWidth(400);
+		title.setTextAlignment(TextAlignment.CENTER);
+
+		//aligns title
+		titleLayout = new HBox();
+		titleLayout.getChildren().add(title);
+		titleLayout.setAlignment(Pos.CENTER);
 
 		//sets up home button icon
 		homeBtn();
