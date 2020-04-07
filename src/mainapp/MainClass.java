@@ -226,6 +226,7 @@ public class MainClass extends Application {
 		window.setScene(simPage);
 		
 		//TODO: run simulation??
+		SimulationResults results = currentSim.run();
 		//run simulation method found in Simulation class
 		//have observable list of avg times from each trial so they can be graphed
 

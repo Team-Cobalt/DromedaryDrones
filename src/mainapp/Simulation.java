@@ -160,6 +160,19 @@ public class Simulation implements XmlSerializable {
     }
 
     /**
+     * Runs the simulation and returns the results.
+     */
+    public SimulationResults run() {
+        ArrayList<TrialResults> trialResults = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            Trial trial = new Trial(mealTypes, stocFlow, deliveryPoints);
+            trial.run();
+            trialResults.add(trial.getResults());
+        }
+        return new SimulationResults(trialResults);
+    }
+
+    /**
      * Returns the name of the simulation state.
      * @author Christian Burns
      */

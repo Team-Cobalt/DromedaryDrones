@@ -2,23 +2,33 @@ package food;
 
 import location.Point;
 
+/**
+ * Container for tracking an individual order within a Trial.
+ * @author  Christian Burns
+ */
 public class Order implements Comparable<Order> {
 
 	private Meal mealOrdered;
+	private Point destination;
 	private int timeOrdered;
 	private int timeDelivered;
-	private Point destination;
 
+	/**
+	 * Default constructor to create a new instance of the Order class.
+	 * @param mealOrdered  meal ordered
+	 * @param timeOrdered  time in minutes relative to the start of the sim the order was placed
+	 * @param destination  drop off location where the meal was ordered
+	 */
 	public Order(Meal mealOrdered, int timeOrdered, Point destination) {
 		this.mealOrdered = mealOrdered;
+		this.destination = destination;
 		this.timeOrdered = timeOrdered;
 		this.timeDelivered = -1;
-		this.destination = destination;
 	}
 
 	/**
-	 * Copy constructor
-	 * @param other  other order to copy
+	 * Copy constructor to clone an existing instance of the Order class.
+	 * @param other  other order instance to copy
 	 */
 	public Order(Order other) {
 		this.mealOrdered = other.mealOrdered;
@@ -27,6 +37,10 @@ public class Order implements Comparable<Order> {
 		this.destination = other.destination;
 	}
 
+	/**
+	 * Returns the time in minutes relative to the start
+	 * of the simulation of when the order was created.
+	 */
 	public int getTimeOrdered() {
 		return timeOrdered;
 	}
@@ -42,16 +56,26 @@ public class Order implements Comparable<Order> {
 	/**
 	 * Sets the time in minutes relative to the start
 	 * of the simulation of when the order was delivered.
-	 * @param time  relative time time in minutes
+	 * @param time  time in minutes relative to start of sim
 	 */
 	public void setTimeDelivered(int time) {
 		timeDelivered = time;
 	}
 
+	public int getWaitTime() {
+		return timeDelivered - timeOrdered;
+	}
+
+	/**
+	 * Returns the meal that was ordered.
+	 */
 	public Meal getMealOrdered() {
 		return mealOrdered;
 	}
 
+	/**
+	 * Returns the location of where the meal was ordered.
+	 */
 	public Point getDestination(){
 		return destination;
 	}

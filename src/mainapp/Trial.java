@@ -8,7 +8,9 @@ import location.Route;
 
 import java.util.*;
 
-public class Trial {
+// x = delivery time, y = count ~~ average across all traisl
+
+public class Trial implements Runnable{
     private ArrayList<Meal> simMeals; //list of current sim's meals
     private ArrayList<Integer> simFlow; //current sim's stochastic flow
     private ArrayList<Order> simOrders; //list of orders generated during shift
@@ -19,6 +21,7 @@ public class Trial {
     private Route droneRoute;
     private LinkedList<Point> droneDestinations; //list of destinations for drone's route
     private double simulationTime;
+    private TrialResults results;
 
     private static final int MINUTES = 60;
     private static final double MAX_CARGO_WEIGHT = 192;             // 12 pounds in ounces
@@ -40,8 +43,31 @@ public class Trial {
         droneCargo = new LinkedList<>();
         droneDestinations = new LinkedList<>();
         simulationTime = 0.0;
+        results = null;
         //calculates generates list of orders based on time they are ordered
         simOrders = generateOrders();
+    }
+
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+        ArrayList<Order> fifoDeliveries = runFifoDeliveries();
+        ArrayList<Order> knapsackDeliveries = runKnapsackDeliveries();
+        results = new TrialResults(fifoDeliveries, knapsackDeliveries);
+    }
+
+    public TrialResults getResults() {
+        return results;
     }
 
     /**
@@ -274,4 +300,5 @@ public class Trial {
 
         return simMeals.get(i);
     }
+
 }
