@@ -29,9 +29,7 @@ import location.Point;
 
 /**
  * Class that runs the simulation
- * @author Isabella Patnode, Rachel Franklin, Brendan Ortmann, and Christian Burns
- *
- *SAVING SIMULATION RESULTS WILL HAVE TO OCCUR AFTER SIMULATION IS RUN????? Yes
+ * @author Isabella Patnode and Rachel Franklin
  */
 public class MainClass extends Application {
 	private Stage window; //used for creating gui
@@ -42,7 +40,7 @@ public class MainClass extends Application {
 	private HBox iconLayout; //layout of home icon
 	private VBox btnLayout; //layout of setting's menu btns
 	private VBox settingLayout; //layout of all icons in setting pages
-	private Simulation currentSim;
+	private Simulation currentSim; //current simulation being run
 	
 	
 	public static void main(String[] args) {
