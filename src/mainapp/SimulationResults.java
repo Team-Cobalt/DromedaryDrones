@@ -1,5 +1,6 @@
 package mainapp;
 
+import food.Order;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -12,6 +13,8 @@ import java.util.HashMap;
  * @author  Christian Burns
  */
 public class SimulationResults {
+
+    private ArrayList<TrialResults> trialResults;
 
     private ArrayList<Entry> fifoTimes;
     private double averageFifoTime;
@@ -28,14 +31,15 @@ public class SimulationResults {
      */
     public SimulationResults(ArrayList<TrialResults> trialResults) {
 
-        fifoTimes = new ArrayList<>();
-        knapsackTimes = new ArrayList<>();
         averageFifoTime = 0;
         averageKnapsackTime = 0;
+        fifoTimes = new ArrayList<>();
+        knapsackTimes = new ArrayList<>();
         worstFifoTime = Integer.MIN_VALUE;
         worstKnapsackTime = Integer.MIN_VALUE;
         HashMap<Integer, Entry> _fifoTimes = new HashMap<>();
         HashMap<Integer, Entry> _knapsackTimes = new HashMap<>();
+        this.trialResults = trialResults;
 
         for (TrialResults result : trialResults) {
             averageFifoTime += result.getAverageFifoTime();
@@ -68,6 +72,13 @@ public class SimulationResults {
         _knapsackTimes.forEach((key, value) -> knapsackTimes.add(new Entry(key, (int)Math.ceil(value.elapsedTime / (double)value.deliveryCount))));
         Collections.sort(fifoTimes);
         Collections.sort(knapsackTimes);
+    }
+
+    /**
+     * Returns the list of all trial results from the simulation
+     */
+    public ArrayList<TrialResults> getTrialResults() {
+        return trialResults;
     }
 
     /**

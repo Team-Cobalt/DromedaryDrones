@@ -2,6 +2,7 @@ package mainapp;
 
 import food.FoodItem;
 import food.Meal;
+import food.Order;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -11,6 +12,7 @@ import xml.XmlSerializable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -193,13 +195,91 @@ public class Configuration implements XmlSerializable {
 	}
 
     /**
+     * Saves the simulation results to a CSV file.
+     * @param results  instance of the simulation results
+     * @param file     file to save the results to
+     * @return  {@code true} if it was able to be saved
+     */
+	public boolean saveResults(SimulationResults results, File file) {
+	    try {
+            if (file.exists() || file.createNewFile()) {
+                // collect all the results
+                StringBuilder builder = new StringBuilder();
+
+                // format the headers
+                String title = "\n,Fifo,Knapsack\n";
+                String average = String.format("Average,%f,%f\n",
+                        results.getAverageFifoTime(), results.getAverageKnapsackTime());
+                String worst = String.format("Worst,%d,%d\n",
+                        results.getWorstFifoTime(), results.getWorstKnapsackTime());
+                String header = ",,Fifo,,,,Knapsack\n";
+                String columns = ",meal,ordered,delivered,wait,,meal,ordered,delivered,wait\n";
+
+                // add the headers
+                builder.append(title).append(average).append(worst)
+                        .append("\n\n").append(header).append(columns);
+
+                // print the results of each trial
+                int trialNum = 1;
+                for (TrialResults trial : results.getTrialResults()) {
+                    ArrayList<Order> fifo = trial.getFifoDeliveries();
+                    ArrayList<Order> knapsack = trial.getKnapsackDeliveries();
+
+                    // while both have the same number of orders
+                    while (trialNum <= fifo.size() && trialNum <= knapsack.size()) {
+                        Order fifoOrder = fifo.get(trialNum - 1);
+                        Order knapsackOrder = knapsack.get(trialNum - 1);
+                        String row = String.format("%s,%s,%d,%d,%d,,%s,%d,%d,%d\n",
+                                trialNum==1?"trial "+trialNum:"",fifoOrder.getMealOrdered().getName(),
+                                fifoOrder.getTimeOrdered(),fifoOrder.getTimeDelivered(),fifoOrder.getWaitTime(),
+                                knapsackOrder.getMealOrdered().getName(),knapsackOrder.getTimeOrdered(),
+                                knapsackOrder.getTimeDelivered(),knapsackOrder.getWaitTime());
+                        builder.append(row);
+                        trialNum++;
+                    }
+
+                    // resolve in the event of fifo having more orders than knapsack
+                    while (trialNum <= fifo.size()) {
+                        Order fifoOrder = fifo.get(trialNum - 1);
+                        String row = String.format(",%s,%d,%d,%d\n",
+                                fifoOrder.getMealOrdered().getName(), fifoOrder.getTimeOrdered(),
+                                fifoOrder.getTimeDelivered(), fifoOrder.getWaitTime());
+                        builder.append(row);
+                        trialNum++;
+                    }
+
+                    // resolve in the event of knapsack having more orders than fifo
+                    while (trialNum <= knapsack.size()) {
+                        Order knapsackOrder = fifo.get(trialNum - 1);
+                        String row = String.format(",,,,,,%s,%d,%d,%d\n",
+                                knapsackOrder.getMealOrdered().getName(), knapsackOrder.getTimeOrdered(),
+                                knapsackOrder.getTimeDelivered(), knapsackOrder.getWaitTime());
+                        builder.append(row);
+                        trialNum++;
+                    }
+                    builder.append('\n');
+                }
+
+                // write the data to the file
+                try (PrintWriter writer = new PrintWriter(file)) {
+                    writer.println(builder.toString());
+                }
+                return false;
+            }
+        } catch (IOException ioe) {
+	        ioe.printStackTrace();
+        }
+	    return false;
+    }
+
+    /**
      * Saves all simulation states to the specified file.
      * @param saveFile  save file to save the data to
      * @return  {@code true} if all data was successfully saved
      *          {@code false} if the data was unable to be parsed or saved
      * @throws FileNotFoundException  if the save file did not exist
      */
-	public boolean save(File saveFile) throws FileNotFoundException {
+	public boolean saveConfigs(File saveFile) throws FileNotFoundException {
         try (PrintWriter pw = new PrintWriter(saveFile)) {
             String xmlSaveData = XmlFactory.toXmlString(this);
             pw.println(xmlSaveData);

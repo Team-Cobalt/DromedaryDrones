@@ -3,6 +3,7 @@ package mainapp;
 import food.Order;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -11,10 +12,12 @@ import java.util.HashMap;
  */
 public class TrialResults {
 
+    private ArrayList<Order> fifoDeliveries;
     private ArrayList<Entry> fifoTimes;
     private double averageFifoTime;
     private int worstFifoTime;
 
+    private ArrayList<Order> knapsackDeliveries;
     private ArrayList<Entry> knapsackTimes;
     private double averageKnapsackTime;
     private int worstKnapsackTime;
@@ -22,18 +25,23 @@ public class TrialResults {
     /**
      * Default constructor to compile the results of a single simulation trial.
      * @param fifoDeliveries   order results of running the fifo simulation
-     * @param knapsackResults  order results of running the knapsack simulation
+     * @param knapsackDeliveries  order results of running the knapsack simulation
      */
-    public TrialResults(ArrayList<Order> fifoDeliveries, ArrayList<Order> knapsackResults) {
+    public TrialResults(ArrayList<Order> fifoDeliveries, ArrayList<Order> knapsackDeliveries) {
 
-        fifoTimes = new ArrayList<>();
-        knapsackTimes = new ArrayList<>();
         averageFifoTime = 0;
         averageKnapsackTime = 0;
+        fifoTimes = new ArrayList<>();
+        knapsackTimes = new ArrayList<>();
         worstFifoTime = Integer.MIN_VALUE;
         worstKnapsackTime = Integer.MIN_VALUE;
+        this.fifoDeliveries = fifoDeliveries;
+        this.knapsackDeliveries = knapsackDeliveries;
         HashMap<Integer, Integer> _fifoTimes = new HashMap<>();
         HashMap<Integer, Integer> _knapsackTimes = new HashMap<>();
+
+        Collections.sort(fifoDeliveries);
+        Collections.sort(knapsackDeliveries);
 
         for (Order order : fifoDeliveries) {
             _fifoTimes.put(order.getWaitTime(), _fifoTimes.getOrDefault(order.getWaitTime(), 0) + 1);
@@ -42,15 +50,29 @@ public class TrialResults {
         }
         averageFifoTime /= fifoDeliveries.size();
 
-        for (Order order : knapsackResults) {
+        for (Order order : knapsackDeliveries) {
             _knapsackTimes.put(order.getWaitTime(), _knapsackTimes.getOrDefault(order.getWaitTime(), 0) + 1);
             averageKnapsackTime += order.getWaitTime();
             worstKnapsackTime = Math.max(worstKnapsackTime, order.getTimeOrdered());
         }
-        averageKnapsackTime /= knapsackResults.size();
+        averageKnapsackTime /= knapsackDeliveries.size();
 
         _fifoTimes.forEach((key, value) -> fifoTimes.add(new Entry(key, value)));
         _knapsackTimes.forEach((key, value) -> knapsackTimes.add(new Entry(key, value)));
+    }
+
+    /**
+     * Returns the fifo orders.
+     */
+    public ArrayList<Order> getFifoDeliveries() {
+        return fifoDeliveries;
+    }
+
+    /**
+     * Returns the knapsack orders.
+     */
+    public ArrayList<Order> getKnapsackDeliveries() {
+        return knapsackDeliveries;
     }
 
     /**
