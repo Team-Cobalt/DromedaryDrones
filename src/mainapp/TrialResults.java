@@ -1,10 +1,8 @@
 package mainapp;
 
 import food.Order;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 /**
  * Results class to hold information from one specific trial.
@@ -13,52 +11,46 @@ import java.util.HashMap;
 public class TrialResults {
 
     private ArrayList<Order> fifoDeliveries;
-    private ArrayList<Entry> fifoTimes;
     private double averageFifoTime;
-    private int worstFifoTime;
+    private double worstFifoTime;
 
     private ArrayList<Order> knapsackDeliveries;
-    private ArrayList<Entry> knapsackTimes;
     private double averageKnapsackTime;
-    private int worstKnapsackTime;
+    private double worstKnapsackTime;
 
     /**
      * Default constructor to compile the results of a single simulation trial.
-     * @param fifoDeliveries   order results of running the fifo simulation
+     * @param fifoDeliveries      order results of running the fifo simulation
      * @param knapsackDeliveries  order results of running the knapsack simulation
      */
     public TrialResults(ArrayList<Order> fifoDeliveries, ArrayList<Order> knapsackDeliveries) {
 
-        averageFifoTime = 0;
-        averageKnapsackTime = 0;
-        fifoTimes = new ArrayList<>();
-        knapsackTimes = new ArrayList<>();
-        worstFifoTime = Integer.MIN_VALUE;
-        worstKnapsackTime = Integer.MIN_VALUE;
+        averageFifoTime = 0.0;
+        averageKnapsackTime = 0.0;
+        worstFifoTime = Double.MIN_VALUE;
+        worstKnapsackTime = Double.MIN_VALUE;
         this.fifoDeliveries = fifoDeliveries;
         this.knapsackDeliveries = knapsackDeliveries;
-        HashMap<Integer, Integer> _fifoTimes = new HashMap<>();
-        HashMap<Integer, Integer> _knapsackTimes = new HashMap<>();
 
+        // sort the orders based on their creation times
         Collections.sort(fifoDeliveries);
         Collections.sort(knapsackDeliveries);
 
+        // find worst and average times for Fifo
         for (Order order : fifoDeliveries) {
-            _fifoTimes.put(order.getWaitTime(), _fifoTimes.getOrDefault(order.getWaitTime(), 0) + 1);
             averageFifoTime += order.getWaitTime();
             worstFifoTime = Math.max(worstFifoTime, order.getTimeOrdered());
         }
-        averageFifoTime /= fifoDeliveries.size();
 
+        // find worst and average times for Knapsack
         for (Order order : knapsackDeliveries) {
-            _knapsackTimes.put(order.getWaitTime(), _knapsackTimes.getOrDefault(order.getWaitTime(), 0) + 1);
             averageKnapsackTime += order.getWaitTime();
             worstKnapsackTime = Math.max(worstKnapsackTime, order.getTimeOrdered());
         }
-        averageKnapsackTime /= knapsackDeliveries.size();
 
-        _fifoTimes.forEach((key, value) -> fifoTimes.add(new Entry(key, value)));
-        _knapsackTimes.forEach((key, value) -> knapsackTimes.add(new Entry(key, value)));
+        // final averages are the sum / count
+        averageFifoTime /= fifoDeliveries.size();
+        averageKnapsackTime /= knapsackDeliveries.size();
     }
 
     /**
@@ -76,13 +68,6 @@ public class TrialResults {
     }
 
     /**
-     * Returns a list of wait times and the number of orders with the wait times for fifo
-     */
-    public ArrayList<Entry> getFifoTimes() {
-        return fifoTimes;
-    }
-
-    /**
      * Returns the average fifo wait time
      */
     public double getAverageFifoTime() {
@@ -92,15 +77,8 @@ public class TrialResults {
     /**
      * Returns the worst fifo wait time
      */
-    public int getWorstFifoTime() {
+    public double getWorstFifoTime() {
         return worstFifoTime;
-    }
-
-    /**
-     * Returns a list of wait times and the number of orders with the wait times for knapsack
-     */
-    public ArrayList<Entry> getKnapsackTimes() {
-        return knapsackTimes;
     }
 
     /**
@@ -113,7 +91,7 @@ public class TrialResults {
     /**
      * Returns the worst knapsack wait time
      */
-    public int getWorstKnapsackTime() {
+    public double getWorstKnapsackTime() {
         return worstKnapsackTime;
     }
 }

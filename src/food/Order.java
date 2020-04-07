@@ -10,16 +10,16 @@ public class Order implements Comparable<Order> {
 
 	private Meal mealOrdered;
 	private Point destination;
-	private int timeOrdered;
-	private int timeDelivered;
+	private double timeOrdered;
+	private double timeDelivered;
 
 	/**
 	 * Default constructor to create a new instance of the Order class.
 	 * @param mealOrdered  meal ordered
-	 * @param timeOrdered  time in minutes relative to the start of the sim the order was placed
+	 * @param timeOrdered  time in seconds relative to the start of the sim the order was placed
 	 * @param destination  drop off location where the meal was ordered
 	 */
-	public Order(Meal mealOrdered, int timeOrdered, Point destination) {
+	public Order(Meal mealOrdered, double timeOrdered, Point destination) {
 		this.mealOrdered = mealOrdered;
 		this.destination = destination;
 		this.timeOrdered = timeOrdered;
@@ -38,31 +38,31 @@ public class Order implements Comparable<Order> {
 	}
 
 	/**
-	 * Returns the time in minutes relative to the start
+	 * Returns the time in seconds relative to the start
 	 * of the simulation of when the order was created.
 	 */
-	public int getTimeOrdered() {
+	public double getTimeOrdered() {
 		return timeOrdered;
 	}
 
 	/**
-	 * Returns the time in minutes relative to the start
+	 * Returns the time in seconds relative to the start
 	 * of the simulation of when the order was delivered.
 	 */
-	public int getTimeDelivered() {
+	public double getTimeDelivered() {
 		return timeDelivered;
 	}
 
 	/**
-	 * Sets the time in minutes relative to the start
+	 * Sets the time in seconds relative to the start
 	 * of the simulation of when the order was delivered.
-	 * @param time  time in minutes relative to start of sim
+	 * @param time  time in seconds relative to start of sim
 	 */
-	public void setTimeDelivered(int time) {
+	public void setTimeDelivered(double time) {
 		timeDelivered = time;
 	}
 
-	public int getWaitTime() {
+	public double getWaitTime() {
 		return timeDelivered - timeOrdered;
 	}
 
@@ -94,6 +94,6 @@ public class Order implements Comparable<Order> {
 	 */
 	@Override
 	public int compareTo(Order other) {
-		return Integer.compare(timeOrdered, other.timeOrdered);
+		return Double.compare(timeOrdered, other.timeOrdered);
 	}
 }

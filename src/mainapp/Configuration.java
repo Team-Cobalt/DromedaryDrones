@@ -210,10 +210,10 @@ public class Configuration implements XmlSerializable {
                 String title = "\n,Fifo,Knapsack\n";
                 String average = String.format("Average,%f,%f\n",
                         results.getAverageFifoTime(), results.getAverageKnapsackTime());
-                String worst = String.format("Worst,%d,%d\n",
+                String worst = String.format("Worst,%e,%e\n",
                         results.getWorstFifoTime(), results.getWorstKnapsackTime());
                 String header = ",,Fifo,,,,Knapsack\n";
-                String columns = ",meal,ordered,delivered,wait,,meal,ordered,delivered,wait\n";
+                String columns = ",meal,ordered,delivered,wait (sec),,meal,ordered,delivered,wait (sec)\n";
 
                 // add the headers
                 builder.append(title).append(average).append(worst)
@@ -229,7 +229,7 @@ public class Configuration implements XmlSerializable {
                     while (trialNum <= fifo.size() && trialNum <= knapsack.size()) {
                         Order fifoOrder = fifo.get(trialNum - 1);
                         Order knapsackOrder = knapsack.get(trialNum - 1);
-                        String row = String.format("%s,%s,%d,%d,%d,,%s,%d,%d,%d\n",
+                        String row = String.format("%s,%s,%e,%e,%e,,%s,%e,%e,%e\n",
                                 trialNum==1?"trial "+trialNum:"",fifoOrder.getMealOrdered().getName(),
                                 fifoOrder.getTimeOrdered(),fifoOrder.getTimeDelivered(),fifoOrder.getWaitTime(),
                                 knapsackOrder.getMealOrdered().getName(),knapsackOrder.getTimeOrdered(),
@@ -241,7 +241,7 @@ public class Configuration implements XmlSerializable {
                     // resolve in the event of fifo having more orders than knapsack
                     while (trialNum <= fifo.size()) {
                         Order fifoOrder = fifo.get(trialNum - 1);
-                        String row = String.format(",%s,%d,%d,%d\n",
+                        String row = String.format(",%s,%e,%e,%e\n",
                                 fifoOrder.getMealOrdered().getName(), fifoOrder.getTimeOrdered(),
                                 fifoOrder.getTimeDelivered(), fifoOrder.getWaitTime());
                         builder.append(row);
@@ -251,7 +251,7 @@ public class Configuration implements XmlSerializable {
                     // resolve in the event of knapsack having more orders than fifo
                     while (trialNum <= knapsack.size()) {
                         Order knapsackOrder = fifo.get(trialNum - 1);
-                        String row = String.format(",,,,,,%s,%d,%d,%d\n",
+                        String row = String.format(",,,,,,%s,%e,%e,%e\n",
                                 knapsackOrder.getMealOrdered().getName(), knapsackOrder.getTimeOrdered(),
                                 knapsackOrder.getTimeDelivered(), knapsackOrder.getWaitTime());
                         builder.append(row);

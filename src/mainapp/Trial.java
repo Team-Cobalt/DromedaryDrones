@@ -8,8 +8,10 @@ import location.Route;
 
 import java.util.*;
 
-// x = delivery time, y = count ~~ average across all traisl
-
+/**
+ * @author  Isabella Patnode, Christian Burns,
+ *          Brendan Ortmann, and Rachel Franklin
+ */
 public class Trial implements Runnable{
     private ArrayList<Meal> simMeals; //list of current sim's meals
     private ArrayList<Integer> simFlow; //current sim's stochastic flow
@@ -23,8 +25,10 @@ public class Trial implements Runnable{
     private double simulationTime;
     private TrialResults results;
 
-    private static final int MINUTES = 60;
-    private static final double MAX_CARGO_WEIGHT = 192;             // 12 pounds in ounces
+    private static final int SECONDS_PER_HOUR = 3600;   // 60 seconds * 60 minutes
+    private static final int SECONDS_TO_DELIVER = 30;   // 30 seconds
+    private static final int SECONDS_TO_RECHARGE = 180; // 3 minutes
+    private static final double MAX_CARGO_WEIGHT = 192; // 12 pounds in ounces
     public static final double MAX_SPEED_FEET_PER_SEC = 20 * 1.467; // 20 mph -> 29.3333 feet per second
 
     /**
@@ -89,7 +93,6 @@ public class Trial implements Runnable{
                 a.getMealOrdered().getTotalWeight())); // Sort the meals in descending order based on weight
 
         while(!knapsackDeliveries.isEmpty()){
-            simulationTime = Math.round(simulationTime);
 
             Collections.sort(skippedOrders); // Sort skipped orders by time so that older orders get added first
             for(Order s : skippedOrders){ // Query skipped orders first
@@ -127,11 +130,11 @@ public class Trial implements Runnable{
                 droneDestinations = droneRoute.getRoute();
 
                 //delivers orders to specified destinations using calculated route
-                simulationTime += 3.0;  // three minutes to load the drone
-                makeDeliveries(droneCargo, droneDestinations);
+                simulationTime += SECONDS_TO_RECHARGE;  // three minutes to load the drone
+                makeDeliveries(droneDestinations);
 
                 // mark the delivery time for each order
-                droneCargo.forEach(order -> order.setTimeDelivered((int) simulationTime));
+                droneCargo.forEach(order -> order.setTimeDelivered(simulationTime));
                 //.addAll(droneCargo);
                 droneCargo.clear();
 
@@ -164,7 +167,6 @@ public class Trial implements Runnable{
 
         //runs delivery routes while there are orders to be delivered
         while(!fifoDeliveries.isEmpty()) {
-            simulationTime = Math.round(simulationTime);
             // load up drone with meals ordered in the past that don't exceed payload capacity
             while (true) {
                 Order nextOrder = fifoDeliveries.peek();
@@ -189,11 +191,11 @@ public class Trial implements Runnable{
                 droneDestinations = droneRoute.getRoute();
 
                 //delivers orders to specified destinations using calculated route
-                simulationTime += 3.0;  // three minutes to load the drone
-                makeDeliveries(droneCargo, droneDestinations);
+                simulationTime += SECONDS_TO_RECHARGE;  // three minutes to load the drone
+                makeDeliveries(droneDestinations);
 
                 // mark the delivery time for each order
-                droneCargo.forEach(order -> order.setTimeDelivered((int) simulationTime));
+                droneCargo.forEach(order -> order.setTimeDelivered(simulationTime));
                 fifoDeliveryResults.addAll(droneCargo);
                 droneCargo.clear();
 
@@ -208,26 +210,22 @@ public class Trial implements Runnable{
 
     /**
      * Method that has the drone make deliveries to order destinations
-     * @author Isabella Patnode and Christian Burns
-     * @param droneOrders the orders currently loaded on the drone
-     * @param route the route the drone is to take
+     * @author  Isabella Patnode and Christian Burns
+     * @param route  the route the drone is to take
      */
-    public void makeDeliveries(LinkedList<Order> droneOrders, LinkedList<Point> route) {
+    public void makeDeliveries(LinkedList<Point> route) {
         Point currentLocation = null;
         double seconds;
-        double minutes;
 
         // fly to each unique point on the route
         while (!route.isEmpty()) {
             Point nextPoint = route.removeFirst();
             if (currentLocation == null) {
                 seconds = nextPoint.distanceFromPoint(null) / MAX_SPEED_FEET_PER_SEC;
-                minutes = seconds / 60;             // minutes to fly to the destination
-                simulationTime += minutes + 0.5;    // flight time + 30 seconds for delivery
+                simulationTime += seconds + SECONDS_TO_DELIVER; // flight time + 30 seconds for delivery
             } else if (!currentLocation.equals(nextPoint)) {
                 seconds = nextPoint.distanceFromPoint(currentLocation) / MAX_SPEED_FEET_PER_SEC;
-                minutes = seconds / 60;             // minutes to fly to the destination
-                simulationTime += minutes + 0.5;    // flight time + 30 seconds for delivery
+                simulationTime += seconds + SECONDS_TO_DELIVER; // flight time + 30 seconds for delivery
             }
             //System.out.println(String.format("[%.1f elapsed] Flying to %s", simulationTime, nextPoint.getName()));
             // TODO: here is where we will set delivery time when determined by drop off
@@ -237,38 +235,37 @@ public class Trial implements Runnable{
 
         // fly back to the origin
         if (currentLocation != null) {
-            seconds = currentLocation.distanceFromPoint(null) / MAX_SPEED_FEET_PER_SEC;
-            minutes = seconds / 60;
-            simulationTime += minutes;
+            // add the number of seconds it takes to fly back to the origin
+            simulationTime += currentLocation.distanceFromPoint(null) / MAX_SPEED_FEET_PER_SEC;
             //System.out.println(String.format("[%.1f elapsed] Flying back to origin.\n", simulationTime));
         }
     }
 
     /**
-     * Randomly generates a list of order times and creates a list of orders based on the times
-     * @author Isabella Patnode
-     * @return the list of orders and their order times
+     * Generates a list of random orders to be used for this trial.
+     * @author  Isabella Patnode and Christian Burns
+     * @return  list of orders with their creation times relative
+     *          to the start of the simulation in seconds.
      */
-    public ArrayList<Order> generateOrders() {
-        int timeOfOrder;
-        int mealsPerHour;
-        int index;
+    private ArrayList<Order> generateOrders() {
         ArrayList<Order> orders = new ArrayList<>();
+        int hour, mealsPerHour, mealNum, creationTime;
+        int hourCount = simFlow.size();
 
-        //generates a list of random order times according to given stochastic flow
-        for(index = 0; index < simFlow.size(); index++) {
-            //number of meals to be generated in specific hour
-            mealsPerHour = simFlow.get(index);
+        // generates a list of random order times according to the given stochastic flow
+        for (hour = 0; hour < hourCount; hour++) {
+            // number of meals to be generated in specific hour
+            mealsPerHour = simFlow.get(hour);
 
-            //generates each order time for all orders in each hour slot
-            for(int mealNum = 0; mealNum < mealsPerHour; mealNum++) {
-                //calculates time of order using given hour (i.e. first hour, second hour, etc.)
-                timeOfOrder = (rand.nextInt(MINUTES) + 1) + (MINUTES * index);
-                orders.add(new Order(getRandomMeal(), timeOfOrder, simPoints.getRandomPoint()));
+            // generates each order time for all orders in each hour slot
+            for (mealNum = 0; mealNum < mealsPerHour; mealNum++) {
+                // calculates time of order using given hour (i.e. first hour, second hour, etc.)
+                creationTime = (rand.nextInt(SECONDS_PER_HOUR) + 1) + (SECONDS_PER_HOUR * hour);
+                orders.add(new Order(getRandomMeal(), creationTime, simPoints.getRandomPoint()));
             }
         }
 
-        //sorts list of order times in increasing order
+        // sorts list of order times in increasing order relative to their creation times
         Collections.sort(orders);
         return orders;
     }

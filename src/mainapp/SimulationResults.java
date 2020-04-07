@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 /**
  * Results class containing the overview of all simulation trial results.
@@ -16,13 +15,11 @@ public class SimulationResults {
 
     private ArrayList<TrialResults> trialResults;
 
-    private ArrayList<Entry> fifoTimes;
     private double averageFifoTime;
-    private int worstFifoTime;
+    private double worstFifoTime;
 
-    private ArrayList<Entry> knapsackTimes;
     private double averageKnapsackTime;
-    private int worstKnapsackTime;
+    private double worstKnapsackTime;
 
     /**
      * Default constructor for compiling together
@@ -31,14 +28,10 @@ public class SimulationResults {
      */
     public SimulationResults(ArrayList<TrialResults> trialResults) {
 
-        averageFifoTime = 0;
-        averageKnapsackTime = 0;
-        fifoTimes = new ArrayList<>();
-        knapsackTimes = new ArrayList<>();
-        worstFifoTime = Integer.MIN_VALUE;
-        worstKnapsackTime = Integer.MIN_VALUE;
-        HashMap<Integer, Entry> _fifoTimes = new HashMap<>();
-        HashMap<Integer, Entry> _knapsackTimes = new HashMap<>();
+        averageFifoTime = 0.0;
+        averageKnapsackTime = 0.0;
+        worstFifoTime = Double.MIN_VALUE;
+        worstKnapsackTime = Double.MIN_VALUE;
         this.trialResults = trialResults;
 
         for (TrialResults result : trialResults) {
@@ -46,32 +39,10 @@ public class SimulationResults {
             averageKnapsackTime += result.getAverageKnapsackTime();
             worstFifoTime = Math.max(worstFifoTime, result.getWorstFifoTime());
             worstKnapsackTime = Math.max(worstKnapsackTime, result.getWorstKnapsackTime());
-
-            ArrayList<Entry> _trialFifoTimes = result.getFifoTimes();
-            ArrayList<Entry> _trialKnapsackTimes = result.getKnapsackTimes();
-
-            for (Entry entry : _trialFifoTimes) {
-                _fifoTimes.putIfAbsent(entry.elapsedTime, new Entry(0, 0));
-                Entry _entry = _fifoTimes.get(entry.elapsedTime);
-                _entry.elapsedTime += entry.deliveryCount;
-                _entry.deliveryCount++;
-            }
-
-            for (Entry entry : _trialKnapsackTimes) {
-                _knapsackTimes.putIfAbsent(entry.elapsedTime, new Entry(0, 0));
-                Entry _entry = _knapsackTimes.get(entry.elapsedTime);
-                _entry.elapsedTime += entry.deliveryCount;
-                _entry.deliveryCount++;
-            }
         }
 
         averageFifoTime /= trialResults.size();
         averageKnapsackTime /= trialResults.size();
-
-        _fifoTimes.forEach((key, value) -> fifoTimes.add(new Entry(key, (int)Math.ceil(value.elapsedTime / (double)value.deliveryCount))));
-        _knapsackTimes.forEach((key, value) -> knapsackTimes.add(new Entry(key, (int)Math.ceil(value.elapsedTime / (double)value.deliveryCount))));
-        Collections.sort(fifoTimes);
-        Collections.sort(knapsackTimes);
     }
 
     /**
@@ -82,11 +53,15 @@ public class SimulationResults {
     }
 
     /**
-     * Returns an observable list of the sorted fifo
-     * times representing the bel curve distribution.
+     * Returns an observable list of the fifo delivery wait times in seconds.
      */
-    public ObservableList<Entry> getFifoTimes() {
-        return FXCollections.observableList(fifoTimes);
+    public ObservableList<Double> getFifoTimes() {
+        ArrayList<Double> waitTimes = new ArrayList<>();
+        trialResults.stream().flatMapToDouble(trial ->
+                trial.getFifoDeliveries().stream().mapToDouble(Order::getWaitTime))
+                .forEach(waitTimes::add);
+        Collections.sort(waitTimes);
+        return FXCollections.observableList(waitTimes);
     }
 
     /**
@@ -99,16 +74,20 @@ public class SimulationResults {
     /**
      * Returns the absolute worst fifo wait time.
      */
-    public int getWorstFifoTime() {
+    public double getWorstFifoTime() {
         return worstFifoTime;
     }
 
     /**
-     * Returns an observable list of the sorted knapsack
-     * times representing the bel curve distribution.
+     * Returns an observable list of the fifo delivery wait times in seconds.
      */
-    public ObservableList<Entry> getKnapsackTimes() {
-        return FXCollections.observableList(knapsackTimes);
+    public ObservableList<Double> getKnapsackTimes() {
+        ArrayList<Double> waitTimes = new ArrayList<>();
+        trialResults.stream().flatMapToDouble(trial ->
+                trial.getKnapsackDeliveries().stream().mapToDouble(Order::getWaitTime))
+                .forEach(waitTimes::add);
+        Collections.sort(waitTimes);
+        return FXCollections.observableList(waitTimes);
     }
 
     /**
@@ -121,7 +100,7 @@ public class SimulationResults {
     /**
      * Returns the overall worst knapsack wait time.
      */
-    public int getWorstKnapsackTime() {
+    public double getWorstKnapsackTime() {
         return worstKnapsackTime;
     }
 
