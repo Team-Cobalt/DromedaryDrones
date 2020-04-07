@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import food.FoodItem;
 import food.Meal;
@@ -37,12 +36,6 @@ import location.Point;
 public class MainClass extends Application {
 	private Stage window; //used for creating gui
 	private Scene mainMenu; //main menu page
-	private Scene simPage; //running sim page
-	private Scene genEditPg; //general settings page
-	private Scene foodEditPg; //food item settings page
-	private Scene mealEditPg; //meal settings page
-	private Scene mapEditPg; //map settings page
-	private Scene resultsPg; //results page
 	private StackPane root;
 	private Text title; //title of page
 	private HBox titleLayout; //layout regarding title of page
@@ -229,7 +222,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(simLayout);
 		
-		simPage = new Scene(root, 900, 600);
+		Scene simPage = new Scene(root, 900, 600);
 		
 		//sets screen to display page
 		window.setScene(simPage);
@@ -239,7 +232,7 @@ public class MainClass extends Application {
 		//have observable list of avg times from each trial so they can be graphed
 
 		//takes simulation to results page
-		//window.setScene(resultsPg);
+		//resultsPage();
 	}
 
 	/**
@@ -430,7 +423,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		genEditPg = new Scene(root, 900, 600);
+		Scene genEditPg = new Scene(root, 900, 600);
 
 		//sets screen to display page
 		window.setScene(genEditPg);
@@ -457,17 +450,17 @@ public class MainClass extends Application {
 		menuBtns();
 
 		//create table of food items in simulation
-		TableView foodTable = new TableView();
+		TableView<FoodItem> foodTable = new TableView<>();
 		ObservableList<FoodItem> foodItems = currentSim.getFoodItems();
 		foodTable.setItems(foodItems);
 
 		//Create table headings
-		TableColumn itemHeading = new TableColumn("Food Item");
-		itemHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("name"));
+		TableColumn<FoodItem, String> itemHeading = new TableColumn<>("Food Item");
+		itemHeading.setCellValueFactory(new PropertyValueFactory<>("name"));
 		itemHeading.setPrefWidth(100);
 
-		TableColumn weightHeading = new TableColumn("Weight (oz)");
-		weightHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("weight"));
+		TableColumn<FoodItem, String> weightHeading = new TableColumn<>("Weight (oz)");
+		weightHeading.setCellValueFactory(new PropertyValueFactory<>("weight"));
 		weightHeading.setPrefWidth(100);
 
 		//adds columns to table
@@ -538,7 +531,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		foodEditPg = new Scene(root, 900, 600);
+		 Scene foodEditPg = new Scene(root, 900, 600);
 
 		//sets screen to display page
 		window.setScene(foodEditPg);
@@ -611,14 +604,15 @@ public class MainClass extends Application {
 			/*adds each food item and their corresponding count in meals (i.e. 2 hamburger, 0 fries)
 			**to the grid*/
 			for(FoodItem food: currentSim.getFoodItems()) {
-				Text foodName = new Text(food.getName() + ":");
+				String currentFood = food.getName();
+				Text foodName = new Text(currentFood + ":");
 				foodName.setFont(Font.font("Serif", 15));
 				mealFoods.add(foodName, 0, index);
 
 				//TODO: fix errors
 				//gets # of the specific food item in the meal
-				if(numPerFood.containsKey(foodName)) {
-					TextField foodCount = new TextField(numPerFood.get(foodName).toString());
+				if(numPerFood.containsKey(currentFood)) {
+					TextField foodCount = new TextField(numPerFood.get(currentFood).toString());
 					foodCount.setMaxWidth(80);
 					mealFoods.add(foodCount, 1, index);
 				}
@@ -695,7 +689,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		mealEditPg = new Scene(root, 900, 600);
+		Scene mealEditPg = new Scene(root, 900, 600);
 
 		//sets screen to display page
 		window.setScene(mealEditPg);
@@ -757,7 +751,8 @@ public class MainClass extends Application {
 		yAxis.setTickMarkVisible(false);
 
 		//creates scatter plot for map
-		ScatterChart map = new ScatterChart(xAxis, yAxis);
+		//TODO: Look into this
+		ScatterChart<Number, Number> map = new ScatterChart<>(xAxis, yAxis);
 		map.setHorizontalGridLinesVisible(false);
 		map.setVerticalGridLinesVisible(false);
 		map.setLegendVisible(false);
@@ -765,10 +760,10 @@ public class MainClass extends Application {
 
 
 		//creates points from destination coordinates for scatter plot
-		XYChart.Series mapValues = new XYChart.Series();
+		XYChart.Series<Number, Number> mapValues = new XYChart.Series<>();
 
 		for(Point dest : mapPoints) {
-			mapValues.getData().add(new XYChart.Data(dest.getX(), dest.getY()));
+			mapValues.getData().add(new XYChart.Data<>(dest.getX(), dest.getY()));
 		}
 		//adds points to scatter plot
 		map.getData().add(mapValues);
@@ -780,16 +775,16 @@ public class MainClass extends Application {
 		plotLayout.setAlignment(Pos.CENTER);
 
 		//creates table of current simulation's points
-		TableView mapTable = new TableView();
+		TableView<Point> mapTable = new TableView<>();
 
 		//adds cell values to table
 		mapTable.setItems(mapPoints);
 
 		//creates columns for table
-		TableColumn pointHeading = new TableColumn("Drop-Off Point");
-		pointHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("name"));
-		TableColumn xyHeading = new TableColumn("(x,y)");
-		xyHeading.setCellValueFactory(new PropertyValueFactory<Point, String>("coordinates"));
+		TableColumn<Point, String> pointHeading = new TableColumn<>("Drop-Off Point");
+		pointHeading.setCellValueFactory(new PropertyValueFactory<>("name"));
+		TableColumn<Point, String> xyHeading = new TableColumn<>("(x,y)");
+		xyHeading.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
 
 		//adds column headings to table
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
@@ -867,7 +862,7 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		mapEditPg = new Scene(root, 900, 600);
+		Scene mapEditPg = new Scene(root, 900, 600);
 
 		//sets screen to display page
 		window.setScene(mapEditPg);
@@ -878,5 +873,9 @@ public class MainClass extends Application {
 	 */
 	public void resultsPage() {
 
+		Scene resultsPg = new Scene(root, 900, 600);
+
+		//sets screen to display page
+		window.setScene(resultsPg);
 	}
 }
