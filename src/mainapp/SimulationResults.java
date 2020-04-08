@@ -81,13 +81,13 @@ public class SimulationResults {
     /**
      * Returns an observable list of the fifo delivery wait times in seconds.
      */
-    public ObservableList<Double> getKnapsackTimes() {
+    public ArrayList<Double> getKnapsackTimes() {
         ArrayList<Double> waitTimes = new ArrayList<>();
         trialResults.stream().flatMapToDouble(trial ->
                 trial.getKnapsackDeliveries().stream().mapToDouble(Order::getWaitTime))
                 .forEach(waitTimes::add);
         Collections.sort(waitTimes);
-        return FXCollections.observableList(waitTimes);
+        return waitTimes;
     }
 
     /**
