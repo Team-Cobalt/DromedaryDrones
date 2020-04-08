@@ -349,10 +349,36 @@ public class MainClass extends Application {
 		saveBtn.setStyle("-fx-background-color: WHITE");
 		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		Button loadBtn = new Button("Load Model");
+		//opens file explorer and saves current settings
+		saveBtn.setOnAction(event -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Save Changes");
+			fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter("XML", "*.xml")
+			);
+			File file = fileChooser.showSaveDialog(window);
+			if (file != null)
+				//TODO: PUT IN CORRECT METHOD HERE
+				Configuration.getInstance().saveResults(results, file);
+		});
+
+		Button loadBtn = new Button("Load Settings");
 		loadBtn.setMinWidth(svLdBtns.getPrefWidth());
 		loadBtn.setStyle("-fx-background-color: WHITE");
 		loadBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		//opens settings and loads settings from user location
+		loadBtn.setOnAction(event -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Load Settings");
+			fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter("XML", "*.xml")
+			);
+			File file = fileChooser.showOpenDialog(window);
+			if (file != null)
+				//TODO: GET RIGHT METHOD
+				Configuration.getInstance().saveResults(results, file);
+		});
 
 		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
 
@@ -439,33 +465,8 @@ public class MainClass extends Application {
 		editBtns.getChildren().addAll(addBtn, delBtn);
 		editBtns.setPadding(new Insets(0, 20, 0, 0));
 
-		/*
-		//arranges btns for loading and saving model
-		VBox svLdBtns = new VBox();
-		svLdBtns.setPrefWidth(100);
-		svLdBtns.setSpacing(10);
-		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
-		svLdBtns.setPadding(new Insets(0, 80, 0, 0));
-
-		//adds buttons for loading and saving food items
-		Button saveBtn = new Button("Save Changes");
-		saveBtn.setMinWidth(svLdBtns.getPrefWidth());
-		saveBtn.setStyle("-fx-background-color: WHITE");
-		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-
-		Button loadBtn = new Button("Load Foods");
-		loadBtn.setMinWidth(svLdBtns.getPrefWidth());
-		loadBtn.setStyle("-fx-background-color: WHITE");
-		loadBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-
-		svLdBtns.getChildren().addAll(loadBtn, saveBtn); */
-
 		VBox tbBtnLayout = new VBox(10);
 		tbBtnLayout.getChildren().addAll(centerLayout, editBtns);
-
-		/*
-		VBox displayLayout = new VBox(10);
-		displayLayout.getChildren().addAll(tbBtnLayout, svLdBtns); */
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
@@ -617,17 +618,6 @@ public class MainClass extends Application {
 		addBtn.setStyle("-fx-background-color: WHITE");
 		addBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		/*
-		Button loadBtn = new Button("Load Meals");
-		loadBtn.setMinWidth(changeBtns.getPrefWidth());
-		loadBtn.setStyle("-fx-background-color: WHITE");
-		loadBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-
-		Button saveBtn = new Button("Save Changes");
-		saveBtn.setMinWidth(changeBtns.getPrefWidth());
-		saveBtn.setStyle("-fx-background-color: WHITE");
-		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-		*/
 		changeBtns.getChildren().addAll(addBtn);
 
 		//formats display of meal layout and corresponding buttons
@@ -785,32 +775,6 @@ public class MainClass extends Application {
 		btnMap.getChildren().addAll(centerLayout, addDelBtns);
 		btnMap.setSpacing(10);
 
-		/*
-		//arranges btns for loading and saving map
-		VBox svLdBtns = new VBox();
-		svLdBtns.setPrefWidth(100);
-		svLdBtns.setSpacing(10);
-		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
-		svLdBtns.setPadding(new Insets(0, 80, 0, 0));
-
-		//adds buttons for loading and saving model
-		Button saveBtn = new Button("Save Changes");
-		saveBtn.setMinWidth(svLdBtns.getPrefWidth());
-		saveBtn.setStyle("-fx-background-color: WHITE");
-		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-
-		Button loadBtn = new Button("Load Map");
-		loadBtn.setMinWidth(svLdBtns.getPrefWidth());
-		loadBtn.setStyle("-fx-background-color: WHITE");
-		loadBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-
-		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
-
-		//arranges load/save buttons with map elements
-		VBox mainLayout = new VBox();
-		mainLayout.getChildren().addAll(btnMap, svLdBtns);
-		mainLayout.setSpacing(50); */
-
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
 		settingLayout.getChildren().addAll(topLayout, btnMap);
@@ -827,6 +791,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Displays results from simulation
+	 * @author Rachel Franklin
 	 */
 	public void resultsPage() {
 
