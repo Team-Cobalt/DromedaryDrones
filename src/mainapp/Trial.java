@@ -134,8 +134,8 @@ public class Trial {
     }
 
     /**
-     * @author Isabella Patnode
      * Method that uses FIFO to deliver the orders
+     * @author Isabella Patnode and Christian Burns
      * @return  list of orders used in the trial that contain their creation
      *          and delivery times relative to the start of the trial
      */

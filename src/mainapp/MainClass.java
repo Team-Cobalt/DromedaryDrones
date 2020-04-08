@@ -991,7 +991,8 @@ public class MainClass extends Application {
 					new FileChooser.ExtensionFilter("CSV", "*.csv")
 			);
 			File file = fileChooser.showSaveDialog(window);
-			Configuration.getInstance().saveResults(results, file);
+			if (file != null)
+			    Configuration.getInstance().saveResults(results, file);
 		});
 
 		//combine boxes
