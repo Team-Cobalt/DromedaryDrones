@@ -96,4 +96,14 @@ public class Order implements Comparable<Order> {
 	public int compareTo(Order other) {
 		return Double.compare(timeOrdered, other.timeOrdered);
 	}
+
+	@Override
+	public String toString() {
+		return "Order{" +
+				"mealOrdered=" + mealOrdered.getName() +
+				", destination=" + destination.getName() +
+				", timeOrdered=" + timeOrdered +
+				" seconds, timeDelivered=" + timeDelivered +
+				" seconds}";
+	}
 }

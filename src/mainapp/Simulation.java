@@ -166,8 +166,7 @@ public class Simulation implements XmlSerializable {
         ArrayList<TrialResults> trialResults = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             Trial trial = new Trial(mealTypes, stocFlow, deliveryPoints);
-            trial.run();
-            trialResults.add(trial.getResults());
+            trialResults.add(trial.run());
         }
         return new SimulationResults(trialResults);
     }

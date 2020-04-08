@@ -12,7 +12,7 @@ import java.util.*;
  * @author  Isabella Patnode, Christian Burns,
  *          Brendan Ortmann, and Rachel Franklin
  */
-public class Trial implements Runnable{
+public class Trial {
     private ArrayList<Meal> simMeals; //list of current sim's meals
     private ArrayList<Integer> simFlow; //current sim's stochastic flow
     private ArrayList<Order> simOrders; //list of orders generated during shift
@@ -23,7 +23,6 @@ public class Trial implements Runnable{
     private Route droneRoute;
     private LinkedList<Point> droneDestinations; //list of destinations for drone's route
     private double simulationTime;
-    private TrialResults results;
 
     private static final int SECONDS_PER_HOUR = 3600;   // 60 seconds * 60 minutes
     private static final int SECONDS_TO_DELIVER = 30;   // 30 seconds
@@ -47,31 +46,15 @@ public class Trial implements Runnable{
         droneCargo = new LinkedList<>();
         droneDestinations = new LinkedList<>();
         simulationTime = 0.0;
-        results = null;
         //calculates generates list of orders based on time they are ordered
         simOrders = generateOrders();
     }
 
     /**
-     * When an object implementing interface <code>Runnable</code> is used
-     * to create a thread, starting the thread causes the object's
-     * <code>run</code> method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method <code>run</code> is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
+     * Runs the simulation for one trial and returns the result.
      */
-    @Override
-    public void run() {
-        ArrayList<Order> fifoDeliveries = runFifoDeliveries();
-        ArrayList<Order> knapsackDeliveries = runKnapsackDeliveries();
-        results = new TrialResults(fifoDeliveries, knapsackDeliveries);
-    }
-
-    public TrialResults getResults() {
-        return results;
+    public TrialResults run() {
+        return new TrialResults(runFifoDeliveries(), runKnapsackDeliveries());
     }
 
     /**
@@ -84,6 +67,7 @@ public class Trial implements Runnable{
         double cargoWeight = 0.0, currentMealWeight;
         ArrayList<Order> knapsackDeliveries = new ArrayList<>();
         ArrayList<Order> skippedOrders = new ArrayList<>();
+        ArrayList<Order> knapsackDeliveryResults = new ArrayList<>();
         simulationTime = 0.0;
 
         for(Order o : simOrders)
@@ -137,7 +121,7 @@ public class Trial implements Runnable{
 
                 // mark the delivery time for each order
                 droneCargo.forEach(order -> order.setTimeDelivered(simulationTime));
-                //.addAll(droneCargo);
+                knapsackDeliveryResults.addAll(droneCargo);
                 droneCargo.clear();
 
                 cargoWeight = 0.0;
@@ -146,7 +130,7 @@ public class Trial implements Runnable{
             }
         }
 
-        return knapsackDeliveries;
+        return knapsackDeliveryResults;
     }
 
     /**
@@ -158,7 +142,6 @@ public class Trial implements Runnable{
     public ArrayList<Order> runFifoDeliveries() {
         double cargoWeight = 0.0; //weight of cargo already on drone
         double currentMealWeight; //weight of the current meal
-        int index; //loop variable
 
         ArrayList<Order> fifoDeliveryResults = new ArrayList<>();
         simulationTime = 0.0;
@@ -182,9 +165,9 @@ public class Trial implements Runnable{
             //send drone to make deliveries if drone is full
             if (!droneCargo.isEmpty()) {
                 //creates list of destinations the drone will need to visit
-                for(index = 0; index < droneCargo.size(); index++) {
-                    if(!droneDestinations.contains(droneCargo.get(index).getDestination())) {
-                        droneDestinations.add(droneCargo.get(index).getDestination());
+                for (Order cargo : droneCargo) {
+                    if (!droneDestinations.contains(cargo.getDestination())) {
+                        droneDestinations.add(cargo.getDestination());
                     }
                 }
 
@@ -201,8 +184,10 @@ public class Trial implements Runnable{
                 fifoDeliveryResults.addAll(droneCargo);
                 droneCargo.clear();
 
+                // reset the weight since everything was delivered
                 cargoWeight = 0.0;
             } else {
+                // increment the time by one second because no deliveries were available
                 simulationTime++;
             }
         }

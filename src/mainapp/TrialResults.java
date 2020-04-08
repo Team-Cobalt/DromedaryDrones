@@ -39,13 +39,13 @@ public class TrialResults {
         // find worst and average times for Fifo
         for (Order order : fifoDeliveries) {
             averageFifoTime += order.getWaitTime();
-            worstFifoTime = Math.max(worstFifoTime, order.getTimeOrdered());
+            worstFifoTime = Math.max(worstFifoTime, order.getWaitTime());
         }
 
         // find worst and average times for Knapsack
         for (Order order : knapsackDeliveries) {
             averageKnapsackTime += order.getWaitTime();
-            worstKnapsackTime = Math.max(worstKnapsackTime, order.getTimeOrdered());
+            worstKnapsackTime = Math.max(worstKnapsackTime, order.getWaitTime());
         }
 
         // final averages are the sum / count

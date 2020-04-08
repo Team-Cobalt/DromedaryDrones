@@ -171,18 +171,22 @@ public class Configuration implements XmlSerializable {
             simulations.add(newSim);
 
         } else {
+	        // read all XML out of the save file
 	        StringBuilder sb = new StringBuilder();
 	        try (Scanner scnr = new Scanner(saveFile)) {
 	            while (scnr.hasNextLine())
 	                sb.append(scnr.nextLine().trim());
             }
+
+	        // convert the text into an XML Document
 	        String xmlString = sb.toString();
 	        Document doc = XmlFactory.fromXmlString(xmlString);
 	        Element root = doc.getDocumentElement();
 
 	        String currentName = root.getAttribute("current");
-
             NodeList children = root.getElementsByTagName("simulation");
+
+            // build the simulations from the XML Document data
             for (int i = 0; i < children.getLength(); i++) {
                 Element child = (Element) children.item(i);
                 Simulation sim = new Simulation(child);
@@ -190,7 +194,6 @@ public class Configuration implements XmlSerializable {
                 if (sim.getName().equals(currentName))
                     currentSim = sim;
             }
-
         }
 	}
 
@@ -212,7 +215,7 @@ public class Configuration implements XmlSerializable {
                         results.getAverageFifoTime(), results.getAverageKnapsackTime());
                 String worst = String.format("Worst (sec),%e,%e\n",
                         results.getWorstFifoTime(), results.getWorstKnapsackTime());
-                String header = ",,Fifo,,,,Knapsack\n";
+                String header = ",,Fifo,,,,,Knapsack\n";
                 String columns = ",meal,ordered,delivered,wait (sec),,meal,ordered,delivered,wait (sec)\n";
 
                 // add the headers
@@ -228,6 +231,7 @@ public class Configuration implements XmlSerializable {
                 int numTrials = results.getTrialResults().size();
                 ArrayList<TrialResults> trialResults = results.getTrialResults();
 
+                // for each of the 50 trials...
                 for (trialNum = 0; trialNum < numTrials; trialNum++) {
 
                     TrialResults trial = trialResults.get(trialNum);
@@ -237,6 +241,7 @@ public class Configuration implements XmlSerializable {
                     knapSize = knapOrders.size();
                     minSize = Math.min(fifoOrders.size(), knapOrders.size());
 
+                    // for each order shared between the two sets of orders
                     for (orderNum = 0; orderNum < minSize; orderNum++) {
                         fifoOrder = fifoOrders.get(orderNum);
                         knapOrder = knapOrders.get(orderNum);
@@ -259,6 +264,7 @@ public class Configuration implements XmlSerializable {
                         builder.append(row);
                     }
 
+                    // for each order that exists in fifo but not knapsack
                     for (; orderNum < fifoSize; orderNum++) {
                         fifoOrder = fifoOrders.get(orderNum);
 
@@ -274,6 +280,7 @@ public class Configuration implements XmlSerializable {
                         builder.append(row);
                     }
 
+                    // for each order that exists in knapsack but not fifo
                     for (; orderNum < knapSize; orderNum++) {
                         knapOrder = knapOrders.get(trialNum);
 
