@@ -208,9 +208,9 @@ public class Configuration implements XmlSerializable {
 
                 // format the headers
                 String title = "\n,Fifo,Knapsack\n";
-                String average = String.format("Average,%f,%f\n",
+                String average = String.format("Average (sec),%e,%e\n",
                         results.getAverageFifoTime(), results.getAverageKnapsackTime());
-                String worst = String.format("Worst,%e,%e\n",
+                String worst = String.format("Worst (sec),%e,%e\n",
                         results.getWorstFifoTime(), results.getWorstKnapsackTime());
                 String header = ",,Fifo,,,,Knapsack\n";
                 String columns = ",meal,ordered,delivered,wait (sec),,meal,ordered,delivered,wait (sec)\n";
@@ -220,44 +220,76 @@ public class Configuration implements XmlSerializable {
                         .append("\n\n").append(header).append(columns);
 
                 // print the results of each trial
-                int trialNum = 1;
-                for (TrialResults trial : results.getTrialResults()) {
-                    ArrayList<Order> fifo = trial.getFifoDeliveries();
-                    ArrayList<Order> knapsack = trial.getKnapsackDeliveries();
+                int trialNum, orderNum, minSize, fifoSize, knapSize;
+                Order fifoOrder, knapOrder;
+                String trialInfo, fifoName, knapName;
+                double fifoTimeOrdered, fifoTimeDelivered, fifoWaitTime;
+                double knapTimeOrdered, knapTimeDelivered, knapWaitTime;
+                int numTrials = results.getTrialResults().size();
+                ArrayList<TrialResults> trialResults = results.getTrialResults();
 
-                    // while both have the same number of orders
-                    while (trialNum <= fifo.size() && trialNum <= knapsack.size()) {
-                        Order fifoOrder = fifo.get(trialNum - 1);
-                        Order knapsackOrder = knapsack.get(trialNum - 1);
-                        String row = String.format("%s,%s,%e,%e,%e,,%s,%e,%e,%e\n",
-                                trialNum==1?"trial "+trialNum:"",fifoOrder.getMealOrdered().getName(),
-                                fifoOrder.getTimeOrdered(),fifoOrder.getTimeDelivered(),fifoOrder.getWaitTime(),
-                                knapsackOrder.getMealOrdered().getName(),knapsackOrder.getTimeOrdered(),
-                                knapsackOrder.getTimeDelivered(),knapsackOrder.getWaitTime());
+                for (trialNum = 0; trialNum < numTrials; trialNum++) {
+
+                    TrialResults trial = trialResults.get(trialNum);
+                    ArrayList<Order> fifoOrders = trial.getFifoDeliveries();
+                    ArrayList<Order> knapOrders = trial.getKnapsackDeliveries();
+                    fifoSize = fifoOrders.size();
+                    knapSize = knapOrders.size();
+                    minSize = Math.min(fifoOrders.size(), knapOrders.size());
+
+                    for (orderNum = 0; orderNum < minSize; orderNum++) {
+                        fifoOrder = fifoOrders.get(orderNum);
+                        knapOrder = knapOrders.get(orderNum);
+
+                        trialInfo = orderNum == 0 ? "trial " + (trialNum + 1) : "";
+                        fifoName = fifoOrder.getMealOrdered().getName();
+                        fifoTimeOrdered = fifoOrder.getTimeOrdered();
+                        fifoTimeDelivered = fifoOrder.getTimeDelivered();
+                        fifoWaitTime = fifoOrder.getWaitTime();
+
+                        knapName = knapOrder.getMealOrdered().getName();
+                        knapTimeOrdered = knapOrder.getTimeOrdered();
+                        knapTimeDelivered = knapOrder.getTimeDelivered();
+                        knapWaitTime = knapOrder.getWaitTime();
+
+                        String row = String.format("%s,%s,%e,%e,%e,,%s,%e,%e,%e\n", trialInfo,
+                                fifoName, fifoTimeOrdered, fifoTimeDelivered, fifoWaitTime,
+                                knapName, knapTimeOrdered, knapTimeDelivered, knapWaitTime);
+
                         builder.append(row);
-                        trialNum++;
                     }
 
-                    // resolve in the event of fifo having more orders than knapsack
-                    while (trialNum <= fifo.size()) {
-                        Order fifoOrder = fifo.get(trialNum - 1);
-                        String row = String.format(",%s,%e,%e,%e\n",
-                                fifoOrder.getMealOrdered().getName(), fifoOrder.getTimeOrdered(),
-                                fifoOrder.getTimeDelivered(), fifoOrder.getWaitTime());
+                    for (; orderNum < fifoSize; orderNum++) {
+                        fifoOrder = fifoOrders.get(orderNum);
+
+                        trialInfo = orderNum == 0 ? "trial " + (trialNum + 1) : "";
+                        fifoName = fifoOrder.getMealOrdered().getName();
+                        fifoTimeOrdered = fifoOrder.getTimeOrdered();
+                        fifoTimeDelivered = fifoOrder.getTimeDelivered();
+                        fifoWaitTime = fifoOrder.getWaitTime();
+
+                        String row = String.format("%s,%s,%e,%e,%e\n", trialInfo,
+                                fifoName, fifoTimeOrdered, fifoTimeDelivered, fifoWaitTime);
+
                         builder.append(row);
-                        trialNum++;
                     }
 
-                    // resolve in the event of knapsack having more orders than fifo
-                    while (trialNum <= knapsack.size()) {
-                        Order knapsackOrder = fifo.get(trialNum - 1);
-                        String row = String.format(",,,,,,%s,%e,%e,%e\n",
-                                knapsackOrder.getMealOrdered().getName(), knapsackOrder.getTimeOrdered(),
-                                knapsackOrder.getTimeDelivered(), knapsackOrder.getWaitTime());
+                    for (; orderNum < knapSize; orderNum++) {
+                        knapOrder = knapOrders.get(trialNum);
+
+                        trialInfo = orderNum == 0 ? "trial " + (trialNum + 1) : "";
+                        knapName = knapOrder.getMealOrdered().getName();
+                        knapTimeOrdered = knapOrder.getTimeOrdered();
+                        knapTimeDelivered = knapOrder.getTimeDelivered();
+                        knapWaitTime = knapOrder.getWaitTime();
+
+                        String row = String.format("%s,,,,,,%s,%e,%e,%e\n", trialInfo,
+                                knapName, knapTimeOrdered, knapTimeDelivered, knapWaitTime);
+
                         builder.append(row);
-                        trialNum++;
                     }
-                    builder.append('\n');
+
+                    builder.append("\n");
                 }
 
                 // write the data to the file
