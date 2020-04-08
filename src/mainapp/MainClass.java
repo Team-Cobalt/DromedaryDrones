@@ -18,6 +18,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -891,6 +892,68 @@ public class MainClass extends Application {
 		topLayout.setAlignment(Pos.TOP_LEFT);
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
+		//fifo stats
+		Text fifoTitle = new Text("FIFO Delivery");
+		fifoTitle.setFont(Font.font("Serif", FontWeight.BOLD, 18));
+		fifoTitle.setFill(Color.BLACK);
+		fifoTitle.setWrappingWidth(200);
+		fifoTitle.setTextAlignment(TextAlignment.CENTER);
+
+		double fifoAvgTime = 6.56;	//change once you can access the results
+
+		Text fifoAvg = new Text("Average Delivery Time: " + fifoAvgTime + " minutes");
+		fifoAvg.setFont(Font.font("Serif", 18));
+		fifoAvg.setFill(Color.BLACK);
+		fifoAvg.setWrappingWidth(200);
+		fifoAvg.setTextAlignment(TextAlignment.CENTER);
+
+		double fifoWorstTime = 13.32;	//change once you can access the results
+
+		Text fifoWorst = new Text("Worst Delivery Time: " + fifoWorstTime + " minutes");
+		fifoWorst.setFont(Font.font("Serif", 18));
+		fifoWorst.setFill(Color.BLACK);
+		fifoWorst.setWrappingWidth(200);
+		fifoWorst.setTextAlignment(TextAlignment.CENTER);
+
+		VBox fifoLayout = new VBox();
+		fifoLayout.setSpacing(5);
+		fifoLayout.setAlignment(Pos.TOP_CENTER);
+		fifoLayout.getChildren().addAll(fifoTitle, fifoAvg, fifoWorst);
+
+		//knapsack stats
+		Text knapsackTitle = new Text("Knapsack Packing Delivery");
+		knapsackTitle.setFont(Font.font("Serif", FontWeight.BOLD, 18));
+		knapsackTitle.setFill(Color.BLACK);
+		knapsackTitle.setWrappingWidth(200);
+		knapsackTitle.setTextAlignment(TextAlignment.CENTER);
+
+		double knapAvgTime = 4.75;	//change once you can access the results
+
+		Text knapAvg = new Text("Average Delivery Time: " + knapAvgTime + " minutes");
+		knapAvg.setFont(Font.font("Serif", 18));
+		knapAvg.setFill(Color.BLACK);
+		knapAvg.setWrappingWidth(200);
+		knapAvg.setTextAlignment(TextAlignment.CENTER);
+
+		double knapWorstTime = 9.29;	//change once you can access the results
+
+		Text knapWorst = new Text("Worst Delivery Time: " + knapWorstTime + " minutes");
+		knapWorst.setFont(Font.font("Serif", 18));
+		knapWorst.setFill(Color.BLACK);
+		knapWorst.setWrappingWidth(200);
+		knapWorst.setTextAlignment(TextAlignment.CENTER);
+
+		VBox knapsackLayout = new VBox();
+		fifoLayout.setSpacing(5);
+		fifoLayout.setAlignment(Pos.TOP_CENTER);
+		fifoLayout.getChildren().addAll(knapsackTitle, knapAvg, knapWorst);
+
+		//set up stats layout
+		HBox statsLayout = new HBox();
+		statsLayout.setSpacing(40);
+		statsLayout.setAlignment(Pos.CENTER);
+		statsLayout.getChildren().addAll(fifoLayout, knapsackLayout);
+
 		//sets up BarChart (histogram)
 		CategoryAxis xAxis = new CategoryAxis();
 		NumberAxis yAxis = new NumberAxis();
@@ -914,9 +977,15 @@ public class MainClass extends Application {
 		barChart.getData().addAll(fifoSeries);
 		barChart.getData().addAll(knapsackSeries);
 
-		VBox vBox = new VBox();
-		vBox.getChildren().addAll(barChart);//other stuff needs to be added
+		//save results button
+		Button saveBtn = new Button("Save Results");
+		saveBtn.setMinWidth(100);
+		saveBtn.setStyle("-fx-background-color: WHITE");
+		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
+		//combine boxes
+		VBox vBox = new VBox();
+		vBox.getChildren().addAll(topLayout, statsLayout, barChart, saveBtn);//top layout, stats, barChart, save button
 
 		StackPane root = new StackPane();
 		root.getChildren().add(vBox);
