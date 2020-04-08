@@ -95,7 +95,8 @@ public class Trial implements Runnable{
         while(!knapsackDeliveries.isEmpty()){
 
             Collections.sort(skippedOrders); // Sort skipped orders by time so that older orders get added first
-            for(Order s : skippedOrders){ // Query skipped orders first
+            for(int i = 0; i < skippedOrders.size(); i++){ // Query skipped orders first
+                Order s = skippedOrders.get(i);
                 if(s.getTimeOrdered() > simulationTime) continue;
                 currentMealWeight = s.getMealOrdered().getTotalWeight();
                 if(currentMealWeight + cargoWeight > MAX_CARGO_WEIGHT) continue; // If max weight exceeded, ignore
@@ -104,7 +105,8 @@ public class Trial implements Runnable{
                 skippedOrders.remove(s);
             }
 
-            for(Order o : knapsackDeliveries){ // Query current set of orders to add to drone
+            for(int i = 0; i < knapsackDeliveries.size(); i++){ // Query current set of orders to add to drone
+                Order o = knapsackDeliveries.get(i);
                 if(o.getTimeOrdered() > simulationTime) continue;
                 currentMealWeight = o.getMealOrdered().getTotalWeight();
                 if(currentMealWeight + cargoWeight > MAX_CARGO_WEIGHT){
