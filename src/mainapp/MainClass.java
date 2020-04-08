@@ -21,6 +21,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,7 +41,7 @@ public class MainClass extends Application {
 	private VBox btnLayout; //layout of setting's menu btns
 	private VBox settingLayout; //layout of all icons in setting pages
 	private Simulation currentSim; //current simulation being run
-	
+	private SimulationResults results;
 	
 	public static void main(String[] args) {
 		
@@ -225,12 +226,12 @@ public class MainClass extends Application {
 		window.setScene(simPage);
 		
 		//TODO: run simulation??
-		SimulationResults results = currentSim.run();
+		results = currentSim.run();
 		//run simulation method found in Simulation class
 		//have observable list of avg times from each trial so they can be graphed
 
 		//takes simulation to results page
-		//resultsPage();
+		resultsPage();
 	}
 
 	/**
@@ -896,23 +897,23 @@ public class MainClass extends Application {
 		Text fifoTitle = new Text("FIFO Delivery");
 		fifoTitle.setFont(Font.font("Serif", FontWeight.BOLD, 18));
 		fifoTitle.setFill(Color.BLACK);
-		fifoTitle.setWrappingWidth(200);
+		fifoTitle.setWrappingWidth(300);
 		fifoTitle.setTextAlignment(TextAlignment.CENTER);
 
-		double fifoAvgTime = 6.56;	//change once you can access the results
+		double fifoAvgTime = results.getAverageFifoTime();	//change once you can access the results
 
-		Text fifoAvg = new Text("Average Delivery Time: " + fifoAvgTime + " minutes");
+		Text fifoAvg = new Text(String.format("Average Delivery Time: %.1f minutes", fifoAvgTime/60));
 		fifoAvg.setFont(Font.font("Serif", 18));
 		fifoAvg.setFill(Color.BLACK);
-		fifoAvg.setWrappingWidth(200);
+		fifoAvg.setWrappingWidth(300);
 		fifoAvg.setTextAlignment(TextAlignment.CENTER);
 
-		double fifoWorstTime = 13.32;	//change once you can access the results
+		double fifoWorstTime = results.getWorstFifoTime();	//change once you can access the results
 
-		Text fifoWorst = new Text("Worst Delivery Time: " + fifoWorstTime + " minutes");
+		Text fifoWorst = new Text(String.format("Worst Delivery Time: %.1f minutes", fifoWorstTime/60));
 		fifoWorst.setFont(Font.font("Serif", 18));
 		fifoWorst.setFill(Color.BLACK);
-		fifoWorst.setWrappingWidth(200);
+		fifoWorst.setWrappingWidth(300);
 		fifoWorst.setTextAlignment(TextAlignment.CENTER);
 
 		VBox fifoLayout = new VBox();
@@ -924,23 +925,23 @@ public class MainClass extends Application {
 		Text knapsackTitle = new Text("Knapsack Packing Delivery");
 		knapsackTitle.setFont(Font.font("Serif", FontWeight.BOLD, 18));
 		knapsackTitle.setFill(Color.BLACK);
-		knapsackTitle.setWrappingWidth(200);
+		knapsackTitle.setWrappingWidth(300);
 		knapsackTitle.setTextAlignment(TextAlignment.CENTER);
 
-		double knapAvgTime = 4.75;	//change once you can access the results
+		double knapAvgTime = results.getAverageKnapsackTime();	//change once you can access the results
 
-		Text knapAvg = new Text("Average Delivery Time: " + knapAvgTime + " minutes");
+		Text knapAvg = new Text(String.format("Average Delivery Time: %.1f minutes", knapAvgTime/60));
 		knapAvg.setFont(Font.font("Serif", 18));
 		knapAvg.setFill(Color.BLACK);
-		knapAvg.setWrappingWidth(200);
+		knapAvg.setWrappingWidth(300);
 		knapAvg.setTextAlignment(TextAlignment.CENTER);
 
-		double knapWorstTime = 9.29;	//change once you can access the results
+		double knapWorstTime = results.getWorstKnapsackTime();	//change once you can access the results
 
-		Text knapWorst = new Text("Worst Delivery Time: " + knapWorstTime + " minutes");
+		Text knapWorst = new Text(String.format("Worst Delivery Time: %.1f minutes", knapWorstTime/60));
 		knapWorst.setFont(Font.font("Serif", 18));
 		knapWorst.setFill(Color.BLACK);
-		knapWorst.setWrappingWidth(200);
+		knapWorst.setWrappingWidth(300);
 		knapWorst.setTextAlignment(TextAlignment.CENTER);
 
 		VBox knapsackLayout = new VBox();
@@ -964,24 +965,34 @@ public class MainClass extends Application {
 		yAxis.setLabel("Number of Orders");
 
 		//sets up fifo and knapsack packing series of data
-		XYChart.Series fifoSeries = new XYChart.Series();
-		XYChart.Series knapsackSeries = new XYChart.Series();
+		XYChart.Series<String, Number> fifoSeries = new XYChart.Series<>();
+		XYChart.Series<String, Number> knapsackSeries = new XYChart.Series<>();
 		fifoSeries.setName("FIFO");
 		knapsackSeries.setName("Knapsack Packing");
 
 		//add data from lists
-		//fifoSeries.getData().add(new XYChart.Data("1-2", numOrders);
-		//knapsackSeries.getData().add(new XYChart.Data("1-2", numOrders);
+		//fifoSeries.getData().add(new XYChart.Data<>("1-2", 5));
+		//knapsackSeries.getData().add(new XYChart.Data<>("1-2", 7));
 
 		//add series data to bar chart
-		barChart.getData().addAll(fifoSeries);
-		barChart.getData().addAll(knapsackSeries);
+		barChart.getData().add(fifoSeries);
+		barChart.getData().add(knapsackSeries);
 
 		//save results button
 		Button saveBtn = new Button("Save Results");
 		saveBtn.setMinWidth(100);
 		saveBtn.setStyle("-fx-background-color: WHITE");
 		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		saveBtn.setOnAction(event -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Save Results");
+			fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter("CSV", "*.csv")
+			);
+			File file = fileChooser.showSaveDialog(window);
+			Configuration.getInstance().saveResults(results, file);
+		});
 
 		//combine boxes
 		VBox vBox = new VBox();

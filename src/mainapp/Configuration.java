@@ -211,9 +211,9 @@ public class Configuration implements XmlSerializable {
 
                 // format the headers
                 String title = "\n,Fifo,Knapsack\n";
-                String average = String.format("Average (sec),%e,%e\n",
+                String average = String.format("Average (sec),%.2f,%.2f\n",
                         results.getAverageFifoTime(), results.getAverageKnapsackTime());
-                String worst = String.format("Worst (sec),%e,%e\n",
+                String worst = String.format("Worst (sec),%.2f,%.2f\n",
                         results.getWorstFifoTime(), results.getWorstKnapsackTime());
                 String header = ",,Fifo,,,,,Knapsack\n";
                 String columns = ",meal,ordered,delivered,wait (sec),,meal,ordered,delivered,wait (sec)\n";
@@ -257,7 +257,7 @@ public class Configuration implements XmlSerializable {
                         knapTimeDelivered = knapOrder.getTimeDelivered();
                         knapWaitTime = knapOrder.getWaitTime();
 
-                        String row = String.format("%s,%s,%e,%e,%e,,%s,%e,%e,%e\n", trialInfo,
+                        String row = String.format("%s,%s,%.2f,%.2f,%.2f,,%s,%.2f,%.2f,%.2f\n", trialInfo,
                                 fifoName, fifoTimeOrdered, fifoTimeDelivered, fifoWaitTime,
                                 knapName, knapTimeOrdered, knapTimeDelivered, knapWaitTime);
 
@@ -274,7 +274,7 @@ public class Configuration implements XmlSerializable {
                         fifoTimeDelivered = fifoOrder.getTimeDelivered();
                         fifoWaitTime = fifoOrder.getWaitTime();
 
-                        String row = String.format("%s,%s,%e,%e,%e\n", trialInfo,
+                        String row = String.format("%s,%s,%.2f,%.2f,%.2f\n", trialInfo,
                                 fifoName, fifoTimeOrdered, fifoTimeDelivered, fifoWaitTime);
 
                         builder.append(row);
@@ -290,7 +290,7 @@ public class Configuration implements XmlSerializable {
                         knapTimeDelivered = knapOrder.getTimeDelivered();
                         knapWaitTime = knapOrder.getWaitTime();
 
-                        String row = String.format("%s,,,,,,%s,%e,%e,%e\n", trialInfo,
+                        String row = String.format("%s,,,,,,%s,%.2f,%.2f,%.2f\n", trialInfo,
                                 knapName, knapTimeOrdered, knapTimeDelivered, knapWaitTime);
 
                         builder.append(row);
