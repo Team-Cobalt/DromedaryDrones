@@ -34,17 +34,20 @@ public class Route {
                                                double bestDistance){
         int n = currentRoute.size();
 
-        if(index == n)
+        if(n == 1) // If only one point to deliver to, it's automatically the most efficient route
+            return currentRoute;
+
+        if(index == n) // Base case: if we've looked at every point in the route, update bestDistance
             bestDistance = Math.min(bestDistance, distanceSoFar + currentRoute.get(n-1).distanceFromPoint(null));
 
-        for(int i = index + 1; i <= n; i++){
-            swapPoints(index+1, i, currentRoute);
+        for(int i = index + 1; i < n; i++){ // Iterate through trying different arrangements
+            swapPoints(index+1, i, currentRoute); // Swap points
             double newLength = distanceSoFar + currentRoute.get(index).distanceFromPoint(currentRoute.get(index+1));
-            if(newLength >= bestDistance)
+            if(newLength >= bestDistance) // Prune routes that we know are worse than one we already have
                 continue;
             bestDistance = Math.min(bestDistance, getDistance(calculateRouteDFS(currentRoute, index + 1,
                     newLength, bestDistance)));
-            swapPoints(i, index+1, currentRoute);
+            swapPoints(i, index+1, currentRoute); // Reverse the swap
         }
 
         return currentRoute;
