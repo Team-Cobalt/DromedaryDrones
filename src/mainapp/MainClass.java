@@ -166,69 +166,13 @@ public class MainClass extends Application {
 	}
 	
 	/**
-	 * Method for creating page that is displayed while the simulation is running
+	 * Method for running the simulation
 	 * @author Isabella Patnode
 	 */
 	public void startSim() {
-		
-		//Adds necessary text to the display
-		title = new Text("Simulation is Running...");
-		title.setFont(Font.font("Serif", 30));
-		title.setFill(Color.BLACK);
-		title.setWrappingWidth(400);
-		title.setTextAlignment(TextAlignment.CENTER);
-		
-		titleLayout = new HBox(20);
-		titleLayout.getChildren().add(title);
-		titleLayout.setAlignment(Pos.TOP_CENTER);
-		
-		//Adds camel image to the display
-		Image simImg = new Image("Camel.jpg");
-		
-		ImageView view = new ImageView(simImg);
-		
-		view.setX(50);
-		view.setY(50);
-		
-		view.setFitHeight(300);
-		view.setFitWidth(300);
-		
-		view.setPreserveRatio(true);
-		
-		VBox simPic = new VBox(20);
-		simPic.getChildren().add(view);
-		simPic.setAlignment(Pos.CENTER);
 
-		//button that allows user to cancel the sim
-		Button cancelBtn = new Button("Cancel Simulation");
-		cancelBtn.setStyle("-fx-background-color: WHITE; -fx-font-size: 14");
-		cancelBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-		//takes user back to main menu
-		cancelBtn.setOnAction(e-> window.setScene(mainMenu));
-		
-		//adds button to the display
-		HBox simBtns = new HBox(20);
-		simBtns.getChildren().add(cancelBtn);
-		simBtns.setAlignment(Pos.BOTTOM_CENTER);
-		
-		//arranges all elements of the page on the screen
-		VBox simLayout = new VBox(35);
-		simLayout.getChildren().addAll(titleLayout, simPic, simBtns);
-		simLayout.setAlignment(Pos.CENTER);
-		simLayout.setStyle("-fx-background-color: WHITE");
-		
-		root = new StackPane();
-		root.getChildren().add(simLayout);
-		
-		Scene simPage = new Scene(root, 900, 600);
-		
-		//sets screen to display page
-		window.setScene(simPage);
-		
-		//TODO: run simulation??
+		//runs simulation
 		results = currentSim.run();
-		//run simulation method found in Simulation class
-		//have observable list of avg times from each trial so they can be graphed
 
 		//takes simulation to results page
 		resultsPage();
@@ -466,7 +410,6 @@ public class MainClass extends Application {
 		foodTable.getColumns().setAll(itemHeading, weightHeading);
 		foodTable.setPrefWidth(200);
 		foodTable.setPrefHeight(300);
-		//TODO: change background of table?????
 		foodTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
 		//arranges table on screen
@@ -496,6 +439,7 @@ public class MainClass extends Application {
 		editBtns.getChildren().addAll(addBtn, delBtn);
 		editBtns.setPadding(new Insets(0, 20, 0, 0));
 
+		/*
 		//arranges btns for loading and saving model
 		VBox svLdBtns = new VBox();
 		svLdBtns.setPrefWidth(100);
@@ -514,17 +458,18 @@ public class MainClass extends Application {
 		loadBtn.setStyle("-fx-background-color: WHITE");
 		loadBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
+		svLdBtns.getChildren().addAll(loadBtn, saveBtn); */
 
 		VBox tbBtnLayout = new VBox(10);
 		tbBtnLayout.getChildren().addAll(centerLayout, editBtns);
 
+		/*
 		VBox displayLayout = new VBox(10);
-		displayLayout.getChildren().addAll(tbBtnLayout, svLdBtns);
+		displayLayout.getChildren().addAll(tbBtnLayout, svLdBtns); */
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
-		settingLayout.getChildren().addAll(topLayout, displayLayout);
+		settingLayout.getChildren().addAll(topLayout, tbBtnLayout);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
@@ -575,6 +520,10 @@ public class MainClass extends Application {
 			mealName.setTextAlignment(TextAlignment.JUSTIFY);
 			mealName.setStyle("-fx-font-weight: bold");
 
+			HBox titleFormat = new HBox();
+			titleFormat.getChildren().add(mealName);
+			titleFormat.setPadding(new Insets(8, 0, 0, 0));
+
 			//used to store each food item in the meal and how many of it there is
 			HashMap<String, Integer> numPerFood = new HashMap<>();
 
@@ -587,13 +536,13 @@ public class MainClass extends Application {
 
 			//counts the number of each food item in the meal (i.e. 2 burgers, 1, fries, etc.)
 			for(FoodItem mealItem: meal.getFoods()) {
-				String foodName = mealItem.getName();
+				String name = mealItem.getName();
 
-				if(numPerFood.containsKey(foodName)) {
-					numPerFood.put(foodName, numPerFood.get(foodName) + 1);
+				if(numPerFood.containsKey(name)) {
+					numPerFood.put(name, numPerFood.get(name) + 1);
 				}
 				else {
-					numPerFood.put(foodName, 1);
+					numPerFood.put(name, 1);
 				}
 			}
 
@@ -606,8 +555,6 @@ public class MainClass extends Application {
 				Text foodName = new Text(currentFood + ":");
 				foodName.setFont(Font.font("Serif", 15));
 				mealFoods.add(foodName, 0, index);
-
-				//TODO: SET UP DELETE BUTTON
 
 				//gets # of the specific food item in the meal
 				if(numPerFood.containsKey(currentFood)) {
@@ -632,10 +579,19 @@ public class MainClass extends Application {
 			probValue.setMaxWidth(80);
 			mealFoods.add(probValue, 1, index);
 
+			//creates button for deleting meals
+			Button deleteBtn = new Button("X");
+			deleteBtn.setStyle("-fx-background-color: WHITE; -fx-font-weight: bold; -fx-font-size: 15; fx-font-family: Serif");
+			deleteBtn.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0))));
+
+			//formats delete button with meal heading
+			HBox topFormat = new HBox();
+			topFormat.getChildren().addAll(titleFormat, deleteBtn);
+
 			//formats meal components
 			singleMealLayout.setSpacing(5);
 			singleMealLayout.setAlignment(Pos.CENTER);
-			singleMealLayout.getChildren().addAll(mealName, mealFoods);
+			singleMealLayout.getChildren().addAll(topFormat, mealFoods);
 
 			//adds meal to layout of all meals
 			mealsBox.getChildren().add(singleMealLayout);
@@ -648,6 +604,7 @@ public class MainClass extends Application {
 		mealLayout.setStyle("-fx-background: WHITE");
 		mealLayout.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
+
 		//formats display of buttons for changing meals
 		VBox changeBtns = new VBox();
 		changeBtns.setPrefWidth(100);
@@ -656,10 +613,11 @@ public class MainClass extends Application {
 
 		//adds buttons for adding, loading, and saving meals
 		Button addBtn = new Button("Add Meal");
-		addBtn.setMinWidth(changeBtns.getPrefWidth());
+		//addBtn.setMinWidth(changeBtns.getPrefWidth());
 		addBtn.setStyle("-fx-background-color: WHITE");
 		addBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
+		/*
 		Button loadBtn = new Button("Load Meals");
 		loadBtn.setMinWidth(changeBtns.getPrefWidth());
 		loadBtn.setStyle("-fx-background-color: WHITE");
@@ -669,8 +627,8 @@ public class MainClass extends Application {
 		saveBtn.setMinWidth(changeBtns.getPrefWidth());
 		saveBtn.setStyle("-fx-background-color: WHITE");
 		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-
-		changeBtns.getChildren().addAll(addBtn, loadBtn, saveBtn);
+		*/
+		changeBtns.getChildren().addAll(addBtn);
 
 		//formats display of meal layout and corresponding buttons
 		HBox mealBtnLayout = new HBox(100);
@@ -750,7 +708,6 @@ public class MainClass extends Application {
 		yAxis.setTickMarkVisible(false);
 
 		//creates scatter plot for map
-		//TODO: Look into this
 		ScatterChart<Number, Number> map = new ScatterChart<>(xAxis, yAxis);
 		map.setHorizontalGridLinesVisible(false);
 		map.setVerticalGridLinesVisible(false);
@@ -828,6 +785,7 @@ public class MainClass extends Application {
 		btnMap.getChildren().addAll(centerLayout, addDelBtns);
 		btnMap.setSpacing(10);
 
+		/*
 		//arranges btns for loading and saving map
 		VBox svLdBtns = new VBox();
 		svLdBtns.setPrefWidth(100);
@@ -851,11 +809,11 @@ public class MainClass extends Application {
 		//arranges load/save buttons with map elements
 		VBox mainLayout = new VBox();
 		mainLayout.getChildren().addAll(btnMap, svLdBtns);
-		mainLayout.setSpacing(50);
+		mainLayout.setSpacing(50); */
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
-		settingLayout.getChildren().addAll(topLayout, mainLayout);
+		settingLayout.getChildren().addAll(topLayout, btnMap);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
