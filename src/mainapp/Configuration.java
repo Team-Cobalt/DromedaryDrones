@@ -10,11 +10,10 @@ import xml.XmlFactory;
 import xml.XmlSerializationException;
 import xml.XmlSerializable;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -24,6 +23,8 @@ import java.util.Scanner;
  * @author  Christian Burns
  */
 public class Configuration implements XmlSerializable {
+
+    public static final String LOCATIONS_PATH = "locations.txt";
 
     /* ensures only one instance of the configuration class exists */
     private static final Configuration INSTANCE = new Configuration();
@@ -93,108 +94,89 @@ public class Configuration implements XmlSerializable {
         return simulations.remove(simulation);
     }
 
+    public void initialize() throws IOException {
+        File saveFile = getLastConfigFile();    // fetch the last config file
+        initialize(saveFile);
+    }
+
     /**
-     * Loads in all simulations from the specified save file.
-     * @param saveFile  save file containing simulation configuration data
+     * Loads in all simulations from the save file.
      */
-	public void initialize(File saveFile) throws FileNotFoundException {
-	    simulations.clear();
+	public void initialize(File saveFile) throws IOException {
+	    simulations.clear();        // flush any old settings before loading in the new ones
 
-	    if (saveFile == null || !saveFile.exists()) {
-
-	        //creates default simulation with all default food items and meal types
-            Simulation newSim = new Simulation("Grove City College");
-
-            //sets up default hour specifications based on default stochastic flow
-            ArrayList<Integer> ordersPerHour = new ArrayList<>();
-            ordersPerHour.add(15);
-            ordersPerHour.add(17);
-            ordersPerHour.add(22);
-            ordersPerHour.add(15);
-
-            //sets up stochastic flow in new simulation
-            newSim.addStochasticFlow(ordersPerHour);
-
-            //creates default food items with default weights
-            FoodItem burger = new FoodItem("Burger", 6);
-            FoodItem fries = new FoodItem("Fries", 4);
-            FoodItem drink = new FoodItem("Drink", 14);
-
-            //sets up known food items in simulation
-            newSim.addFoodItem(burger);
-            newSim.addFoodItem(fries);
-            newSim.addFoodItem(drink);
-
-            //creates default basic combo meal type
-            ArrayList<FoodItem> basic = new ArrayList<>();
-            basic.add(burger);
-            basic.add(fries);
-            basic.add(drink);
-            Meal basicCombo = new Meal(basic, "Basic Combo", 0.55);
-
-            //adds meal to known meals in simulation
-            newSim.addMealType(basicCombo);
-
-            //creates default deluxe combo meal
-            ArrayList<FoodItem> deluxe = new ArrayList<>();
-            deluxe.add(burger);
-            deluxe.add(burger);
-            deluxe.add(fries);
-            deluxe.add(drink);
-            Meal deluxeCombo= new Meal(deluxe, "Deluxe Combo", 0.10);
-
-            //adds meal to known meals in simulation
-            newSim.addMealType(deluxeCombo);
-
-            //creates default basic combo w/o drink meal
-            ArrayList<FoodItem> basicNoDrk = new ArrayList<>();
-            basicNoDrk.add(burger);
-            basicNoDrk.add(fries);
-            Meal basicNoDrink = new Meal(basicNoDrk, "Basic No Drink", 0.2);
-
-            //adds meal to known meals in simulation
-            newSim.addMealType(basicNoDrink);
-
-            //creates default deluxe combo w/o drink meal
-            ArrayList<FoodItem> deluxeNoDrk = new ArrayList<>();
-            deluxeNoDrk.add(burger);
-            deluxeNoDrk.add(burger);
-            deluxeNoDrk.add(fries);
-            Meal deluxeNoDrink = new Meal(deluxeNoDrk, "Deluxe No Drink", 0.15);
-
-            //adds meal to known meals in simulation
-            newSim.addMealType(deluxeNoDrink);
-
-            //sets the default simulation as the current simulation to run
-            currentSim = newSim;
-            simulations.add(newSim);
-
+	    if (saveFile == null) {     // no config file was found
+	        loadDefault();
         } else {
-	        // read all XML out of the save file
-	        StringBuilder sb = new StringBuilder();
-	        try (Scanner scnr = new Scanner(saveFile)) {
-	            while (scnr.hasNextLine())
-	                sb.append(scnr.nextLine().trim());
-            }
+	        try {
+                // read all XML out of the save file
+                StringBuilder sb = new StringBuilder();
+                try (Scanner scnr = new Scanner(saveFile)) {
+                    while (scnr.hasNextLine())
+                        sb.append(scnr.nextLine().trim());
+                }
 
-	        // convert the text into an XML Document
-	        String xmlString = sb.toString();
-	        Document doc = XmlFactory.fromXmlString(xmlString);
-	        Element root = doc.getDocumentElement();
+                // convert the text into an XML Document
+                String xmlString = sb.toString();
+                Document doc = XmlFactory.fromXmlString(xmlString);
+                Element root = doc.getDocumentElement();
 
-	        String currentName = root.getAttribute("current");
-            NodeList children = root.getElementsByTagName("simulation");
+                String currentName = root.getAttribute("current");
+                NodeList children = root.getElementsByTagName("simulation");
 
-            // build the simulations from the XML Document data
-            for (int i = 0; i < children.getLength(); i++) {
-                Element child = (Element) children.item(i);
-                Simulation sim = new Simulation(child);
-                simulations.add(sim);
-                if (sim.getName().equals(currentName))
-                    currentSim = sim;
+                // build the simulations from the XML Document data
+                for (int i = 0; i < children.getLength(); i++) {
+                    Element child = (Element) children.item(i);
+                    Simulation sim = new Simulation(child);
+                    simulations.add(sim);
+                    if (sim.getName().equals(currentName))
+                        currentSim = sim;
+                }
+            } catch (XmlSerializationException xse) {
+	            xse.printStackTrace();
+	            loadDefault();
             }
         }
 	}
+
+	private void loadDefault() {
+        //creates default simulation with all default food items and meal types
+        Simulation newSim = new Simulation("Grove City College");
+
+        // sets default #orders per hour for each of the four hours
+        newSim.addStochasticFlow(List.of(15, 17, 22, 15));
+
+        // create default food items
+        FoodItem burger = new FoodItem("Burger", 6);
+        FoodItem fries = new FoodItem("Fries", 4);
+        FoodItem drink = new FoodItem("Drink", 14);
+
+        // add default food items to the simulation
+        newSim.addFoodItems(burger, fries, drink);
+
+        //creates default basic combo meal type
+        List<FoodItem> basic = List.of(burger, fries, drink);
+        Meal basicCombo = new Meal(basic, "Basic Combo", 0.55);
+
+        //creates default deluxe combo meal
+        List<FoodItem> deluxe = List.of(burger, burger, fries, drink);
+        Meal deluxeCombo= new Meal(deluxe, "Deluxe Combo", 0.10);
+
+        //creates default basic combo w/o drink meal
+        List<FoodItem> basicNoDrk = List.of(burger, fries);
+        Meal basicNoDrink = new Meal(basicNoDrk, "Basic No Drink", 0.2);
+
+        //creates default deluxe combo w/o drink meal
+        List<FoodItem> deluxeNoDrk = List.of(burger, burger, fries);
+        Meal deluxeNoDrink = new Meal(deluxeNoDrk, "Deluxe No Drink", 0.15);
+
+        // add default meal types to the simulation
+        newSim.addMealTypes(basicCombo, deluxeCombo, basicNoDrink, deluxeNoDrink);
+
+        //sets the default simulation as the current simulation to run
+        currentSim = newSim;
+        simulations.add(newSim);
+    }
 
     /**
      * Saves the simulation results to a CSV file.
@@ -311,16 +293,51 @@ public class Configuration implements XmlSerializable {
     }
 
     /**
+     * Returns the File object of the last used configuration.
+     * @throws IOException  if the program doesn't have permissions
+     *                      to create new files
+     */
+    public File getLastConfigFile() throws IOException {
+	    File locationFile = new File(LOCATIONS_PATH);
+	    File configFile;
+	    String path = "";
+	    // ensure the locations file exists before reading from it
+	    if (locationFile.exists() || locationFile.createNewFile()) {
+	        // start reading from the locations file
+	        try (Scanner reader = new Scanner(locationFile)) {
+	            // put the first line with text into path
+                while (reader.hasNextLine() && path.isEmpty())
+                    path = reader.nextLine().strip();
+            }
+        }
+	    // return the file if it exists otherwise return null
+	    if (path.isEmpty()) return null;
+	    configFile = new File(path);
+	    return configFile.exists() ? configFile : null;
+    }
+
+    public void setLastConfigFile(File configFile) throws IOException {
+        File locationFile = new File(LOCATIONS_PATH);
+        String path = configFile.getCanonicalPath();
+        if (locationFile.exists() || locationFile.createNewFile()) {
+            try (PrintWriter writer = new PrintWriter(locationFile)) {
+                writer.println(path);
+            }
+        }
+    }
+
+    /**
      * Saves all simulation states to the specified file.
      * @param saveFile  save file to save the data to
      * @return  {@code true} if all data was successfully saved
      *          {@code false} if the data was unable to be parsed or saved
      * @throws FileNotFoundException  if the save file did not exist
      */
-	public boolean saveConfigs(File saveFile) throws FileNotFoundException {
+	public boolean saveConfigs(File saveFile) throws IOException {
         try (PrintWriter pw = new PrintWriter(saveFile)) {
             String xmlSaveData = XmlFactory.toXmlString(this);
             pw.println(xmlSaveData);
+            setLastConfigFile(saveFile);
             return true;
         } catch (XmlSerializationException xse) {
             xse.printStackTrace();

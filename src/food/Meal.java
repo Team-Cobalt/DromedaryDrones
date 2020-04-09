@@ -7,6 +7,7 @@ import xml.XmlSerializable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +39,7 @@ public class Meal implements XmlSerializable {
 	 * @param probability //probability a customer orders the meal
 	 * @throws IllegalArgumentException if meal weight exceeds drone's cargo weight limit
 	 */
-	public Meal(ArrayList<FoodItem> mealFoods, String name, double probability) {
+	public Meal(List<FoodItem> mealFoods, String name, double probability) {
 		double mealWeight = 0.0;
 		
 		for(FoodItem food: mealFoods) {

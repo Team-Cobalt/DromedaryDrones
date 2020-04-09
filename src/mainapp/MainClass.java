@@ -2,6 +2,7 @@ package mainapp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.lang.Math;
@@ -55,11 +56,11 @@ public class MainClass extends Application {
 
 		try {
 			// try loading the file
-			config.initialize(loadedFile);
-		} catch (FileNotFoundException fnf) {
+			config.initialize();
+		} catch (IOException ioe) {
 			try {
 				// try loading the default GCC data
-				config.initialize(null);
+				config.initialize();
 			} catch (Exception e) {
 				// something went very wrong
 				e.printStackTrace();
@@ -359,9 +360,10 @@ public class MainClass extends Application {
 					new FileChooser.ExtensionFilter("XML", "*.xml")
 			);
 			File file = fileChooser.showSaveDialog(window);
-			if (file != null)
-				//TODO: PUT IN CORRECT METHOD HERE
-				Configuration.getInstance().saveResults(results, file);
+			if (file != null) {
+				try { Configuration.getInstance().saveConfigs(file);
+				} catch (IOException e) { e.printStackTrace(); }
+			}
 		});
 
 		Button loadBtn = new Button("Load Settings");
@@ -377,9 +379,12 @@ public class MainClass extends Application {
 					new FileChooser.ExtensionFilter("XML", "*.xml")
 			);
 			File file = fileChooser.showOpenDialog(window);
-			if (file != null)
-				//TODO: GET RIGHT METHOD
-				Configuration.getInstance().saveResults(results, file);
+			if (file != null) {
+				try {
+					Configuration.getInstance().initialize(file);
+					currentSim = Configuration.getInstance().getCurrentSimulation();
+				} catch (IOException e) { e.printStackTrace(); }
+			}
 		});
 
 		svLdBtns.getChildren().addAll(loadBtn, saveBtn);

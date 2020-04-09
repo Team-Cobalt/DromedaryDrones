@@ -1,6 +1,7 @@
 package mainapp;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javafx.collections.FXCollections;
@@ -181,7 +182,7 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Changes the name of the simulation state to the one specified.
-     * @author Christian Burns
+     * @author  Christian Burns
      * @param name  new name to use
      */
     public void setName(String name) {
@@ -189,9 +190,9 @@ public class Simulation implements XmlSerializable {
     }
 
     /**
-     * Adds specified food item to ArrayList of known foods
+     * Adds specified food item to the list of known foods
      * @author Christian Burns
-     * @param food the food item to be added
+     * @param food  food item to be added
      */
     public void addFoodItem(FoodItem food) {
         if (!foodItems.contains(food))
@@ -199,13 +200,31 @@ public class Simulation implements XmlSerializable {
     }
 
     /**
+     * Adds specified food items to the list of known foods
+     * @author Christian Burns
+     * @param foods  list of food items
+     */
+    public void addFoodItems(FoodItem... foods) {
+        for (FoodItem food : foods) addFoodItem(food);
+    }
+
+    /**
      * Adds specified meal to ArrayList of known meals
      * @author Christian Burns
-     * @param meal the meal to be added
+     * @param meal  the meal to be added
      */
     public void addMealType(Meal meal) {
         if (!mealTypes.contains(meal))
             mealTypes.add(meal);
+    }
+
+    /**
+     * Adds specified meal types to the list of known meals
+     * @author Christian Burns
+     * @param meals  list of meal types
+     */
+    public void addMealTypes(Meal... meals) {
+        for (Meal meal : meals) addMealType(meal);
     }
 
     /**
@@ -222,7 +241,7 @@ public class Simulation implements XmlSerializable {
      * @param numMeals the number of meals per hour for each hour
      * @throws IllegalArgumentException  if number of hours per shift is not 4
      */
-    public void addStochasticFlow(ArrayList<Integer> numMeals) {
+    public void addStochasticFlow(List<Integer> numMeals) {
         //throws exception if number of hours per shift is not 4
         if(numMeals.size() != 4) {
             throw new IllegalArgumentException("Number of hours per shift must be 4");
