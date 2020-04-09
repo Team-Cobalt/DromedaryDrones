@@ -1,7 +1,6 @@
 package mainapp;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,9 +46,6 @@ public class MainClass extends Application {
 	private SimulationResults results;
 	
 	public static void main(String[] args) {
-		
-		//grabs simulation settings to be loaded
-		File loadedFile = new File("simulations.xml");
 		
 		//loads specified configuration settings
 		Configuration config = Configuration.getInstance();
