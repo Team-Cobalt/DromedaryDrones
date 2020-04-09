@@ -4,13 +4,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.lang.Math;
 
 import food.FoodItem;
 import food.Meal;
 import javafx.application.Application;
+import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
@@ -882,9 +885,9 @@ public class MainClass extends Application {
 		CategoryAxis xAxis = new CategoryAxis();
 		NumberAxis yAxis = new NumberAxis();
 		BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-		barChart.setCategoryGap(0.2);
-		barChart.setBarGap(0.2);
-		xAxis.setLabel("Delivery Time (add units!)");
+		barChart.setCategoryGap(0.4);
+		barChart.setBarGap(0.4);
+		xAxis.setLabel("Delivery Time (in minutes)");
 		yAxis.setLabel("Number of Orders");
 
 		//sets up fifo and knapsack packing series of data
@@ -893,13 +896,57 @@ public class MainClass extends Application {
 		fifoSeries.setName("FIFO");
 		knapsackSeries.setName("Knapsack Packing");
 
-		//add data from lists
-		//fifoSeries.getData().add(new XYChart.Data<>("1-2", 5));
-		//knapsackSeries.getData().add(new XYChart.Data<>("1-2", 7));
+        int [] fifoCount = new int [26];    //keeps track of how many orders occur per each time range
+		ArrayList <Double> fifoTimes = new ArrayList<>(results.getFifoTimes());
+
+        //count number of orders per time slot
+        for (int i = 0; i < fifoTimes.size(); i++){
+            int time = (int)(Math.floor(fifoTimes.get(i))/60);    //get the floor of the order delivery time
+            if (time < 25){
+            	fifoCount[time]++;  //increment orders in this time slot
+			}
+            else{
+            	fifoCount[25]++;
+			}
+        }
+
+        //add data from fifo times
+        for (int i = 0; i < fifoCount.length - 1; i++){
+            fifoSeries.getData().add(new XYChart.Data<>(i + "-" + (i+1), fifoCount[i]));
+        }
+        fifoSeries.getData().add(new XYChart.Data<>("25+", fifoCount[25]));
+
+        int [] knapCount = new int [26];	//keeps track of how many orders occur per each time range
+        ArrayList <Double> knapTimes = new ArrayList<>(results.getKnapsackTimes());
+
+        //count number of orders per time slot
+		for (int i = 0; i < knapTimes.size(); i++){
+			int time = (int)(Math.floor(knapTimes.get(i))/60);    //get the floor of the order delivery time
+			if (time < 25) {
+				knapCount[time]++;  //increment orders in this time slot
+			}
+			else{
+				knapCount[25]++;
+			}
+		}
+
+		//add data from knapsack times
+		for (int i = 0; i < knapCount.length-1; i++){
+			knapsackSeries.getData().add(new XYChart.Data<>(i + "-" + (i+1), knapCount[i]));
+		}
+		knapsackSeries.getData().add(new XYChart.Data<>("25+", knapCount[25]));
 
 		//add series data to bar chart
 		barChart.getData().add(fifoSeries);
 		barChart.getData().add(knapsackSeries);
+
+		//change bar colors on chart
+		for (XYChart.Data data: fifoSeries.getData()){
+			data.getNode().setStyle("-fx-bar-fill: red;");
+		}
+		for (XYChart.Data data: knapsackSeries.getData()){
+			data.getNode().setStyle("-fx-bar-fill: blue;");
+		}
 
 		//save results button
 		Button saveBtn = new Button("Save Results");
@@ -929,5 +976,14 @@ public class MainClass extends Application {
 
 		//sets screen to display page
 		window.setScene(resultsPg);
+
+		//change legend colors to reflect bar colors
+		//note - this must be done after scene is set
+		for (Node n : barChart.lookupAll(".bar-legend-symbol.default-color0")) {
+			n.setStyle("-fx-background-color: red;");
+		}
+		for (Node n : barChart.lookupAll(".bar-legend-symbol.default-color1")) {
+			n.setStyle("-fx-background-color: blue;");
+		}
 	}
 }
