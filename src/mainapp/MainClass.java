@@ -9,7 +9,6 @@ import java.lang.Math;
 import food.FoodItem;
 import food.Meal;
 import javafx.application.Application;
-import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -504,7 +503,7 @@ public class MainClass extends Application {
 		//sets up menu buttons
 		menuBtns();
 
-		//sets padding of menut buttons to match rest of settings pages
+		//sets padding of menu buttons to match rest of settings pages
 		btnLayout.setAlignment(Pos.TOP_LEFT);
 		btnLayout.setPadding(new Insets(68, 0, 0, 5));
 
@@ -871,13 +870,12 @@ public class MainClass extends Application {
 		knapWorst.setTextAlignment(TextAlignment.CENTER);
 
 		VBox knapsackLayout = new VBox();
-		fifoLayout.setSpacing(5);
-		fifoLayout.setAlignment(Pos.TOP_CENTER);
-		fifoLayout.getChildren().addAll(knapsackTitle, knapAvg, knapWorst);
+		knapsackLayout.setSpacing(5);
+		knapsackLayout.setAlignment(Pos.TOP_CENTER);
+		knapsackLayout.getChildren().addAll(knapsackTitle, knapAvg, knapWorst);
 
 		//set up stats layout
 		HBox statsLayout = new HBox();
-		statsLayout.setSpacing(40);
 		statsLayout.setAlignment(Pos.CENTER);
 		statsLayout.getChildren().addAll(fifoLayout, knapsackLayout);
 
@@ -948,9 +946,10 @@ public class MainClass extends Application {
 			data.getNode().setStyle("-fx-bar-fill: blue;");
 		}
 
+		barChart.setStyle("-fx-background: WHITE");
+
 		//save results button
 		Button saveBtn = new Button("Save Results");
-		saveBtn.setMinWidth(100);
 		saveBtn.setStyle("-fx-background-color: WHITE");
 		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
@@ -965,12 +964,18 @@ public class MainClass extends Application {
 			    Configuration.getInstance().saveResults(results, file);
 		});
 
+		HBox btnBox = new HBox();
+		btnBox.setAlignment(Pos.BOTTOM_RIGHT);
+		btnBox.setPadding(new Insets(0,50, 30, 0));
+		btnBox.getChildren().add(saveBtn);
+
 		//combine boxes
-		VBox vBox = new VBox();
-		vBox.getChildren().addAll(topLayout, statsLayout, barChart, saveBtn);//top layout, stats, barChart, save button
+		VBox finalLayout = new VBox();
+		finalLayout.getChildren().addAll(topLayout, statsLayout, barChart, btnBox);//top layout, stats, barChart, save button
+		finalLayout.setStyle("-fx-background-color: WHITE");
 
 		StackPane root = new StackPane();
-		root.getChildren().add(vBox);
+		root.getChildren().add(finalLayout);
 
 		Scene resultsPg = new Scene(root, 900, 600);
 
