@@ -73,8 +73,7 @@ public class Trial {
         for(Order o : simOrders)
             knapsackDeliveries.add(new Order(o));
 
-        knapsackDeliveries.sort((a,b)-> Double.compare(b.getMealOrdered().getTotalWeight(),
-                a.getMealOrdered().getTotalWeight())); // Sort the meals in descending order based on weight
+        knapsackDeliveries.sort(Comparator.comparingDouble(a -> a.getMealOrdered().getTotalWeight())); // Sort the meals in descending order based on weight
 
         while(!knapsackDeliveries.isEmpty()){
 
