@@ -1,4 +1,4 @@
-package Testing;
+package testing;
 
 import java.util.ArrayList;
 import java.util.Collections;
