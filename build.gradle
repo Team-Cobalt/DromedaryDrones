@@ -21,20 +21,11 @@ java{
     targetCompatibility = JavaVersion.VERSION_13
 }
 
-sourceSets{
-    main{ // Source for the actual application code
-        java{
-            srcDir 'src'
-        }
-        resources{
-            srcDir 'resources'
-        }
-    }
-
-    tests{
-        java{ // Source for the JUnit unit testing code
-            srcDir 'tests'
-        }
+idea {
+    module {
+        sourceDirs += file('src')
+        testSourceDirs += file('tests')
+        resourceDirs += file('resources')
     }
 }
 
