@@ -6,14 +6,17 @@
  */
 
 plugins{
-    id 'java'
     id 'application'
     id 'idea'
     id 'org.openjfx.javafxplugin' version '0.0.8'
 }
 
-application{
-    mainClassName = 'mainapp.MainClass' // Specify the main runner class
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
 }
 
 java{
@@ -27,6 +30,10 @@ idea {
         testSourceDirs += file('tests')
         resourceDirs += file('resources')
     }
+}
+
+application{
+    mainClassName = 'mainapp.MainClass' // Specify the main runner class
 }
 
 dependencies{

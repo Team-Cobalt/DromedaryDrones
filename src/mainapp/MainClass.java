@@ -1,11 +1,5 @@
 package mainapp;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.lang.Math;
-
 import food.FoodItem;
 import food.Meal;
 import javafx.application.Application;
@@ -17,6 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -25,9 +21,12 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import location.Point;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Class that runs the simulation
@@ -78,7 +77,7 @@ public class MainClass extends Application {
 		currentSim = Configuration.getInstance().getCurrentSimulation();
 
 		//adds camel image to main menu
-		Image image = new Image("Camel.jpg");
+		Image image = new Image("file:resources/Camel.jpg");
 		
 		ImageView imgView = new javafx.scene.image.ImageView(image);
 		
@@ -199,8 +198,8 @@ public class MainClass extends Application {
 	 * @author Isabella Patnode
 	 */
 	public void homeBtn() {
-		Image homeIcon = new Image("HomeButton.jpg");
 
+		Image homeIcon = new Image("file:resources/HomeButton.jpg");
 		ImageView homeView = new ImageView(homeIcon);
 
 		Button homeBtn = new Button("", homeView);
