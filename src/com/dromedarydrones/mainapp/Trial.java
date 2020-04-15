@@ -1,10 +1,10 @@
-package mainapp;
+package com.dromedarydrones.mainapp;
 
-import food.Meal;
-import food.Order;
-import location.DeliveryPoints;
-import location.Point;
-import location.Route;
+import com.dromedarydrones.food.Meal;
+import com.dromedarydrones.food.Order;
+import com.dromedarydrones.location.DeliveryPoints;
+import com.dromedarydrones.location.Point;
+import com.dromedarydrones.location.Route;
 
 import java.util.*;
 

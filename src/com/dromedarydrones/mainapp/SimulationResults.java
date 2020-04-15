@@ -1,8 +1,6 @@
-package mainapp;
+package com.dromedarydrones.mainapp;
 
-import food.Order;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.dromedarydrones.food.Order;
 
 import java.util.ArrayList;
 import java.util.Collections;

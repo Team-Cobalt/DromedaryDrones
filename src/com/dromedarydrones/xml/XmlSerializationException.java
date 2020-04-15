@@ -1,4 +1,4 @@
-package xml;
+package com.dromedarydrones.xml;
 
 /**
  * {@code XmlSerializationException} is the superclass of those

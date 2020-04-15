@@ -1,6 +1,6 @@
-package xml;
+package com.dromedarydrones.xml;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;

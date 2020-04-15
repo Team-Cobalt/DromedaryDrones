@@ -1,11 +1,11 @@
-package location;
+package com.dromedarydrones.location;
 
+import com.dromedarydrones.xml.XmlSerializable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import xml.XmlSerializable;
 
 import java.util.ArrayList;
 import java.util.Iterator;

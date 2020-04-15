@@ -1,4 +1,4 @@
-package food;
+package com.dromedarydrones.food;
 
 /**
  * @author Brendan Ortmann

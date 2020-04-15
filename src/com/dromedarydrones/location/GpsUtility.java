@@ -1,4 +1,4 @@
-package location;
+package com.dromedarydrones.location;
 
 /**
  * Utility functions for manipulating GPS coordinates.

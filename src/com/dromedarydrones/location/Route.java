@@ -1,4 +1,4 @@
-package location;
+package com.dromedarydrones.location;
 
 import java.util.Collections;
 import java.util.LinkedList;

@@ -1,20 +1,20 @@
-package mainapp;
+package com.dromedarydrones.mainapp;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
+import com.dromedarydrones.food.FoodItem;
+import com.dromedarydrones.food.Meal;
+import com.dromedarydrones.location.DeliveryPoints;
+import com.dromedarydrones.xml.XmlFactory;
+import com.dromedarydrones.xml.XmlSerializable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import location.DeliveryPoints;
-import food.FoodItem;
-import food.Meal;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import xml.XmlFactory;
-import xml.XmlSerializable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A standalone configuration of a simulation containing

@@ -1,7 +1,8 @@
-package mainapp;
+package com.dromedarydrones.mainapp;
 
-import food.FoodItem;
-import food.Meal;
+import com.dromedarydrones.food.FoodItem;
+import com.dromedarydrones.food.Meal;
+import com.dromedarydrones.location.Point;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -21,7 +22,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import location.Point;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,6 +1,6 @@
-package food;
+package com.dromedarydrones.food;
 
-import location.Point;
+import com.dromedarydrones.location.Point;
 
 /**
  * Container for tracking an individual order within a Trial.

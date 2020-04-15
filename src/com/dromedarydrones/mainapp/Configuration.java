@@ -1,18 +1,20 @@
-package mainapp;
+package com.dromedarydrones.mainapp;
 
-import food.FoodItem;
-import food.Meal;
-import food.Order;
+import com.dromedarydrones.food.FoodItem;
+import com.dromedarydrones.food.Meal;
+import com.dromedarydrones.food.Order;
+import com.dromedarydrones.xml.XmlFactory;
+import com.dromedarydrones.xml.XmlSerializable;
+import com.dromedarydrones.xml.XmlSerializationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import xml.XmlFactory;
-import xml.XmlSerializationException;
-import xml.XmlSerializable;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 

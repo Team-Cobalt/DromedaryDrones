@@ -1,9 +1,8 @@
-package location;
+package com.dromedarydrones.location;
 
-import javafx.beans.property.SimpleStringProperty;
+import com.dromedarydrones.xml.XmlSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import xml.XmlSerializable;
 
 import java.util.Objects;
 

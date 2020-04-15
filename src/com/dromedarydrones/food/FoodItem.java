@@ -1,8 +1,8 @@
-package food;
+package com.dromedarydrones.food;
 
+import com.dromedarydrones.xml.XmlSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import xml.XmlSerializable;
 
 import java.util.Objects;
 
