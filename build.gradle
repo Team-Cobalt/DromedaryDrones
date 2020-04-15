@@ -17,6 +17,15 @@ sourceSets {
         java {
             srcDir 'src'
         }
+        resources {
+            srcDir 'resources'
+        }
+    }
+
+    test {
+        java {
+            srcDir 'tests'
+        }
     }
 }
 
@@ -33,16 +42,8 @@ java{
     targetCompatibility = JavaVersion.VERSION_13
 }
 
-idea {
-    module {
-        sourceDirs += file('src')
-        testSourceDirs += file('tests')
-        resourceDirs += file('resources')
-    }
-}
-
 application{
-    mainClassName = 'mainapp.MainClass' // Specify the main runner class
+    mainClassName = 'com.dromedarydrones.mainapp.MainClass' // Specify the main runner class
 }
 
 dependencies{
@@ -54,6 +55,10 @@ repositories{
 }
 
 javafx { // JavaFX options
-    version '11'
+    version '11.0.2'
     modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+test {
+    useJUnit()
 }
