@@ -1,6 +1,7 @@
 # Dromedary Drones
 
-![build & test](https://github.com/Team-Cobalt/DromedaryDrones/workflows/build%20&%20test/badge.svg?branch=master) ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/Team-Cobalt/DromedaryDrones?include_prereleases)
+![build & test](https://github.com/Team-Cobalt/DromedaryDrones/workflows/build%20&%20test/badge.svg?branch=master)
+![GitHub release](https://img.shields.io/github/v/release/Team-Cobalt/DromedaryDrones?include_prereleases)
 
 This README covers the installation, startup, and use of team Cobalt's simulated drone delivery service.
 
