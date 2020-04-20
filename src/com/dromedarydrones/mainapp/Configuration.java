@@ -146,7 +146,7 @@ public class Configuration implements XmlSerializable {
         Simulation newSim = new Simulation("Grove City College");
 
         // sets default #orders per hour for each of the four hours
-        newSim.addStochasticFlow(List.of(15, 17, 22, 15));
+        newSim.addStochasticFlow(List.of(38, 45, 60, 30));
 
         // create default food items
         FoodItem burger = new FoodItem("Burger", 6);
@@ -158,22 +158,26 @@ public class Configuration implements XmlSerializable {
 
         //creates default basic combo meal type
         List<FoodItem> basic = List.of(burger, fries, drink);
-        Meal basicCombo = new Meal(basic, "Basic Combo", 0.55);
+        Meal basicCombo = new Meal(basic, "Basic Combo", 0.50);
 
         //creates default deluxe combo meal
         List<FoodItem> deluxe = List.of(burger, burger, fries, drink);
-        Meal deluxeCombo= new Meal(deluxe, "Deluxe Combo", 0.10);
+        Meal deluxeCombo= new Meal(deluxe, "Deluxe Combo", 0.20);
 
         //creates default basic combo w/o drink meal
-        List<FoodItem> basicNoDrk = List.of(burger, fries);
-        Meal basicNoDrink = new Meal(basicNoDrk, "Basic No Drink", 0.2);
+        List<FoodItem> noDrinkBasic = List.of(burger, fries);
+        Meal basicNoDrink = new Meal(noDrinkBasic, "Basic with No Drink", 0.15);
 
         //creates default deluxe combo w/o drink meal
-        List<FoodItem> deluxeNoDrk = List.of(burger, burger, fries);
-        Meal deluxeNoDrink = new Meal(deluxeNoDrk, "Deluxe No Drink", 0.15);
+        List<FoodItem> noDrinkDeluxe = List.of(burger, burger, fries);
+        Meal deluxeNoDrink = new Meal(noDrinkDeluxe, "Deluxe with No Drink", 0.10);
+
+        //creates default one fries meal
+        List<FoodItem> oneFries = List.of(fries);
+        Meal singleFries = new Meal(oneFries, "Single Fries", 0.05);
 
         // add default meal types to the simulation
-        newSim.addMealTypes(basicCombo, deluxeCombo, basicNoDrink, deluxeNoDrink);
+        newSim.addMealTypes(basicCombo, deluxeCombo, basicNoDrink, deluxeNoDrink, singleFries);
 
         //sets the default simulation as the current simulation to run
         currentSim = newSim;
