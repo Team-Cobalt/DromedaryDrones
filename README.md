@@ -1,5 +1,7 @@
 # Dromedary Drones
 
+![Java CI with Gradle (gradleTest Branch)](https://github.com/Team-Cobalt/DromedaryDrones/workflows/Java%20CI%20with%20Gradle%20(gradleTest%20Branch)/badge.svg)
+
 This README covers the installation, startup, and use of team Cobalt's simulated drone delivery service.
 
 **Software Used**<br>
