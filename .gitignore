@@ -1,3 +1,9 @@
 /bin/
-/.idea/
+/.idea/workspace.xml
+/.idea/gradle.xml
 /locations.txt
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
