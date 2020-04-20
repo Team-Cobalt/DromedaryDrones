@@ -5,9 +5,9 @@ name: build & test
 
 on:
   push:
-    branches: [ sprint2, master ]
+    branches: [ master ]
   pull_request:
-    branches: [ sprint2, master ]
+    branches: [ master ]
 
 jobs:
   build:
