@@ -39,26 +39,26 @@ public class MainClass extends Application {
 	private Text title; //title of page
 	private HBox titleLayout; //layout regarding title of page
 	private HBox iconLayout; //layout of home icon
-	private VBox btnLayout; //layout of setting's menu btns
+	private VBox buttonLayout; //layout of setting's menu buttons
 	private VBox settingLayout; //layout of all icons in setting pages
-	private Simulation currentSim; //current simulation being run
+	private Simulation currentSimulation; //current simulation being run
 	private SimulationResults results;
 	
 	public static void main(String[] args) {
 		
 		//loads specified configuration settings
-		Configuration config = Configuration.getInstance();
+		Configuration configuration = Configuration.getInstance();
 
 		try {
 			// try loading the file
-			config.initialize();
-		} catch (IOException ioe) {
+			configuration.initialize();
+		} catch (IOException ioException) {
 			try {
 				// try loading the default GCC data
-				config.initialize();
-			} catch (Exception e) {
+				configuration.initialize();
+			} catch (Exception exception) {
 				// something went very wrong
-				e.printStackTrace();
+				exception.printStackTrace();
 			}
 		}
 
@@ -74,23 +74,23 @@ public class MainClass extends Application {
 		window = primaryStage;
 
 		//grabs current simulation for accessing necessary values
-		currentSim = Configuration.getInstance().getCurrentSimulation();
+		currentSimulation = Configuration.getInstance().getCurrentSimulation();
 
 		//adds camel image to main menu
 		Image image = new Image("file:resources/Camel.jpg");
 		
-		ImageView imgView = new javafx.scene.image.ImageView(image);
+		ImageView imageView = new javafx.scene.image.ImageView(image);
 		
-		imgView.setX(50);
-		imgView.setY(50);
+		imageView.setX(50);
+		imageView.setY(50);
 		
-		imgView.setFitHeight(175);
-		imgView.setFitWidth(175);
+		imageView.setFitHeight(175);
+		imageView.setFitWidth(175);
 		
-		imgView.setPreserveRatio(true);
+		imageView.setPreserveRatio(true);
 		
 		VBox picture = new VBox(15);
-		picture.getChildren().add(imgView);
+		picture.getChildren().add(imageView);
 		picture.setAlignment(Pos.TOP_CENTER);
 		
 		//adds opening heading to main menu
@@ -109,30 +109,30 @@ public class MainClass extends Application {
 		buttons.setPrefWidth(100);
 			
 		//button for starting the simulation
-		Button btnStart = new Button("Start Simulation");
-		btnStart.setMinWidth(buttons.getPrefWidth());
-		btnStart.setStyle("-fx-background-color: WHITE");
-		btnStart.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button buttonStart = new Button("Start Simulation");
+		buttonStart.setMinWidth(buttons.getPrefWidth());
+		buttonStart.setStyle("-fx-background-color: WHITE");
+		buttonStart.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 		//takes user to intermediate page when pressed/starts simulation
-		btnStart.setOnAction(e-> startSim());
+		buttonStart.setOnAction(e-> startSimulation());
 		
 		//button for editing the simulation
-		Button btnEdit = new Button("Settings");
-		btnEdit.setMinWidth(buttons.getPrefWidth());
-		btnEdit.setStyle("-fx-background-color: WHITE");
-		btnEdit.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button buttonEdit = new Button("Settings");
+		buttonEdit.setMinWidth(buttons.getPrefWidth());
+		buttonEdit.setStyle("-fx-background-color: WHITE");
+		buttonEdit.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 		//takes user to general settings page when clicked
-		btnEdit.setOnAction(e -> genEditPage());
+		buttonEdit.setOnAction(e -> generalEditPage());
 		
 		//button for exiting the gui
-		Button btnExit = new Button("Exit Simulation");
-		btnExit.setMinWidth(buttons.getPrefWidth());
-		btnExit.setStyle("-fx-background-color: WHITE");
-		btnExit.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button buttonExit = new Button("Exit Simulation");
+		buttonExit.setMinWidth(buttons.getPrefWidth());
+		buttonExit.setStyle("-fx-background-color: WHITE");
+		buttonExit.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 		//exits the screen (gui) when clicked
-		btnExit.setOnAction(e-> System.exit(0));
+		buttonExit.setOnAction(e-> System.exit(0));
 		
-		buttons.getChildren().addAll(btnStart, btnEdit, btnExit);
+		buttons.getChildren().addAll(buttonStart, buttonEdit, buttonExit);
 		buttons.setAlignment(Pos.BOTTOM_CENTER);
 		
 		//arranges title and buttons on the screen
@@ -160,17 +160,16 @@ public class MainClass extends Application {
 		window.setTitle("Dromedary Drones");
 		window.setResizable(false);
 		window.show();
-
 	}
 	
 	/**
 	 * Method for running the simulation
 	 * @author Isabella Patnode
 	 */
-	public void startSim() {
+	public void startSimulation() {
 
 		//runs simulation
-		results = currentSim.run();
+		results = currentSimulation.run();
 
 		//takes simulation to results page
 		resultsPage();
@@ -197,18 +196,18 @@ public class MainClass extends Application {
 	 * Creates home button icon
 	 * @author Isabella Patnode
 	 */
-	public void homeBtn() {
+	public void homeButton() {
 
 		Image homeIcon = new Image("file:resources/HomeButton.jpg");
 		ImageView homeView = new ImageView(homeIcon);
 
-		Button homeBtn = new Button("", homeView);
-		homeBtn.setStyle("-fx-background-color: WHITE");
-		homeBtn.setOnAction(e-> window.setScene(mainMenu));
+		Button homeButton = new Button("", homeView);
+		homeButton.setStyle("-fx-background-color: WHITE");
+		homeButton.setOnAction(e-> window.setScene(mainMenu));
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
-		iconLayout.getChildren().add(homeBtn);
+		iconLayout.getChildren().add(homeButton);
 		iconLayout.setStyle("-fx-background-color: WHITE");
 	}
 
@@ -216,44 +215,44 @@ public class MainClass extends Application {
 	 * Creates menu buttons for settings pages
 	 * @author Isabella Patnode
 	 */
-	public void menuBtns() {
-		btnLayout = new VBox();
-		btnLayout.setPrefWidth(110);
-		btnLayout.setSpacing(5);
+	public void menuButtons() {
+		buttonLayout = new VBox();
+		buttonLayout.setPrefWidth(110);
+		buttonLayout.setSpacing(5);
 
-		Button genBtn = new Button("General");
-		genBtn.setMinWidth(btnLayout.getPrefWidth());
-		genBtn.setStyle("-fx-background-color: WHITE");
-		genBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-		genBtn.setOnAction(e -> genEditPage());
+		Button generalButton = new Button("General");
+		generalButton.setMinWidth(buttonLayout.getPrefWidth());
+		generalButton.setStyle("-fx-background-color: WHITE");
+		generalButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		generalButton.setOnAction(e -> generalEditPage());
 
-		Button foodBtn = new Button("Food Items");
-		foodBtn.setMinWidth(btnLayout.getPrefWidth());
-		foodBtn.setStyle("-fx-background-color: WHITE");
-		foodBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-		foodBtn.setOnAction(e -> editFoodPage());
+		Button foodButton = new Button("Food Items");
+		foodButton.setMinWidth(buttonLayout.getPrefWidth());
+		foodButton.setStyle("-fx-background-color: WHITE");
+		foodButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		foodButton.setOnAction(e -> editFoodPage());
 
-		Button mealBtn = new Button("Meals");
-		mealBtn.setMinWidth(btnLayout.getPrefWidth());
-		mealBtn.setStyle("-fx-background-color: WHITE");
-		mealBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-		mealBtn.setOnAction(e -> editMealsPage());
+		Button mealButton = new Button("Meals");
+		mealButton.setMinWidth(buttonLayout.getPrefWidth());
+		mealButton.setStyle("-fx-background-color: WHITE");
+		mealButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		mealButton.setOnAction(e -> editMealsPage());
 
-		Button mapBtn = new Button("Map");
-		mapBtn.setMinWidth(btnLayout.getPrefWidth());
-		mapBtn.setStyle("-fx-background-color: WHITE");
-		mapBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-		mapBtn.setOnAction(e -> editMapPage());
+		Button mapButton = new Button("Map");
+		mapButton.setMinWidth(buttonLayout.getPrefWidth());
+		mapButton.setStyle("-fx-background-color: WHITE");
+		mapButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		mapButton.setOnAction(e -> editMapPage());
 
-		Button startBtn = new Button("Start Simulation");
-		startBtn.setMinWidth(btnLayout.getPrefWidth());
-		startBtn.setStyle("-fx-background-color: WHITE");
-		startBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-		startBtn.setOnAction(e -> startSim());
+		Button startButton = new Button("Start Simulation");
+		startButton.setMinWidth(buttonLayout.getPrefWidth());
+		startButton.setStyle("-fx-background-color: WHITE");
+		startButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		startButton.setOnAction(e -> startSimulation());
 
-		btnLayout.getChildren().addAll(genBtn, foodBtn, mealBtn, mapBtn, startBtn);
-		btnLayout.setAlignment(Pos.CENTER_LEFT);
-		btnLayout.setPadding(new Insets(0, 0, 0, 5));
+		buttonLayout.getChildren().addAll(generalButton, foodButton, mealButton, mapButton, startButton);
+		buttonLayout.setAlignment(Pos.CENTER_LEFT);
+		buttonLayout.setPadding(new Insets(0, 0, 0, 5));
 
 	}
 
@@ -261,12 +260,12 @@ public class MainClass extends Application {
 	 * Creates GUI page for general settings (i.e. stochastic flow)
 	 * @author Isabella Patnode
 	 */
-	public void genEditPage() {
+	public void generalEditPage() {
 		//creates heading of page
 		settingTitle();
 
 		//sets up home button icon
-		homeBtn();
+		homeButton();
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
@@ -275,7 +274,7 @@ public class MainClass extends Application {
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
 		//sets up menu buttons
-		menuBtns();
+		menuButtons();
 
 		//creates table heading for model
 		Text gridHeading = new Text("Order Volume per Hour");
@@ -296,59 +295,59 @@ public class MainClass extends Application {
 		hourFour.setFont(Font.font("Serif", 15));
 
 		//adds current simulation's stochastic flow values to the gridpane
-		ArrayList<Integer> currentModel = new ArrayList<>(currentSim.getStochasticFlow());
+		ArrayList<Integer> currentModel = new ArrayList<>(currentSimulation.getStochasticFlow());
 
-		TextField hrOneMeals = new TextField(currentModel.get(0).toString());
-		hrOneMeals.setMaxWidth(80);
-		TextField hrTwoMeals = new TextField(currentModel.get(1).toString());
-		hrTwoMeals.setMaxWidth(80);
-		TextField hrThreeMeals = new TextField(currentModel.get(2).toString());
-		hrThreeMeals.setMaxWidth(80);
-		TextField hrFourMeals = new TextField(currentModel.get(3).toString());
-		hrFourMeals.setMaxWidth(80);
+		TextField hourOneMeals = new TextField(currentModel.get(0).toString());
+		hourOneMeals.setMaxWidth(80);
+		TextField hourTwoMeals = new TextField(currentModel.get(1).toString());
+		hourTwoMeals.setMaxWidth(80);
+		TextField hourThreeMeals = new TextField(currentModel.get(2).toString());
+		hourThreeMeals.setMaxWidth(80);
+		TextField hourFourMeals = new TextField(currentModel.get(3).toString());
+		hourFourMeals.setMaxWidth(80);
 
 		//creates gridpane for stochastic flow values
-		GridPane genSettings = new GridPane();
-		genSettings.setAlignment(Pos.CENTER);
-		genSettings.setVgap(10);
-		genSettings.setMaxSize(300, 300);
+		GridPane generalSettings = new GridPane();
+		generalSettings.setAlignment(Pos.CENTER);
+		generalSettings.setVgap(10);
+		generalSettings.setMaxSize(300, 300);
 
 		//adds cells to gridpane
-		genSettings.add(hourOne, 0, 0);
-		genSettings.add(hrOneMeals, 1, 0);
-		genSettings.add(hourTwo, 0, 1);
-		genSettings.add(hrTwoMeals, 1, 1);
-		genSettings.add(hourThree, 0, 2);
-		genSettings.add(hrThreeMeals, 1, 2);
-		genSettings.add(hourFour, 0, 3);
-		genSettings.add(hrFourMeals, 1, 3);
+		generalSettings.add(hourOne, 0, 0);
+		generalSettings.add(hourOneMeals, 1, 0);
+		generalSettings.add(hourTwo, 0, 1);
+		generalSettings.add(hourTwoMeals, 1, 1);
+		generalSettings.add(hourThree, 0, 2);
+		generalSettings.add(hourThreeMeals, 1, 2);
+		generalSettings.add(hourFour, 0, 3);
+		generalSettings.add(hourFourMeals, 1, 3);
 
 		VBox gridLayout = new VBox();
 		gridLayout.setSpacing(5);
 		gridLayout.setAlignment(Pos.CENTER);
-		gridLayout.getChildren().addAll(gridHeading, genSettings);
+		gridLayout.getChildren().addAll(gridHeading, generalSettings);
 
 		//configures display of menu buttons and gridpane
 		HBox centerLayout = new HBox();
 		centerLayout.setSpacing(220);
 		centerLayout.setAlignment(Pos.CENTER_LEFT);
-		centerLayout.getChildren().addAll(btnLayout, gridLayout);
+		centerLayout.getChildren().addAll(buttonLayout, gridLayout);
 
 		//arranges btns for loading and saving model
-		VBox svLdBtns = new VBox();
-		svLdBtns.setPrefWidth(100);
-		svLdBtns.setSpacing(10);
-		svLdBtns.setAlignment(Pos.BOTTOM_RIGHT);
-		svLdBtns.setPadding(new Insets(0, 80, 100, 0));
+		VBox saveLoadButtons = new VBox();
+		saveLoadButtons.setPrefWidth(100);
+		saveLoadButtons.setSpacing(10);
+		saveLoadButtons.setAlignment(Pos.BOTTOM_RIGHT);
+		saveLoadButtons.setPadding(new Insets(0, 80, 100, 0));
 
 		//adds buttons for loading and saving model
-		Button saveBtn = new Button("Save Changes");
-		saveBtn.setMinWidth(svLdBtns.getPrefWidth());
-		saveBtn.setStyle("-fx-background-color: WHITE");
-		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button saveButton = new Button("Save Changes");
+		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		saveButton.setStyle("-fx-background-color: WHITE");
+		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
 		//opens file explorer and saves current settings
-		saveBtn.setOnAction(event -> {
+		saveButton.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Save Changes");
 			fileChooser.getExtensionFilters().add(
@@ -357,17 +356,17 @@ public class MainClass extends Application {
 			File file = fileChooser.showSaveDialog(window);
 			if (file != null) {
 				try { Configuration.getInstance().saveConfigs(file);
-				} catch (IOException e) { e.printStackTrace(); }
+				} catch (IOException exception) { exception.printStackTrace(); }
 			}
 		});
 
-		Button loadBtn = new Button("Load Settings");
-		loadBtn.setMinWidth(svLdBtns.getPrefWidth());
-		loadBtn.setStyle("-fx-background-color: WHITE");
-		loadBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button loadButton = new Button("Load Settings");
+		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		loadButton.setStyle("-fx-background-color: WHITE");
+		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
 		//opens settings and loads settings from user location
-		loadBtn.setOnAction(event -> {
+		loadButton.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Load Settings");
 			fileChooser.getExtensionFilters().add(
@@ -377,27 +376,27 @@ public class MainClass extends Application {
 			if (file != null) {
 				try {
 					Configuration.getInstance().initialize(file);
-					currentSim = Configuration.getInstance().getCurrentSimulation();
-				} catch (IOException e) { e.printStackTrace(); }
+					currentSimulation = Configuration.getInstance().getCurrentSimulation();
+				} catch (IOException exception) { exception.printStackTrace(); }
 			}
 		});
 
-		svLdBtns.getChildren().addAll(loadBtn, saveBtn);
+		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
 
 		//arranges top layout (home btn and title) and center layout (menu btn and gridpane)
 		settingLayout = new VBox();
-		settingLayout.setSpacing(105);
+		settingLayout.setSpacing(103);
 		settingLayout.setPadding(new Insets(10, 0 , 0, 0));
 		settingLayout.setStyle("-fx-background-color: WHITE");
-		settingLayout.getChildren().addAll(topLayout, centerLayout, svLdBtns);
+		settingLayout.getChildren().addAll(topLayout, centerLayout, saveLoadButtons);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		Scene genEditPg = new Scene(root, 900, 600);
+		Scene generalEditPage = new Scene(root, 900, 600);
 
 		//sets screen to display page
-		window.setScene(genEditPg);
+		window.setScene(generalEditPage);
 	}
 
 	/**
@@ -409,7 +408,7 @@ public class MainClass extends Application {
 		settingTitle();
 
 		//sets up home button icon
-		homeBtn();
+		homeButton();
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
@@ -418,11 +417,11 @@ public class MainClass extends Application {
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
 		//sets up menu buttons
-		menuBtns();
+		menuButtons();
 
 		//create table of food items in simulation
 		TableView<FoodItem> foodTable = new TableView<>();
-		ObservableList<FoodItem> foodItems = currentSim.getFoodItems();
+		ObservableList<FoodItem> foodItems = currentSimulation.getFoodItems();
 		foodTable.setItems(foodItems);
 
 		//Create table headings
@@ -450,38 +449,62 @@ public class MainClass extends Application {
 		HBox centerLayout = new HBox();
 		centerLayout.setSpacing(220);
 		centerLayout.setAlignment(Pos.CENTER_LEFT);
-		centerLayout.getChildren().addAll(btnLayout, tableLayout);
+		centerLayout.getChildren().addAll(buttonLayout, tableLayout);
 
 		//buttons for adding and deleting table rows
-		Button addBtn = new Button("Add");
-		addBtn.setStyle("-fx-background-color: WHITE");
-		addBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button addButton = new Button("Add");
+		addButton.setStyle("-fx-background-color: WHITE");
+		addButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		Button delBtn = new Button("Delete");
-		delBtn.setStyle("-fx-background-color: WHITE");
-		delBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button deleteButton = new Button("Delete");
+		deleteButton.setStyle("-fx-background-color: WHITE");
+		deleteButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
 		//arranges add and delete buttons relative to each other
-		HBox editBtns = new HBox(10);
-		editBtns.setAlignment(Pos.TOP_CENTER);
-		editBtns.getChildren().addAll(addBtn, delBtn);
-		editBtns.setPadding(new Insets(0, 20, 0, 0));
+		HBox editButtons = new HBox(10);
+		editButtons.setAlignment(Pos.TOP_CENTER);
+		editButtons.getChildren().addAll(addButton, deleteButton);
+		editButtons.setPadding(new Insets(0, 20, 0, 0));
 
-		VBox tbBtnLayout = new VBox(10);
-		tbBtnLayout.getChildren().addAll(centerLayout, editBtns);
+		VBox tableButtonLayout = new VBox(10);
+		tableButtonLayout.getChildren().addAll(centerLayout, editButtons);
+
+		//arranges buttons for loading and saving model
+		VBox saveLoadButtons = new VBox();
+		saveLoadButtons.setPrefWidth(100);
+		saveLoadButtons.setSpacing(10);
+		saveLoadButtons.setAlignment(Pos.BOTTOM_RIGHT);
+		saveLoadButtons.setPadding(new Insets(0, 80, 0, 0));
+
+		//creates button for loading food items
+		Button loadButton = new Button("Load Foods");
+		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		loadButton.setStyle("-fx-background-color: WHITE");
+		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		//adds button for saving food items
+		Button saveButton = new Button("Save Changes");
+		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		saveButton.setStyle("-fx-background-color: WHITE");
+		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
+
+		VBox displayLayout = new VBox(10);
+		displayLayout.getChildren().addAll(tableButtonLayout, saveLoadButtons);
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
-		settingLayout.getChildren().addAll(topLayout, tbBtnLayout);
+		settingLayout.getChildren().addAll(topLayout, displayLayout);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		 Scene foodEditPg = new Scene(root, 900, 600);
+		 Scene foodEditPage = new Scene(root, 900, 600);
 
 		//sets screen to display page
-		window.setScene(foodEditPg);
+		window.setScene(foodEditPage);
 	}
 
 	/**
@@ -492,7 +515,7 @@ public class MainClass extends Application {
 		settingTitle();
 
 		//sets up home button icon
-		homeBtn();
+		homeButton();
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
@@ -501,17 +524,17 @@ public class MainClass extends Application {
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
 		//sets up menu buttons
-		menuBtns();
+		menuButtons();
 
 		//sets padding of menu buttons to match rest of settings pages
-		btnLayout.setAlignment(Pos.TOP_LEFT);
-		btnLayout.setPadding(new Insets(68, 0, 0, 5));
+		buttonLayout.setAlignment(Pos.TOP_LEFT);
+		buttonLayout.setPadding(new Insets(68, 0, 0, 5));
 
 		//arranges all meals together
 		VBox mealsBox = new VBox(10);
 
 		//creates a gridpane for each meal in the simulation
-		for(Meal meal : currentSim.getMealTypes()) {
+		for(Meal meal : currentSimulation.getMealTypes()) {
 			//arranges meal with its components
 			VBox singleMealLayout = new VBox();
 
@@ -528,7 +551,7 @@ public class MainClass extends Application {
 			titleFormat.setPadding(new Insets(8, 0, 0, 0));
 
 			//used to store each food item in the meal and how many of it there is
-			HashMap<String, Integer> numPerFood = new HashMap<>();
+			HashMap<String, Integer> numberPerFood = new HashMap<>();
 
 			//formats each food item and the probability of it
 			GridPane mealFoods = new GridPane();
@@ -541,11 +564,11 @@ public class MainClass extends Application {
 			for(FoodItem mealItem: meal.getFoods()) {
 				String name = mealItem.getName();
 
-				if(numPerFood.containsKey(name)) {
-					numPerFood.put(name, numPerFood.get(name) + 1);
+				if(numberPerFood.containsKey(name)) {
+					numberPerFood.put(name, numberPerFood.get(name) + 1);
 				}
 				else {
-					numPerFood.put(name, 1);
+					numberPerFood.put(name, 1);
 				}
 			}
 
@@ -553,15 +576,15 @@ public class MainClass extends Application {
 
 			/*adds each food item and their corresponding count in meals (i.e. 2 hamburger, 0 fries)
 			**to the grid*/
-			for(FoodItem food: currentSim.getFoodItems()) {
+			for(FoodItem food: currentSimulation.getFoodItems()) {
 				String currentFood = food.getName();
 				Text foodName = new Text(currentFood + ":");
 				foodName.setFont(Font.font("Serif", 15));
 				mealFoods.add(foodName, 0, index);
 
 				//gets # of the specific food item in the meal
-				if(numPerFood.containsKey(currentFood)) {
-					TextField foodCount = new TextField(numPerFood.get(currentFood).toString());
+				if(numberPerFood.containsKey(currentFood)) {
+					TextField foodCount = new TextField(numberPerFood.get(currentFood).toString());
 					foodCount.setMaxWidth(80);
 					mealFoods.add(foodCount, 1, index);
 				}
@@ -575,21 +598,21 @@ public class MainClass extends Application {
 			}
 
 			//creates and formats probability of meal display
-			Text probName = new Text("Probability:");
-			probName.setFont(Font.font("Serif", 15));
-			mealFoods.add(probName, 0, index);
-			TextField probValue = new TextField(meal.getProbability() + "");
-			probValue.setMaxWidth(80);
-			mealFoods.add(probValue, 1, index);
+			Text probabilityName = new Text("Probability:");
+			probabilityName.setFont(Font.font("Serif", 15));
+			mealFoods.add(probabilityName, 0, index);
+			TextField probabilityValue = new TextField(meal.getProbability() + "");
+			probabilityValue.setMaxWidth(80);
+			mealFoods.add(probabilityValue, 1, index);
 
 			//creates button for deleting meals
-			Button deleteBtn = new Button("X");
-			deleteBtn.setStyle("-fx-background-color: WHITE; -fx-font-weight: bold; -fx-font-size: 15; fx-font-family: Serif");
-			deleteBtn.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0))));
+			Button deleteButton = new Button("X");
+			deleteButton.setStyle("-fx-background-color: WHITE; -fx-font-weight: bold; -fx-font-size: 15; fx-font-family: Serif");
+			deleteButton.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0))));
 
 			//formats delete button with meal heading
 			HBox topFormat = new HBox();
-			topFormat.getChildren().addAll(titleFormat, deleteBtn);
+			topFormat.getChildren().addAll(titleFormat, deleteButton);
 
 			//formats meal components
 			singleMealLayout.setSpacing(5);
@@ -609,26 +632,36 @@ public class MainClass extends Application {
 
 
 		//formats display of buttons for changing meals
-		VBox changeBtns = new VBox();
-		changeBtns.setPrefWidth(100);
-		changeBtns.setSpacing(10);
-		changeBtns.setAlignment(Pos.BOTTOM_RIGHT);
+		VBox changeButtons = new VBox();
+		changeButtons.setPrefWidth(100);
+		changeButtons.setSpacing(10);
+		changeButtons.setAlignment(Pos.BOTTOM_RIGHT);
 
 		//adds buttons for adding, loading, and saving meals
-		Button addBtn = new Button("Add Meal");
-		//addBtn.setMinWidth(changeBtns.getPrefWidth());
-		addBtn.setStyle("-fx-background-color: WHITE");
-		addBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button addButton = new Button("Add Meal");
+		addButton.setMinWidth(changeButtons.getPrefWidth());
+		addButton.setStyle("-fx-background-color: WHITE");
+		addButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		changeBtns.getChildren().addAll(addBtn);
+		Button loadButton = new Button("Load Meals");
+		loadButton.setMinWidth(changeButtons.getPrefWidth());
+		loadButton.setStyle("-fx-background-color: WHITE");
+		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		Button saveButton = new Button("Save Changes");
+		saveButton.setMinWidth(changeButtons.getPrefWidth());
+		saveButton.setStyle("-fx-background-color: WHITE");
+		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		changeButtons.getChildren().addAll(addButton, loadButton, saveButton);
 
 		//formats display of meal layout and corresponding buttons
-		HBox mealBtnLayout = new HBox(100);
-		mealBtnLayout.getChildren().addAll(mealLayout, changeBtns);
+		HBox mealButtonLayout = new HBox(100);
+		mealButtonLayout.getChildren().addAll(mealLayout, changeButtons);
 
 		//formats display of menu column and full meal display
 		HBox centerLayout = new HBox(200);
-		centerLayout.getChildren().addAll(btnLayout, mealBtnLayout);
+		centerLayout.getChildren().addAll(buttonLayout, mealButtonLayout);
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(35);
@@ -638,10 +671,10 @@ public class MainClass extends Application {
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		Scene mealEditPg = new Scene(root, 900, 600);
+		Scene mealEditPage = new Scene(root, 900, 600);
 
 		//sets screen to display page
-		window.setScene(mealEditPg);
+		window.setScene(mealEditPage);
 	}
 
 	/**
@@ -653,7 +686,7 @@ public class MainClass extends Application {
 		settingTitle();
 
 		//sets up home button icon
-		homeBtn();
+		homeButton();
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
@@ -662,10 +695,10 @@ public class MainClass extends Application {
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
 		//sets up menu buttons
-		menuBtns();
+		menuButtons();
 
 		//gets list of current map destinations
-		ObservableList<Point> mapPoints = currentSim.getDeliveryPoints().getPoints();
+		ObservableList<Point> mapPoints = currentSimulation.getDeliveryPoints().getPoints();
 
 		//finds maximum and minimum destinations points (in coordinates)
 		int maxY = mapPoints.get(0).getY();
@@ -706,12 +739,11 @@ public class MainClass extends Application {
 		map.setLegendVisible(false);
 		map.setStyle("-fx-background: WHITE");
 
-
 		//creates points from destination coordinates for scatter plot
 		XYChart.Series<Number, Number> mapValues = new XYChart.Series<>();
 
-		for(Point dest : mapPoints) {
-			mapValues.getData().add(new XYChart.Data<>(dest.getX(), dest.getY()));
+		for(Point destination : mapPoints) {
+			mapValues.getData().add(new XYChart.Data<>(destination.getX(), destination.getY()));
 		}
 		//adds points to scatter plot
 		map.getData().add(mapValues);
@@ -756,39 +788,66 @@ public class MainClass extends Application {
 		HBox centerLayout = new HBox();
 		centerLayout.setSpacing(160);
 		centerLayout.setAlignment(Pos.CENTER_LEFT);
-		centerLayout.getChildren().addAll(btnLayout, mapLayout);
+		centerLayout.getChildren().addAll(buttonLayout, mapLayout);
 
 		//buttons for adding and deleting table rows
-		Button addBtn = new Button("Add");
-		addBtn.setStyle("-fx-background-color: WHITE");
-		addBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button addButton = new Button("Add");
+		addButton.setStyle("-fx-background-color: WHITE");
+		addButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		Button delBtn = new Button("Delete");
-		delBtn.setStyle("-fx-background-color: WHITE");
-		delBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button deleteButton = new Button("Delete");
+		deleteButton.setStyle("-fx-background-color: WHITE");
+		deleteButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		HBox addDelBtns = new HBox(10);
-		addDelBtns.setAlignment(Pos.CENTER_RIGHT);
-		addDelBtns.setPadding(new Insets(0, 80, 0, 0));
-		addDelBtns.getChildren().addAll(addBtn, delBtn);
+		HBox addDeleteButtons = new HBox(10);
+		addDeleteButtons.setAlignment(Pos.CENTER_RIGHT);
+		addDeleteButtons.setPadding(new Insets(0, 80, 0, 0));
+		addDeleteButtons.getChildren().addAll(addButton, deleteButton);
 
 		//arranges map, table, and table buttons together
-		VBox btnMap = new VBox();
-		btnMap.getChildren().addAll(centerLayout, addDelBtns);
-		btnMap.setSpacing(10);
+		VBox buttonMap = new VBox();
+		buttonMap.getChildren().addAll(centerLayout, addDeleteButtons);
+		buttonMap.setSpacing(10);
+
+		//arranges buttons for loading and saving map and table of points
+		VBox saveLoadButtons = new VBox();
+		saveLoadButtons.setPrefWidth(100);
+		saveLoadButtons.setSpacing(10);
+		saveLoadButtons.setAlignment(Pos.BOTTOM_RIGHT);
+		saveLoadButtons.setPadding(new Insets(0, 80, 0, 0));
+
+		//creates button for loading map
+		Button loadButton = new Button("Load Map");
+		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		loadButton.setStyle("-fx-background-color: WHITE");
+		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+
+		//adds buttons for loading and saving model
+		Button saveButton = new Button("Save Changes");
+		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		saveButton.setStyle("-fx-background-color: WHITE");
+		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
+
+		//arranges map elements with load and save buttons
+		VBox mainLayout = new VBox();
+		mainLayout.getChildren().addAll(buttonMap, saveLoadButtons);
+		mainLayout.setSpacing(50);
 
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
-		settingLayout.getChildren().addAll(topLayout, btnMap);
+		settingLayout.getChildren().addAll(topLayout, mainLayout);
 		settingLayout.setStyle("-fx-background-color: WHITE");
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
 
-		Scene mapEditPg = new Scene(root, 900, 600);
+		Scene mapEditPage = new Scene(root, 900, 600);
 
 		//sets screen to display page
-		window.setScene(mapEditPg);
+		window.setScene(mapEditPage);
 	}
 
 	/**
@@ -810,7 +869,7 @@ public class MainClass extends Application {
 		titleLayout.setAlignment(Pos.CENTER);
 
 		//sets up home button icon
-		homeBtn();
+		homeButton();
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
@@ -825,17 +884,17 @@ public class MainClass extends Application {
 		fifoTitle.setWrappingWidth(300);
 		fifoTitle.setTextAlignment(TextAlignment.CENTER);
 
-		double fifoAvgTime = results.getAverageFifoTime();	//change once you can access the results
+		double fifoAverageTime = results.getAverageFifoTime();	//change once you can access the results
 
-		Text fifoAvg = new Text(String.format("Average Delivery Time: %.1f minutes", fifoAvgTime/60));
-		fifoAvg.setFont(Font.font("Serif", 18));
-		fifoAvg.setFill(Color.BLACK);
-		fifoAvg.setWrappingWidth(300);
-		fifoAvg.setTextAlignment(TextAlignment.CENTER);
+		Text fifoAverage = new Text(String.format("Average Delivery Time: %.1f minutes", fifoAverageTime / 60));
+		fifoAverage.setFont(Font.font("Serif", 18));
+		fifoAverage.setFill(Color.BLACK);
+		fifoAverage.setWrappingWidth(300);
+		fifoAverage.setTextAlignment(TextAlignment.CENTER);
 
 		double fifoWorstTime = results.getWorstFifoTime();	//change once you can access the results
 
-		Text fifoWorst = new Text(String.format("Worst Delivery Time: %.1f minutes", fifoWorstTime/60));
+		Text fifoWorst = new Text(String.format("Worst Delivery Time: %.1f minutes", fifoWorstTime / 60));
 		fifoWorst.setFont(Font.font("Serif", 18));
 		fifoWorst.setFill(Color.BLACK);
 		fifoWorst.setWrappingWidth(300);
@@ -844,7 +903,7 @@ public class MainClass extends Application {
 		VBox fifoLayout = new VBox();
 		fifoLayout.setSpacing(5);
 		fifoLayout.setAlignment(Pos.TOP_CENTER);
-		fifoLayout.getChildren().addAll(fifoTitle, fifoAvg, fifoWorst);
+		fifoLayout.getChildren().addAll(fifoTitle, fifoAverage, fifoWorst);
 
 		//knapsack stats
 		Text knapsackTitle = new Text("Knapsack Packing Delivery");
@@ -853,26 +912,26 @@ public class MainClass extends Application {
 		knapsackTitle.setWrappingWidth(300);
 		knapsackTitle.setTextAlignment(TextAlignment.CENTER);
 
-		double knapAvgTime = results.getAverageKnapsackTime();	//change once you can access the results
+		double knapsackAverageTime = results.getAverageKnapsackTime();	//change once you can access the results
 
-		Text knapAvg = new Text(String.format("Average Delivery Time: %.1f minutes", knapAvgTime/60));
-		knapAvg.setFont(Font.font("Serif", 18));
-		knapAvg.setFill(Color.BLACK);
-		knapAvg.setWrappingWidth(300);
-		knapAvg.setTextAlignment(TextAlignment.CENTER);
+		Text knapsackAverage = new Text(String.format("Average Delivery Time: %.1f minutes", knapsackAverageTime / 60));
+		knapsackAverage.setFont(Font.font("Serif", 18));
+		knapsackAverage.setFill(Color.BLACK);
+		knapsackAverage.setWrappingWidth(300);
+		knapsackAverage.setTextAlignment(TextAlignment.CENTER);
 
-		double knapWorstTime = results.getWorstKnapsackTime();	//change once you can access the results
+		double knapsackWorstTime = results.getWorstKnapsackTime();	//change once you can access the results
 
-		Text knapWorst = new Text(String.format("Worst Delivery Time: %.1f minutes", knapWorstTime/60));
-		knapWorst.setFont(Font.font("Serif", 18));
-		knapWorst.setFill(Color.BLACK);
-		knapWorst.setWrappingWidth(300);
-		knapWorst.setTextAlignment(TextAlignment.CENTER);
+		Text knapsackWorst = new Text(String.format("Worst Delivery Time: %.1f minutes", knapsackWorstTime / 60));
+		knapsackWorst.setFont(Font.font("Serif", 18));
+		knapsackWorst.setFill(Color.BLACK);
+		knapsackWorst.setWrappingWidth(300);
+		knapsackWorst.setTextAlignment(TextAlignment.CENTER);
 
 		VBox knapsackLayout = new VBox();
 		knapsackLayout.setSpacing(5);
 		knapsackLayout.setAlignment(Pos.TOP_CENTER);
-		knapsackLayout.getChildren().addAll(knapsackTitle, knapAvg, knapWorst);
+		knapsackLayout.getChildren().addAll(knapsackTitle, knapsackAverage, knapsackWorst);
 
 		//set up stats layout
 		HBox statsLayout = new HBox();
@@ -895,11 +954,11 @@ public class MainClass extends Application {
 		knapsackSeries.setName("Knapsack Packing");
 
         int [] fifoCount = new int [26];    //keeps track of how many orders occur per each time range
-		ArrayList <Double> fifoTimes = new ArrayList<>(results.getFifoTimes());
+		ArrayList<Double> fifoTimes = new ArrayList<>(results.getFifoTimes());
 
         //count number of orders per time slot
-        for (int i = 0; i < fifoTimes.size(); i++){
-            int time = (int)(Math.floor(fifoTimes.get(i))/60);    //get the floor of the order delivery time
+        for (int index = 0; index < fifoTimes.size(); index++){
+            int time = (int)(Math.floor(fifoTimes.get(index)) / 60);    //get the floor of the order delivery time
             if (time < 25){
             	fifoCount[time]++;  //increment orders in this time slot
 			}
@@ -909,30 +968,30 @@ public class MainClass extends Application {
         }
 
         //add data from fifo times
-        for (int i = 0; i < fifoCount.length - 1; i++){
-            fifoSeries.getData().add(new XYChart.Data<>(i + "-" + (i+1), fifoCount[i]));
+        for (int index = 0; index < fifoCount.length - 1; index++){
+            fifoSeries.getData().add(new XYChart.Data<>(index + "-" + (index + 1), fifoCount[index]));
         }
         fifoSeries.getData().add(new XYChart.Data<>("25+", fifoCount[25]));
 
-        int [] knapCount = new int [26];	//keeps track of how many orders occur per each time range
-        ArrayList <Double> knapTimes = new ArrayList<>(results.getKnapsackTimes());
+        int [] knapsackCount = new int [26];	//keeps track of how many orders occur per each time range
+        ArrayList<Double> knapsackTimes = new ArrayList<>(results.getKnapsackTimes());
 
         //count number of orders per time slot
-		for (int i = 0; i < knapTimes.size(); i++){
-			int time = (int)(Math.floor(knapTimes.get(i))/60);    //get the floor of the order delivery time
+		for (int index = 0; index < knapsackTimes.size(); index++){
+			int time = (int)(Math.floor(knapsackTimes.get(index)) / 60);    //get the floor of the order delivery time
 			if (time < 25) {
-				knapCount[time]++;  //increment orders in this time slot
+				knapsackCount[time]++;  //increment orders in this time slot
 			}
 			else{
-				knapCount[25]++;
+				knapsackCount[25]++;
 			}
 		}
 
 		//add data from knapsack times
-		for (int i = 0; i < knapCount.length-1; i++){
-			knapsackSeries.getData().add(new XYChart.Data<>(i + "-" + (i+1), knapCount[i]));
+		for (int index = 0; index < knapsackCount.length - 1; index++){
+			knapsackSeries.getData().add(new XYChart.Data<>(index + "-" + (index + 1), knapsackCount[index]));
 		}
-		knapsackSeries.getData().add(new XYChart.Data<>("25+", knapCount[25]));
+		knapsackSeries.getData().add(new XYChart.Data<>("25+", knapsackCount[25]));
 
 		//add series data to bar chart
 		barChart.getData().add(fifoSeries);
@@ -949,11 +1008,11 @@ public class MainClass extends Application {
 		barChart.setStyle("-fx-background: WHITE");
 
 		//save results button
-		Button saveBtn = new Button("Save Results");
-		saveBtn.setStyle("-fx-background-color: WHITE");
-		saveBtn.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		Button saveButton = new Button("Save Results");
+		saveButton.setStyle("-fx-background-color: WHITE");
+		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		saveBtn.setOnAction(event -> {
+		saveButton.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Save Results");
 			fileChooser.getExtensionFilters().add(
@@ -964,31 +1023,31 @@ public class MainClass extends Application {
 			    Configuration.getInstance().saveResults(results, file);
 		});
 
-		HBox btnBox = new HBox();
-		btnBox.setAlignment(Pos.BOTTOM_RIGHT);
-		btnBox.setPadding(new Insets(0,50, 30, 0));
-		btnBox.getChildren().add(saveBtn);
+		HBox buttonBox = new HBox();
+		buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
+		buttonBox.setPadding(new Insets(0,50, 30, 0));
+		buttonBox.getChildren().add(saveButton);
 
 		//combine boxes
 		VBox finalLayout = new VBox();
-		finalLayout.getChildren().addAll(topLayout, statsLayout, barChart, btnBox);//top layout, stats, barChart, save button
+		finalLayout.getChildren().addAll(topLayout, statsLayout, barChart, buttonBox);//top layout, stats, barChart, save button
 		finalLayout.setStyle("-fx-background-color: WHITE");
 
 		StackPane root = new StackPane();
 		root.getChildren().add(finalLayout);
 
-		Scene resultsPg = new Scene(root, 900, 600);
+		Scene resultsPage = new Scene(root, 900, 600);
 
 		//sets screen to display page
-		window.setScene(resultsPg);
+		window.setScene(resultsPage);
 
 		//change legend colors to reflect bar colors
 		//note - this must be done after scene is set
-		for (Node n : barChart.lookupAll(".bar-legend-symbol.default-color0")) {
-			n.setStyle("-fx-background-color: red;");
+		for (Node node : barChart.lookupAll(".bar-legend-symbol.default-color0")) {
+			node.setStyle("-fx-background-color: red;");
 		}
-		for (Node n : barChart.lookupAll(".bar-legend-symbol.default-color1")) {
-			n.setStyle("-fx-background-color: blue;");
+		for (Node node : barChart.lookupAll(".bar-legend-symbol.default-color1")) {
+			node.setStyle("-fx-background-color: blue;");
 		}
 	}
 }

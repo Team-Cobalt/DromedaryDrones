@@ -33,7 +33,7 @@ public class Configuration implements XmlSerializable {
     /** Returns an instance of the {@link Configuration} class. */
     public static Configuration getInstance() { return INSTANCE; }
 
-	private Simulation currentSim; // the current simulation state
+	private Simulation currentSimulation; // the current simulation state
 	private ArrayList<Simulation> simulations; // all saved simulation states
 
     /**
@@ -41,7 +41,7 @@ public class Configuration implements XmlSerializable {
      * @see Configuration#getInstance()
      */
 	private Configuration() {
-		currentSim = null;
+		currentSimulation = null;
 		simulations = new ArrayList<>();
 	}
 
@@ -51,9 +51,9 @@ public class Configuration implements XmlSerializable {
      * @return  the simulation state or null if not found
      */
     public Simulation getSimulation(String name) {
-        for (Simulation sim : simulations)
-            if (sim.getName().equals(name))
-                return sim;
+        for (Simulation simulation : simulations)
+            if (simulation.getName().equals(name))
+                return simulation;
         return null;
     }
 
@@ -61,7 +61,7 @@ public class Configuration implements XmlSerializable {
      * Returns the simulation state currently being used.
      */
     public Simulation getCurrentSimulation() {
-        return currentSim;
+        return currentSimulation;
     }
 
     /**
@@ -70,7 +70,7 @@ public class Configuration implements XmlSerializable {
      */
     public void setCurrentSimulation(Simulation simulation) {
         if (!simulations.contains(simulation)) simulations.add(simulation);
-        currentSim = simulation;
+        currentSimulation = simulation;
     }
 
     /**
@@ -92,7 +92,7 @@ public class Configuration implements XmlSerializable {
      *          currently the active simulation.
      */
     public boolean removeSimulation(Simulation simulation) {
-        if (currentSim.equals(simulation)) return false;
+        if (currentSimulation.equals(simulation)) return false;
         return simulations.remove(simulation);
     }
 
@@ -113,9 +113,9 @@ public class Configuration implements XmlSerializable {
 	        try {
                 // read all XML out of the save file
                 StringBuilder sb = new StringBuilder();
-                try (Scanner scnr = new Scanner(saveFile)) {
-                    while (scnr.hasNextLine())
-                        sb.append(scnr.nextLine().trim());
+                try (Scanner scanner = new Scanner(saveFile)) {
+                    while (scanner.hasNextLine())
+                        sb.append(scanner.nextLine().trim());
                 }
 
                 // convert the text into an XML Document
@@ -127,15 +127,15 @@ public class Configuration implements XmlSerializable {
                 NodeList children = root.getElementsByTagName("simulation");
 
                 // build the simulations from the XML Document data
-                for (int i = 0; i < children.getLength(); i++) {
-                    Element child = (Element) children.item(i);
-                    Simulation sim = new Simulation(child);
-                    simulations.add(sim);
-                    if (sim.getName().equals(currentName))
-                        currentSim = sim;
+                for (int index = 0; index < children.getLength(); index++) {
+                    Element child = (Element) children.item(index);
+                    Simulation simulation = new Simulation(child);
+                    simulations.add(simulation);
+                    if (simulation.getName().equals(currentName))
+                        currentSimulation = simulation;
                 }
-            } catch (XmlSerializationException xse) {
-	            xse.printStackTrace();
+            } catch (XmlSerializationException xmlException) {
+	            xmlException.printStackTrace();
 	            loadDefault();
             }
         }
@@ -143,10 +143,10 @@ public class Configuration implements XmlSerializable {
 
 	private void loadDefault() {
         //creates default simulation with all default food items and meal types
-        Simulation newSim = new Simulation("Grove City College");
+        Simulation newSimulation = new Simulation("Grove City College");
 
         // sets default #orders per hour for each of the four hours
-        newSim.addStochasticFlow(List.of(38, 45, 60, 30));
+        newSimulation.addStochasticFlow(List.of(38, 45, 60, 30));
 
         // create default food items
         FoodItem burger = new FoodItem("Burger", 6);
@@ -154,7 +154,7 @@ public class Configuration implements XmlSerializable {
         FoodItem drink = new FoodItem("Drink", 14);
 
         // add default food items to the simulation
-        newSim.addFoodItems(burger, fries, drink);
+        newSimulation.addFoodItems(burger, fries, drink);
 
         //creates default basic combo meal type
         List<FoodItem> basic = List.of(burger, fries, drink);
@@ -177,11 +177,11 @@ public class Configuration implements XmlSerializable {
         Meal singleFries = new Meal(oneFries, "Single Fries", 0.05);
 
         // add default meal types to the simulation
-        newSim.addMealTypes(basicCombo, deluxeCombo, basicNoDrink, deluxeNoDrink, singleFries);
+        newSimulation.addMealTypes(basicCombo, deluxeCombo, basicNoDrink, deluxeNoDrink, singleFries);
 
         //sets the default simulation as the current simulation to run
-        currentSim = newSim;
-        simulations.add(newSim);
+        currentSimulation = newSimulation;
+        simulations.add(newSimulation);
     }
 
     /**
@@ -210,52 +210,52 @@ public class Configuration implements XmlSerializable {
                         .append("\n\n").append(header).append(columns);
 
                 // print the results of each trial
-                int trialNum, orderNum, minSize, fifoSize, knapSize;
-                Order fifoOrder, knapOrder;
-                String trialInfo, fifoName, knapName;
+                int trialNumber, orderNumber, minSize, fifoSize, knapsackSize;
+                Order fifoOrder, knapsackOrder;
+                String trialInfo, fifoName, knapsackName;
                 double fifoTimeOrdered, fifoTimeDelivered, fifoWaitTime;
-                double knapTimeOrdered, knapTimeDelivered, knapWaitTime;
-                int numTrials = results.getTrialResults().size();
+                double knapsackTimeOrdered, knapsackTimeDelivered, knapsackWaitTime;
+                int numberTrials = results.getTrialResults().size();
                 ArrayList<TrialResults> trialResults = results.getTrialResults();
 
                 // for each of the 50 trials...
-                for (trialNum = 0; trialNum < numTrials; trialNum++) {
+                for (trialNumber = 0; trialNumber < numberTrials; trialNumber++) {
 
-                    TrialResults trial = trialResults.get(trialNum);
+                    TrialResults trial = trialResults.get(trialNumber);
                     ArrayList<Order> fifoOrders = trial.getFifoDeliveries();
-                    ArrayList<Order> knapOrders = trial.getKnapsackDeliveries();
+                    ArrayList<Order> knapsackOrders = trial.getKnapsackDeliveries();
                     fifoSize = fifoOrders.size();
-                    knapSize = knapOrders.size();
-                    minSize = Math.min(fifoOrders.size(), knapOrders.size());
+                    knapsackSize = knapsackOrders.size();
+                    minSize = Math.min(fifoOrders.size(), knapsackOrders.size());
 
                     // for each order shared between the two sets of orders
-                    for (orderNum = 0; orderNum < minSize; orderNum++) {
-                        fifoOrder = fifoOrders.get(orderNum);
-                        knapOrder = knapOrders.get(orderNum);
+                    for (orderNumber = 0; orderNumber < minSize; orderNumber++) {
+                        fifoOrder = fifoOrders.get(orderNumber);
+                        knapsackOrder = knapsackOrders.get(orderNumber);
 
-                        trialInfo = orderNum == 0 ? "trial " + (trialNum + 1) : "";
+                        trialInfo = orderNumber == 0 ? "trial " + (trialNumber + 1) : "";
                         fifoName = fifoOrder.getMealOrdered().getName();
                         fifoTimeOrdered = fifoOrder.getTimeOrdered();
                         fifoTimeDelivered = fifoOrder.getTimeDelivered();
                         fifoWaitTime = fifoOrder.getWaitTime();
 
-                        knapName = knapOrder.getMealOrdered().getName();
-                        knapTimeOrdered = knapOrder.getTimeOrdered();
-                        knapTimeDelivered = knapOrder.getTimeDelivered();
-                        knapWaitTime = knapOrder.getWaitTime();
+                        knapsackName = knapsackOrder.getMealOrdered().getName();
+                        knapsackTimeOrdered = knapsackOrder.getTimeOrdered();
+                        knapsackTimeDelivered = knapsackOrder.getTimeDelivered();
+                        knapsackWaitTime = knapsackOrder.getWaitTime();
 
                         String row = String.format("%s,%s,%.2f,%.2f,%.2f,,%s,%.2f,%.2f,%.2f\n", trialInfo,
                                 fifoName, fifoTimeOrdered, fifoTimeDelivered, fifoWaitTime,
-                                knapName, knapTimeOrdered, knapTimeDelivered, knapWaitTime);
+                                knapsackName, knapsackTimeOrdered, knapsackTimeDelivered, knapsackWaitTime);
 
                         builder.append(row);
                     }
 
                     // for each order that exists in fifo but not knapsack
-                    for (; orderNum < fifoSize; orderNum++) {
-                        fifoOrder = fifoOrders.get(orderNum);
+                    for (; orderNumber < fifoSize; orderNumber++) {
+                        fifoOrder = fifoOrders.get(orderNumber);
 
-                        trialInfo = orderNum == 0 ? "trial " + (trialNum + 1) : "";
+                        trialInfo = orderNumber == 0 ? "trial " + (trialNumber + 1) : "";
                         fifoName = fifoOrder.getMealOrdered().getName();
                         fifoTimeOrdered = fifoOrder.getTimeOrdered();
                         fifoTimeDelivered = fifoOrder.getTimeDelivered();
@@ -268,17 +268,17 @@ public class Configuration implements XmlSerializable {
                     }
 
                     // for each order that exists in knapsack but not fifo
-                    for (; orderNum < knapSize; orderNum++) {
-                        knapOrder = knapOrders.get(trialNum);
+                    for (; orderNumber < knapsackSize; orderNumber++) {
+                        knapsackOrder = knapsackOrders.get(trialNumber);
 
-                        trialInfo = orderNum == 0 ? "trial " + (trialNum + 1) : "";
-                        knapName = knapOrder.getMealOrdered().getName();
-                        knapTimeOrdered = knapOrder.getTimeOrdered();
-                        knapTimeDelivered = knapOrder.getTimeDelivered();
-                        knapWaitTime = knapOrder.getWaitTime();
+                        trialInfo = orderNumber == 0 ? "trial " + (trialNumber + 1) : "";
+                        knapsackName = knapsackOrder.getMealOrdered().getName();
+                        knapsackTimeOrdered = knapsackOrder.getTimeOrdered();
+                        knapsackTimeDelivered = knapsackOrder.getTimeDelivered();
+                        knapsackWaitTime = knapsackOrder.getWaitTime();
 
                         String row = String.format("%s,,,,,,%s,%.2f,%.2f,%.2f\n", trialInfo,
-                                knapName, knapTimeOrdered, knapTimeDelivered, knapWaitTime);
+                                knapsackName, knapsackTimeOrdered, knapsackTimeDelivered, knapsackWaitTime);
 
                         builder.append(row);
                     }
@@ -292,8 +292,8 @@ public class Configuration implements XmlSerializable {
                 }
                 return false;
             }
-        } catch (IOException ioe) {
-	        ioe.printStackTrace();
+        } catch (IOException ioException) {
+	        ioException.printStackTrace();
         }
 	    return false;
     }
@@ -305,7 +305,7 @@ public class Configuration implements XmlSerializable {
      */
     public File getLastConfigFile() throws IOException {
 	    File locationFile = new File(LOCATIONS_PATH);
-	    File configFile;
+	    File configurationFile;
 	    String path = "";
 	    // ensure the locations file exists before reading from it
 	    if (locationFile.exists() || locationFile.createNewFile()) {
@@ -318,8 +318,9 @@ public class Configuration implements XmlSerializable {
         }
 	    // return the file if it exists otherwise return null
 	    if (path.isEmpty()) return null;
-	    configFile = new File(path);
-	    return configFile.exists() ? configFile : null;
+
+	    configurationFile = new File(path);
+	    return configurationFile.exists() ? configurationFile : null;
     }
 
     public void setLastConfigFile(File configFile) throws IOException {
@@ -345,8 +346,8 @@ public class Configuration implements XmlSerializable {
             pw.println(xmlSaveData);
             setLastConfigFile(saveFile);
             return true;
-        } catch (XmlSerializationException xse) {
-            xse.printStackTrace();
+        } catch (XmlSerializationException xmlException) {
+            xmlException.printStackTrace();
             return false;
         }
     }
@@ -354,8 +355,10 @@ public class Configuration implements XmlSerializable {
     @Override
     public Element toXml(Document doc) {
         Element root = doc.createElement("simulations");
-        root.setAttribute("current", currentSim.getName());
-        for (Simulation sim : simulations) root.appendChild(sim.toXml(doc));
+        root.setAttribute("current", currentSimulation.getName());
+
+        for (Simulation simulation : simulations) root.appendChild(simulation.toXml(doc));
+
         return root;
     }
 }

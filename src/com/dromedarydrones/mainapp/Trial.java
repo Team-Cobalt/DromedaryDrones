@@ -13,12 +13,12 @@ import java.util.*;
  *          Brendan Ortmann, and Rachel Franklin
  */
 public class Trial {
-    private ArrayList<Meal> simMeals; //list of current sim's meals
-    private ArrayList<Integer> simFlow; //current sim's stochastic flow
-    private ArrayList<Order> simOrders; //list of orders generated during shift
-    private DeliveryPoints simPoints; //list of current sim's delivery points
+    private ArrayList<Meal> simulationMeals; //list of current sim's meals
+    private ArrayList<Integer> simulationFlow; //current sim's stochastic flow
+    private ArrayList<Order> simulationOrders; //list of orders generated during shift
+    private DeliveryPoints simulationPoints; //list of current sim's delivery points
     private Queue<Order> fifoDeliveries; //queue of orders for FIFO
-    private Random rand; //used for random number generation
+    private Random numberGenerator; //used for random number generation
     private LinkedList<Order> droneCargo; //list of orders on drone
     private Route droneRoute;
     private LinkedList<Point> droneDestinations; //list of destinations for drone's route
@@ -38,16 +38,16 @@ public class Trial {
      * @param points current simulation's delivery points to be used
      */
     public Trial(ArrayList<Meal> meals, ArrayList<Integer> model, DeliveryPoints points) {
-        simMeals = new ArrayList<>(meals);
-        simFlow = new ArrayList<>(model);
-        simPoints = new DeliveryPoints(points);
-        rand = new Random();
+        simulationMeals = new ArrayList<>(meals);
+        simulationFlow = new ArrayList<>(model);
+        simulationPoints = new DeliveryPoints(points);
+        numberGenerator = new Random();
         fifoDeliveries = new LinkedList<>();
         droneCargo = new LinkedList<>();
         droneDestinations = new LinkedList<>();
         simulationTime = 0.0;
         //calculates generates list of orders based on time they are ordered
-        simOrders = generateOrders();
+        simulationOrders = generateOrders();
     }
 
     /**
@@ -70,36 +70,36 @@ public class Trial {
         ArrayList<Order> knapsackDeliveryResults = new ArrayList<>();
         simulationTime = 0.0;
 
-        for(Order o : simOrders)
-            knapsackDeliveries.add(new Order(o));
+        for(Order order : simulationOrders)
+            knapsackDeliveries.add(new Order(order));
 
         knapsackDeliveries.sort(Comparator.comparingDouble(a -> a.getMealOrdered().getTotalWeight())); // Sort the meals in descending order based on weight
 
         while(!knapsackDeliveries.isEmpty()){
 
             Collections.sort(skippedOrders); // Sort skipped orders by time so that older orders get added first
-            for(int i = 0; i < skippedOrders.size(); i++){ // Query skipped orders first
-                Order s = skippedOrders.get(i);
-                if(s.getTimeOrdered() > simulationTime) continue;
-                currentMealWeight = s.getMealOrdered().getTotalWeight();
+            for(int index = 0; index < skippedOrders.size(); index++){ // Query skipped orders first
+                Order skippedOrder = skippedOrders.get(index);
+                if(skippedOrder.getTimeOrdered() > simulationTime) continue;
+                currentMealWeight = skippedOrder.getMealOrdered().getTotalWeight();
                 if(currentMealWeight + cargoWeight > MAX_CARGO_WEIGHT) continue; // If max weight exceeded, ignore
-                droneCargo.add(s);
+                droneCargo.add(skippedOrder);
                 cargoWeight += currentMealWeight;
-                skippedOrders.remove(s);
+                skippedOrders.remove(skippedOrder);
             }
 
-            for(int i = 0; i < knapsackDeliveries.size(); i++){ // Query current set of orders to add to drone
-                Order o = knapsackDeliveries.get(i);
-                if(o.getTimeOrdered() > simulationTime) continue;
-                currentMealWeight = o.getMealOrdered().getTotalWeight();
+            for(int index = 0; index < knapsackDeliveries.size(); index++){ // Query current set of orders to add to drone
+                Order order = knapsackDeliveries.get(index);
+                if(order.getTimeOrdered() > simulationTime) continue;
+                currentMealWeight = order.getMealOrdered().getTotalWeight();
                 if(currentMealWeight + cargoWeight > MAX_CARGO_WEIGHT){
-                    skippedOrders.add(o);
-                    knapsackDeliveries.remove(o);
+                    skippedOrders.add(order);
+                    knapsackDeliveries.remove(order);
                     continue;
                 }
-                droneCargo.add(o);
+                droneCargo.add(order);
                 cargoWeight += currentMealWeight;
-                knapsackDeliveries.remove(o);
+                knapsackDeliveries.remove(order);
             }
 
             if (!droneCargo.isEmpty()) {
@@ -146,8 +146,8 @@ public class Trial {
         simulationTime = 0.0;
 
         //adds all orders to fifo queue
-        for(Order o : simOrders)
-            fifoDeliveries.add(new Order(o));
+        for(Order order : simulationOrders)
+            fifoDeliveries.add(new Order(order));
 
         //runs delivery routes while there are orders to be delivered
         while(!fifoDeliveries.isEmpty()) {
@@ -236,18 +236,18 @@ public class Trial {
     private ArrayList<Order> generateOrders() {
         ArrayList<Order> orders = new ArrayList<>();
         int hour, mealsPerHour, mealNum, creationTime;
-        int hourCount = simFlow.size();
+        int hourCount = simulationFlow.size();
 
         // generates a list of random order times according to the given stochastic flow
         for (hour = 0; hour < hourCount; hour++) {
             // number of meals to be generated in specific hour
-            mealsPerHour = simFlow.get(hour);
+            mealsPerHour = simulationFlow.get(hour);
 
             // generates each order time for all orders in each hour slot
             for (mealNum = 0; mealNum < mealsPerHour; mealNum++) {
                 // calculates time of order using given hour (i.e. first hour, second hour, etc.)
-                creationTime = (rand.nextInt(SECONDS_PER_HOUR) + 1) + (SECONDS_PER_HOUR * hour);
-                orders.add(new Order(getRandomMeal(), creationTime, simPoints.getRandomPoint()));
+                creationTime = (numberGenerator.nextInt(SECONDS_PER_HOUR) + 1) + (SECONDS_PER_HOUR * hour);
+                orders.add(new Order(getRandomMeal(), creationTime, simulationPoints.getRandomPoint()));
             }
         }
 
@@ -263,25 +263,24 @@ public class Trial {
      */
     public Meal getRandomMeal() {
 
-        double [] mealProbs = new double[simMeals.size()];    //array of meal probabilities
+        double [] mealProbabilities = new double[simulationMeals.size()];    //array of meal probabilities
         double upperBound;  //upper bound of possible ranges for random double
-        int i; //index for loops and identifying randomly selected meal
+        int index; //index for loops and identifying randomly selected meal
 
-        for (i = 0; i < simMeals.size(); i++){  //get probabilities
-            mealProbs[i] = simMeals.get(i).getProbability();
+        for (index = 0; index < simulationMeals.size(); index++){  //get probabilities
+            mealProbabilities[index] = simulationMeals.get(index).getProbability();
         }
 
-        double meal = rand.nextDouble();    //get decimal between 0.0 and 1.0
+        double meal = numberGenerator.nextDouble();    //get decimal between 0.0 and 1.0
 
         upperBound = 0.0;
-        for (i = 0; i < mealProbs.length; i++){
-            upperBound += mealProbs[i];  //set upperBound to previous value + probability
+        for (index = 0; index < mealProbabilities.length; index++){
+            upperBound += mealProbabilities[index];  //set upperBound to previous value + probability
             if (meal < upperBound){     //index i is the randomly selected meal
                 break;
             }
         }
 
-        return simMeals.get(i);
+        return simulationMeals.get(index);
     }
-
 }

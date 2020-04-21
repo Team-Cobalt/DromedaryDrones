@@ -24,10 +24,12 @@ import java.util.Objects;
 public class Simulation implements XmlSerializable {
 
 	private String simulationName;          // name of the simulation
-    private ArrayList<Integer> stocFlow;   //stochastic flow for simulation
+    private ArrayList<Integer> stochasticFlow;   //stochastic flow for simulation
     private ArrayList<FoodItem> foodItems;  // all known food items
     private ArrayList<Meal> mealTypes;      // all known meals
     private DeliveryPoints deliveryPoints;  // all known delivery points
+    private static final int NUMBER_OF_TRIALS = 50;
+    private static final int NUMBER_OF_SHIFTS = 4;
 
     /**
      * Creates a new simulation configuration with the specified name.
@@ -36,7 +38,7 @@ public class Simulation implements XmlSerializable {
      */
     public Simulation(String name) {
         simulationName = name;
-        stocFlow = new ArrayList<>();
+        stochasticFlow = new ArrayList<>();
         foodItems = new ArrayList<>();
         mealTypes = new ArrayList<>();
         deliveryPoints = new DeliveryPoints();
@@ -53,8 +55,8 @@ public class Simulation implements XmlSerializable {
         this.simulationName = other.simulationName;
 
         //copies stochastic flow of existing simulation
-        this.stocFlow = new ArrayList<>();
-        this.stocFlow.addAll(other.stocFlow);
+        this.stochasticFlow = new ArrayList<>();
+        this.stochasticFlow.addAll(other.stochasticFlow);
 
         //copies known foods from existing simulation
         this.foodItems = new ArrayList<>();
@@ -87,7 +89,7 @@ public class Simulation implements XmlSerializable {
         simulationName = root.getAttribute("name");
         foodItems = new ArrayList<>();
         mealTypes = new ArrayList<>();
-        stocFlow = new ArrayList<>();
+        stochasticFlow = new ArrayList<>();
 
         NodeList stochasticNodeList = root.getElementsByTagName("stochastic");
         NodeList foodItemNodeList = root.getElementsByTagName("fooditems");
@@ -101,7 +103,7 @@ public class Simulation implements XmlSerializable {
             NodeList stochasticHourNodes = stochasticRoot.getElementsByTagName("hour" + hourIndex);
             while (stochasticHourNodes.getLength() > 0) {
                 Element stochasticHour = (Element) stochasticHourNodes.item(0);
-                stocFlow.add(Integer.parseInt(stochasticHour.getAttribute("orders")));
+                stochasticFlow.add(Integer.parseInt(stochasticHour.getAttribute("orders")));
                 stochasticHourNodes = stochasticRoot.getElementsByTagName(String.format("hour%d", ++hourIndex));
             }
         } else {
@@ -112,8 +114,8 @@ public class Simulation implements XmlSerializable {
         if (foodItemNodeList.getLength() > 0) {
             Element foodItemRoot = (Element) foodItemNodeList.item(0);
             NodeList foodChildren = foodItemRoot.getElementsByTagName("fooditem");
-            for (int i = 0; i < foodChildren.getLength(); i++)
-                foodItems.add(new FoodItem((Element) foodChildren.item(i)));
+            for (int index = 0; index < foodChildren.getLength(); index++)
+                foodItems.add(new FoodItem((Element) foodChildren.item(index)));
         } else {
             System.err.println(String.format("simulation \"%s\" missing the \"fooditems\" element", simulationName));
         }
@@ -122,24 +124,24 @@ public class Simulation implements XmlSerializable {
         if (mealTypeNodeList.getLength() > 0) {
             Element mealTypeRoot = (Element) mealTypeNodeList.item(0);
             NodeList mealChildren = mealTypeRoot.getElementsByTagName("meal");
-            for (int i = 0; i < mealChildren.getLength(); i++) {
-                Element mealChild = (Element) mealChildren.item(i);
+            for (int index = 0; index < mealChildren.getLength(); index++) {
+                Element mealChild = (Element) mealChildren.item(index);
                 String mealName = mealChild.getAttribute("name");
                 double mealProb = Double.parseDouble(mealChild.getAttribute("probability"));
                 ArrayList<FoodItem> mealFoodItems = new ArrayList<>();
 
                 // load foods within the meal
                 NodeList mealFoods = mealChild.getChildNodes();
-                for (int f = 0; f < mealFoods.getLength(); f++) {
-                    if (mealFoods.item(f).getNodeType() == Node.ELEMENT_NODE) {
-                        Element mealFood = (Element) mealFoods.item(f);
+                for (int foodIndex = 0; foodIndex < mealFoods.getLength(); foodIndex++) {
+                    if (mealFoods.item(foodIndex).getNodeType() == Node.ELEMENT_NODE) {
+                        Element mealFood = (Element) mealFoods.item(foodIndex);
                         String foodName = mealFood.getTagName();
                         int amount = Integer.parseInt(mealFood.getTextContent());
                         FoodItem food = foodItems.stream()
                                 .filter(fi -> XmlFactory.toXmlTag(fi.getName()).equals(foodName))
                                 .findFirst().orElse(null);
                         if (food != null) {
-                            for (int a = 0; a < amount; a++)
+                            for (int counter = 0; counter < amount; counter++)
                                 mealFoodItems.add(food);
                         }
                     }
@@ -165,8 +167,8 @@ public class Simulation implements XmlSerializable {
      */
     public SimulationResults run() {
         ArrayList<TrialResults> trialResults = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            Trial trial = new Trial(mealTypes, stocFlow, deliveryPoints);
+        for (int index = 0; index < NUMBER_OF_TRIALS; index++) {
+            Trial trial = new Trial(mealTypes, stochasticFlow, deliveryPoints);
             trialResults.add(trial.run());
         }
         return new SimulationResults(trialResults);
@@ -238,17 +240,17 @@ public class Simulation implements XmlSerializable {
     /**
      * Makes specified stochastic flow the model for current simulation
      * @author Isabella Patnode
-     * @param numMeals the number of meals per hour for each hour
+     * @param numberMeals the number of meals per hour for each hour
      * @throws IllegalArgumentException  if number of hours per shift is not 4
      */
-    public void addStochasticFlow(List<Integer> numMeals) {
+    public void addStochasticFlow(List<Integer> numberMeals) {
         //throws exception if number of hours per shift is not 4
-        if(numMeals.size() != 4) {
+        if(numberMeals.size() != NUMBER_OF_SHIFTS) {
             throw new IllegalArgumentException("Number of hours per shift must be 4");
         }
 
         //copies over number of meals per hour
-        this.stocFlow = new ArrayList<>(numMeals);
+        this.stochasticFlow = new ArrayList<>(numberMeals);
     }
 
     /**
@@ -257,7 +259,7 @@ public class Simulation implements XmlSerializable {
      * @return the simulation's stochastic flow model
      */
     public ArrayList<Integer> getStochasticFlow() {
-        return stocFlow;
+        return stochasticFlow;
     }
 
     /**Method to get list of simulation's delivery points
@@ -346,17 +348,21 @@ public class Simulation implements XmlSerializable {
     public Element toXml(Document doc) {
         Element root = doc.createElement("simulation");
         root.setAttribute("name", simulationName);
-        Element stocElement = doc.createElement("stochastic");
-        for (int i = 0; i < stocFlow.size(); i++) {
-            Element hr = doc.createElement("hour"+i);
-            hr.setAttribute("orders", String.valueOf(stocFlow.get(i)));
-            stocElement.appendChild(hr);
+
+        Element stochasticElement = doc.createElement("stochastic");
+        for (int index = 0; index < stochasticFlow.size(); index++) {
+            Element hour = doc.createElement("hour" + index);
+            hour.setAttribute("orders", String.valueOf(stochasticFlow.get(index)));
+            stochasticElement.appendChild(hour);
         }
+
         Element foods = doc.createElement("fooditems");
         for (FoodItem food : foodItems) foods.appendChild(food.toXml(doc));
+
         Element meals = doc.createElement("mealtypes");
         for (Meal meal : mealTypes) meals.appendChild(meal.toXml(doc));
-        root.appendChild(stocElement);
+
+        root.appendChild(stochasticElement);
         root.appendChild(foods);
         root.appendChild(meals);
         root.appendChild(deliveryPoints.toXml(doc));
