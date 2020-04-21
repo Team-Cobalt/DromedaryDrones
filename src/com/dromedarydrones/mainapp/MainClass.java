@@ -23,6 +23,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
@@ -180,7 +181,7 @@ public class MainClass extends Application {
 		titleLayout.setAlignment(Pos.TOP_CENTER);
 
 		//adds camel image to display
-		Image simulationImage = new Image("Camel.jpg");
+		Image simulationImage = new Image("file:resources/Camel.jpg");
 
 		ImageView picture = new ImageView(simulationImage);
 		picture.setX(50);
@@ -194,7 +195,6 @@ public class MainClass extends Application {
 		VBox simulationPicture = new VBox(20);
 		simulationPicture.getChildren().add(picture);
 		simulationPicture.setAlignment(Pos.CENTER);
-
 
 		//allows the user to cancel the simulation
 		Button cancelButton = new Button("Cancel Simulation");
@@ -223,11 +223,13 @@ public class MainClass extends Application {
 		//sets screen to display page
 		window.setScene(simulationPage);
 
-		//runs simulation
+		window.show();
+
+		//TODO: GET PAGE TO SHOW
+
 		results = currentSimulation.run();
 
-		//takes simulation to results page
-		//resultsPage();
+		resultsPage();
 	}
 
 	/**
@@ -275,25 +277,31 @@ public class MainClass extends Application {
 		buttonLayout.setPrefWidth(110);
 		buttonLayout.setSpacing(5);
 
-		Button generalButton = new Button("General");
+		Button generalButton = new Button("General Settings");
 		generalButton.setMinWidth(buttonLayout.getPrefWidth());
 		generalButton.setStyle("-fx-background-color: WHITE");
 		generalButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 		generalButton.setOnAction(e -> generalEditPage());
 
-		Button foodButton = new Button("Food Items");
+		Button foodButton = new Button("Food Settings");
 		foodButton.setMinWidth(buttonLayout.getPrefWidth());
 		foodButton.setStyle("-fx-background-color: WHITE");
 		foodButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 		foodButton.setOnAction(e -> editFoodPage());
 
-		Button mealButton = new Button("Meals");
+		Button mealButton = new Button("Meal Settings");
 		mealButton.setMinWidth(buttonLayout.getPrefWidth());
 		mealButton.setStyle("-fx-background-color: WHITE");
 		mealButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 		mealButton.setOnAction(e -> editMealsPage());
 
-		Button mapButton = new Button("Map");
+		Button droneButton = new Button("Drone Settings");
+		droneButton.setMinWidth(buttonLayout.getPrefWidth());
+		droneButton.setStyle("-fx-background-color: WHITE");
+		droneButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+		droneButton.setOnAction(e -> editDronePage());
+
+		Button mapButton = new Button("Map Settings");
 		mapButton.setMinWidth(buttonLayout.getPrefWidth());
 		mapButton.setStyle("-fx-background-color: WHITE");
 		mapButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
@@ -305,10 +313,26 @@ public class MainClass extends Application {
 		startButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 		startButton.setOnAction(e -> startSimulation());
 
-		buttonLayout.getChildren().addAll(generalButton, foodButton, mealButton, mapButton, startButton);
+		buttonLayout.getChildren().addAll(generalButton, foodButton, mealButton, droneButton, mapButton, startButton);
 		buttonLayout.setAlignment(Pos.CENTER_LEFT);
 		buttonLayout.setPadding(new Insets(0, 0, 0, 5));
 
+	}
+
+	public HBox settingsTopLayout() {
+		//creates heading of the page
+		settingTitle();
+
+		//allows user to return to main page
+		homeButton();
+
+		//configures display of home button and page title
+		HBox layout = new HBox();
+		layout.setSpacing(141);
+		layout.setAlignment(Pos.TOP_LEFT);
+		layout.getChildren().addAll(iconLayout, titleLayout);
+
+		return layout;
 	}
 
 	/**
@@ -316,17 +340,7 @@ public class MainClass extends Application {
 	 * @author Isabella Patnode
 	 */
 	public void generalEditPage() {
-		//creates heading of page
-		settingTitle();
-
-		//sets up home button icon
-		homeButton();
-
-		//configures display of home button and page title
-		HBox topLayout = new HBox();
-		topLayout.setSpacing(141);
-		topLayout.setAlignment(Pos.TOP_LEFT);
-		topLayout.getChildren().addAll(iconLayout, titleLayout);
+		HBox topLayout = settingsTopLayout();
 
 		//sets up menu buttons
 		menuButtons();
@@ -415,12 +429,12 @@ public class MainClass extends Application {
 			}
 		});
 
-		Button loadButton = new Button("Load Settings");
+		Button loadButton = new Button("Load Model");
 		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
 		loadButton.setStyle("-fx-background-color: WHITE");
 		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
-		//opens settings and loads settings from user location
+		//opens settings and loads model from user location
 		loadButton.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Load Settings");
@@ -459,17 +473,7 @@ public class MainClass extends Application {
 	 * @author Rachel Franklin and Isabella Patnode
 	 */
 	public void editFoodPage() {
-		//creates heading of page
-		settingTitle();
-
-		//sets up home button icon
-		homeButton();
-
-		//configures display of home button and page title
-		HBox topLayout = new HBox();
-		topLayout.setSpacing(141);
-		topLayout.setAlignment(Pos.TOP_LEFT);
-		topLayout.getChildren().addAll(iconLayout, titleLayout);
+		HBox topLayout = settingsTopLayout();
 
 		//sets up menu buttons
 		menuButtons();
@@ -566,17 +570,7 @@ public class MainClass extends Application {
 	 * Creates GUI page for meal settings
 	 */
 	public void editMealsPage() {
-		//creates heading of page
-		settingTitle();
-
-		//sets up home button icon
-		homeButton();
-
-		//configures display of home button and page title
-		HBox topLayout = new HBox();
-		topLayout.setSpacing(141);
-		topLayout.setAlignment(Pos.TOP_LEFT);
-		topLayout.getChildren().addAll(iconLayout, titleLayout);
+		HBox topLayout = settingsTopLayout();
 
 		//sets up menu buttons
 		menuButtons();
@@ -733,21 +727,64 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * Creates GUI page for drone settings
+	 * @author Isabella Patnode
+	 */
+	public void editDronePage() {
+		HBox topLayout = settingsTopLayout();
+
+		//sets up menu buttons
+		menuButtons();
+
+		//TODO: PUT IN DRONE SETTINGS!!!
+
+		//arranges buttons for loading and saving map and table of points
+		VBox saveLoadButtons = new VBox();
+		saveLoadButtons.setPrefWidth(100);
+		saveLoadButtons.setSpacing(10);
+		saveLoadButtons.setAlignment(Pos.BOTTOM_RIGHT);
+		saveLoadButtons.setPadding(new Insets(0, 80, 0, 0));
+
+		//creates button for loading map
+		Button loadButton = new Button("Load Drone");
+		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		loadButton.setStyle("-fx-background-color: WHITE");
+		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+
+		//adds buttons for loading and saving model
+		Button saveButton = new Button("Save Changes");
+		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		saveButton.setStyle("-fx-background-color: WHITE");
+		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
+
+		//arranges map elements with load and save buttons
+		VBox mainLayout = new VBox();
+		mainLayout.getChildren().addAll(buttonLayout, saveLoadButtons);
+		mainLayout.setSpacing(50);
+
+		//arranges all elements of the page on the screen
+		settingLayout = new VBox(30);
+		settingLayout.getChildren().addAll(topLayout, mainLayout);
+		settingLayout.setStyle("-fx-background-color: WHITE");
+
+		root = new StackPane();
+		root.getChildren().add(settingLayout);
+
+		Scene droneEditPage = new Scene(root, 900, 600);
+
+		//sets screen to display page
+		window.setScene(droneEditPage);
+	}
+
+	/**
 	 * Creates GUI page for map settings
 	 * @author Isabella Patnode
 	 */
 	public void editMapPage() {
-		//creates heading of page
-		settingTitle();
-
-		//sets up home button icon
-		homeButton();
-
-		//configures display of home button and page title
-		HBox topLayout = new HBox();
-		topLayout.setSpacing(141);
-		topLayout.setAlignment(Pos.TOP_LEFT);
-		topLayout.getChildren().addAll(iconLayout, titleLayout);
+		HBox topLayout = settingsTopLayout();
 
 		//sets up menu buttons
 		menuButtons();
