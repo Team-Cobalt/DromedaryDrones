@@ -21,6 +21,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -168,11 +169,65 @@ public class MainClass extends Application {
 	 */
 	public void startSimulation() {
 
+		title = new Text("Simulation is Running...");
+		title.setFont(Font.font("Serif", 30));
+		title.setFill(Color.BLACK);
+		title.setWrappingWidth(400);
+		title.setTextAlignment(TextAlignment.CENTER);
+
+		titleLayout = new HBox(20);
+		titleLayout.getChildren().add(title);
+		titleLayout.setAlignment(Pos.TOP_CENTER);
+
+		//adds camel image to display
+		Image simulationImage = new Image("Camel.jpg");
+
+		ImageView picture = new ImageView(simulationImage);
+		picture.setX(50);
+		picture.setY(50);
+
+		picture.setFitHeight(300);
+		picture.setFitWidth(300);
+
+		picture.setPreserveRatio(true);
+
+		VBox simulationPicture = new VBox(20);
+		simulationPicture.getChildren().add(picture);
+		simulationPicture.setAlignment(Pos.CENTER);
+
+
+		//allows the user to cancel the simulation
+		Button cancelButton = new Button("Cancel Simulation");
+		cancelButton.setStyle("-fx-background-color: WHITE; -fx-font-size: 14");
+		cancelButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+		//takes user back to main menu
+		cancelButton.setOnAction(e -> window.setScene(mainMenu));
+
+		//adds button to the display
+		HBox simulationButton = new HBox(20);
+		simulationButton.getChildren().add(cancelButton);
+		simulationButton.setAlignment(Pos.BOTTOM_CENTER);
+
+		//arranges all elements of the page on the screen
+		VBox simulationLayout = new VBox(35);
+		simulationLayout.getChildren().addAll(titleLayout, simulationPicture, simulationButton);
+		simulationLayout.setAlignment(Pos.CENTER);
+		simulationLayout.setStyle("-fx-background-color: WHITE");
+
+		root = new StackPane();
+		root.getChildren().add(simulationLayout);
+
+		Scene simulationPage = new Scene(root, 900, 600);
+
+		//sets screen to display page
+		window.setScene(simulationPage);
+
 		//runs simulation
 		results = currentSimulation.run();
 
 		//takes simulation to results page
-		resultsPage();
+		//resultsPage();
 	}
 
 	/**
