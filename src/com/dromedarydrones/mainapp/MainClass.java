@@ -169,8 +169,7 @@ public class MainClass extends Application {
 	public void startSimulation() {
 
 		title = new Text("Simulation is Running...");
-		title.setFont(Font.font("Serif", 30));
-		title.setFill(Color.BLACK);
+		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
 		title.setWrappingWidth(400);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -266,17 +265,18 @@ public class MainClass extends Application {
 	 */
 	public void homeButton() {
 
-		Image homeIcon = new Image("file:resources/HomeButton.jpg");
+		//icon taken from Google
+		Image homeIcon = new Image("file:resources/home-button.png");
 		ImageView homeView = new ImageView(homeIcon);
 
 		Button homeButton = new Button("", homeView);
-		homeButton.setStyle("-fx-background-color: WHITE");
+		homeButton.setStyle("-fx-background-color: #e0e0e0");
 		homeButton.setOnAction(e-> window.setScene(mainMenu));
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
 		iconLayout.getChildren().add(homeButton);
-		iconLayout.setStyle("-fx-background-color: WHITE");
+		iconLayout.setStyle("-fx-background-color: #e0e0e0");
 	}
 
 	/**
