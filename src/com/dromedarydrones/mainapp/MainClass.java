@@ -424,8 +424,18 @@ public class MainClass extends Application {
 		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
 		saveButton.setStyle(buttonStyle());
 
-		//opens file explorer and saves current settings
+		//saves current settings to simulation and opens file explorer to save to xml file
 		saveButton.setOnAction(event -> {
+			ArrayList<Integer> stochasticModel = new ArrayList<>();
+			stochasticModel.add(Integer.parseInt(hourOneMeals.getText()));
+			stochasticModel.add(Integer.parseInt(hourTwoMeals.getText()));
+			stochasticModel.add(Integer.parseInt(hourThreeMeals.getText()));
+			stochasticModel.add(Integer.parseInt(hourFourMeals.getText()));
+
+			//saves settings to simulation
+			currentSimulation.addStochasticFlow(stochasticModel);
+
+			//saves settings in XML file to local machine
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Save Changes");
 			fileChooser.getExtensionFilters().add(
@@ -761,6 +771,25 @@ public class MainClass extends Application {
 		Button saveButton = new Button("Save Changes");
 		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
 		saveButton.setStyle(buttonStyle());
+
+		//saves current settings to simulation and opens file explorer to save to xml file
+		saveButton.setOnAction(event -> {
+
+			//save settings to simulation
+
+
+			//save settings in XML file to local machine
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Save Changes");
+			fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter("XML", "*.xml")
+			);
+			File file = fileChooser.showSaveDialog(window);
+			if (file != null) {
+				try { Configuration.getInstance().saveConfigs(file);
+				} catch (IOException exception) { exception.printStackTrace(); }
+			}
+		});
 
 		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
 
