@@ -80,7 +80,7 @@ public class MainClass extends Application {
 		currentSimulation = Configuration.getInstance().getCurrentSimulation();
 
 		//adds camel image to main menu
-		Image image = new Image("file:resources/Camel.jpg");
+		Image image = new Image("file:resources/CuteCamel.png");
 		
 		ImageView imageView = new javafx.scene.image.ImageView(image);
 		
@@ -98,8 +98,7 @@ public class MainClass extends Application {
 		
 		//adds opening heading to main menu
 		title = new Text("Welcome to Dromedary Drones!");
-		title.setFont(Font.font("Serif", 50));
-		title.setFill(Color.BLACK);
+		title.setStyle("-fx-font-family: Serif; -fx-font-size: 50; -fx-fill: #0047ab");
 		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -146,7 +145,7 @@ public class MainClass extends Application {
 		menuLayout.getChildren().addAll(picture, firstLayout);
 		menuLayout.setSpacing(10);
 		menuLayout.setAlignment(Pos.CENTER);
-		menuLayout.setStyle("-fx-background-color: WHITE");
+		menuLayout.setStyle("-fx-background-color: #e0e0e0");
 		
 		
 		root = new StackPane();
@@ -180,7 +179,7 @@ public class MainClass extends Application {
 		titleLayout.setAlignment(Pos.TOP_CENTER);
 
 		//adds camel image to display
-		Image simulationImage = new Image("file:resources/Camel.jpg");
+		Image simulationImage = new Image("file:resources/CuteCamel.png");
 
 		ImageView picture = new ImageView(simulationImage);
 		picture.setX(50);
@@ -197,7 +196,7 @@ public class MainClass extends Application {
 
 		//allows the user to cancel the simulation
 		Button cancelButton = new Button("Cancel Simulation");
-		String cssStyle = "-fx-background-color: WHITE; " +
+		String cssStyle = "-fx-background-color: #e0e0e0; " +
 				"-fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 		cancelButton.setStyle(cssStyle);
@@ -214,7 +213,7 @@ public class MainClass extends Application {
 		VBox simulationLayout = new VBox(35);
 		simulationLayout.getChildren().addAll(titleLayout, simulationPicture, simulationButton);
 		simulationLayout.setAlignment(Pos.CENTER);
-		simulationLayout.setStyle("-fx-background-color: WHITE");
+		simulationLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
 		root.getChildren().add(simulationLayout);
@@ -239,7 +238,7 @@ public class MainClass extends Application {
 	 * @author Isabella Patnode
 	 */
 	public String buttonStyle() {
-		 return "-fx-background-color: WHITE; " +
+		 return "-fx-background-color: #e0e0e0; " +
 		"-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
@@ -465,7 +464,7 @@ public class MainClass extends Application {
 		settingLayout = new VBox();
 		settingLayout.setSpacing(103);
 		settingLayout.setPadding(new Insets(10, 0 , 0, 0));
-		settingLayout.setStyle("-fx-background-color: WHITE");
+		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 		settingLayout.getChildren().addAll(topLayout, centerLayout, saveLoadButtons);
 
 		root = new StackPane();
@@ -561,7 +560,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
 		settingLayout.getChildren().addAll(topLayout, displayLayout);
-		settingLayout.setStyle("-fx-background-color: WHITE");
+		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -722,7 +721,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(35);
 		settingLayout.getChildren().addAll(topLayout, centerLayout);
-		settingLayout.setStyle("-fx-background-color: WHITE");
+		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -773,7 +772,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
 		settingLayout.getChildren().addAll(topLayout, mainLayout);
-		settingLayout.setStyle("-fx-background-color: WHITE");
+		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -953,7 +952,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new VBox(30);
 		settingLayout.getChildren().addAll(topLayout, mainLayout);
-		settingLayout.setStyle("-fx-background-color: WHITE");
+		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -1150,7 +1149,7 @@ public class MainClass extends Application {
 		VBox finalLayout = new VBox();
 		//top layout, stats, barChart, save button
 		finalLayout.getChildren().addAll(topLayout, statsLayout, barChart, buttonBox);
-		finalLayout.setStyle("-fx-background-color: WHITE");
+		finalLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		StackPane root = new StackPane();
 		root.getChildren().add(finalLayout);
