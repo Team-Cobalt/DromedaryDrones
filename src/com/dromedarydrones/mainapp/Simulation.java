@@ -18,13 +18,14 @@ import java.util.Objects;
 
 /**
  * A standalone configuration of a simulation containing
- * meals, food items, and delivery points.
+ * meals, food items, delivery points, and drone settings.
  * @author  Christian Burns and Isabella Patnode
  */
 public class Simulation implements XmlSerializable {
 
 	private String simulationName;          // name of the simulation
     private ArrayList<Integer> stochasticFlow;   //stochastic flow for simulation
+    private Drone droneSettings;
     private ArrayList<FoodItem> foodItems;  // all known food items
     private ArrayList<Meal> mealTypes;      // all known meals
     private DeliveryPoints deliveryPoints;  // all known delivery points
@@ -42,6 +43,7 @@ public class Simulation implements XmlSerializable {
         foodItems = new ArrayList<>();
         mealTypes = new ArrayList<>();
         deliveryPoints = new DeliveryPoints();
+        droneSettings = new Drone();
     }
 
     /**
@@ -76,8 +78,8 @@ public class Simulation implements XmlSerializable {
             mealTypes.add(newType);
         }
 
-        //copies known delivery points from existing simulation
         this.deliveryPoints = new DeliveryPoints(other.deliveryPoints);
+        this.droneSettings = new Drone(other.droneSettings);
     }
 
     /**
@@ -95,6 +97,7 @@ public class Simulation implements XmlSerializable {
         NodeList foodItemNodeList = root.getElementsByTagName("fooditems");
         NodeList mealTypeNodeList = root.getElementsByTagName("mealtypes");
         NodeList deliveryPointNodeList = root.getElementsByTagName("deliverypoints");
+        NodeList droneSettingsNodeList = root.getElementsByTagName("drone");
 
         // load stochastic values
         if (stochasticNodeList.getLength() > 0) {
@@ -108,6 +111,15 @@ public class Simulation implements XmlSerializable {
             }
         } else {
             System.err.println(String.format("simulation \"%s\" missing the \"stochastic\" element", simulationName));
+        }
+
+        // load drone settings
+        if (droneSettingsNodeList.getLength() > 0) {
+            Element droneSettingsRoot = (Element) droneSettingsNodeList.item(0);
+            droneSettings = new Drone(droneSettingsRoot);
+        } else {
+            droneSettings = new Drone();
+            System.err.println(String.format("simulation \"%s\" missing the \"dronesettings\" element", simulationName));
         }
 
         // load food items
@@ -189,6 +201,14 @@ public class Simulation implements XmlSerializable {
      */
     public void setName(String name) {
         simulationName = name;
+    }
+
+    /**
+     * Returns the drone settings.
+     * @author Christian Burns
+     */
+    public Drone getDroneSettings() {
+        return droneSettings;
     }
 
     /**
@@ -363,6 +383,7 @@ public class Simulation implements XmlSerializable {
         for (Meal meal : mealTypes) meals.appendChild(meal.toXml(doc));
 
         root.appendChild(stochasticElement);
+        root.appendChild(droneSettings.toXml(doc));
         root.appendChild(foods);
         root.appendChild(meals);
         root.appendChild(deliveryPoints.toXml(doc));
