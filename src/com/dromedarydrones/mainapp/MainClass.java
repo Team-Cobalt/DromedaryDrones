@@ -110,31 +110,26 @@ public class MainClass extends Application {
 		//adds buttons to main menu
 		VBox buttons = new VBox(10);
 		buttons.setPrefWidth(100);
-			
+
 		//button for starting the simulation
 		Button buttonStart = new Button("Start Simulation");
 		buttonStart.setMinWidth(buttons.getPrefWidth());
-		buttonStart.setStyle("-fx-background-color: WHITE");
-		buttonStart.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		buttonStart.setStyle(buttonStyle());
+
 		//takes user to intermediate page when pressed/starts simulation
 		buttonStart.setOnAction(e-> startSimulation());
 		
 		//button for editing the simulation
 		Button buttonEdit = new Button("Settings");
 		buttonEdit.setMinWidth(buttons.getPrefWidth());
-		buttonEdit.setStyle("-fx-background-color: WHITE");
-		buttonEdit.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		buttonEdit.setStyle(buttonStyle());
 		//takes user to general settings page when clicked
 		buttonEdit.setOnAction(e -> generalEditPage());
 		
 		//button for exiting the gui
 		Button buttonExit = new Button("Exit Simulation");
 		buttonExit.setMinWidth(buttons.getPrefWidth());
-		buttonExit.setStyle("-fx-background-color: WHITE");
-		buttonExit.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		buttonExit.setStyle(buttonStyle());
 		//exits the screen (gui) when clicked
 		buttonExit.setOnAction(e-> System.exit(0));
 		
@@ -202,9 +197,10 @@ public class MainClass extends Application {
 
 		//allows the user to cancel the simulation
 		Button cancelButton = new Button("Cancel Simulation");
-		cancelButton.setStyle("-fx-background-color: WHITE; -fx-font-size: 14");
-		cancelButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		String cssStyle = "-fx-background-color: WHITE; " +
+				"-fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: #0047ab;" +
+				"-fx-border-width: 1; -fx-border-color: #0047ab";
+		cancelButton.setStyle(cssStyle);
 
 		//takes user back to main menu
 		cancelButton.setOnAction(e -> window.setScene(mainMenu));
@@ -228,13 +224,24 @@ public class MainClass extends Application {
 		//sets screen to display page
 		window.setScene(simulationPage);
 
-		window.show();
+		//window.show();
 
 		//TODO: GET PAGE TO SHOW
 
-		results = currentSimulation.run();
+		//results = currentSimulation.run();
 
-		resultsPage();
+		//resultsPage();
+	}
+
+	/**
+	 * Allows for not writing out the style of each button each time we create a button
+	 * @return a string with the style in css of each button
+	 * @author Isabella Patnode
+	 */
+	public String buttonStyle() {
+		 return "-fx-background-color: WHITE; " +
+		"-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
+				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
 	/**
@@ -284,44 +291,32 @@ public class MainClass extends Application {
 
 		Button generalButton = new Button("General Settings");
 		generalButton.setMinWidth(buttonLayout.getPrefWidth());
-		generalButton.setStyle("-fx-background-color: WHITE");
-		generalButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		generalButton.setStyle(buttonStyle());
 		generalButton.setOnAction(e -> generalEditPage());
 
 		Button foodButton = new Button("Food Settings");
 		foodButton.setMinWidth(buttonLayout.getPrefWidth());
-		foodButton.setStyle("-fx-background-color: WHITE");
-		foodButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		foodButton.setStyle(buttonStyle());
 		foodButton.setOnAction(e -> editFoodPage());
 
 		Button mealButton = new Button("Meal Settings");
 		mealButton.setMinWidth(buttonLayout.getPrefWidth());
-		mealButton.setStyle("-fx-background-color: WHITE");
-		mealButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		mealButton.setStyle(buttonStyle());
 		mealButton.setOnAction(e -> editMealsPage());
 
 		Button droneButton = new Button("Drone Settings");
 		droneButton.setMinWidth(buttonLayout.getPrefWidth());
-		droneButton.setStyle("-fx-background-color: WHITE");
-		droneButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		droneButton.setStyle(buttonStyle());
 		droneButton.setOnAction(e -> editDronePage());
 
 		Button mapButton = new Button("Map Settings");
 		mapButton.setMinWidth(buttonLayout.getPrefWidth());
-		mapButton.setStyle("-fx-background-color: WHITE");
-		mapButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		mapButton.setStyle(buttonStyle());
 		mapButton.setOnAction(e -> editMapPage());
 
 		Button startButton = new Button("Start Simulation");
 		startButton.setMinWidth(buttonLayout.getPrefWidth());
-		startButton.setStyle("-fx-background-color: WHITE");
-		startButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		startButton.setStyle(buttonStyle());
 		startButton.setOnAction(e -> startSimulation());
 
 		buttonLayout.getChildren().addAll(generalButton, foodButton, mealButton, droneButton, mapButton, startButton);
@@ -428,9 +423,7 @@ public class MainClass extends Application {
 		//adds buttons for loading and saving model
 		Button saveButton = new Button("Save Changes");
 		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle("-fx-background-color: WHITE");
-		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		saveButton.setStyle(buttonStyle());
 
 		//opens file explorer and saves current settings
 		saveButton.setOnAction(event -> {
@@ -448,9 +441,7 @@ public class MainClass extends Application {
 
 		Button loadButton = new Button("Load Model");
 		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		loadButton.setStyle("-fx-background-color: WHITE");
-		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		loadButton.setStyle(buttonStyle());
 
 		//opens settings and loads model from user location
 		loadButton.setOnAction(event -> {
@@ -531,14 +522,10 @@ public class MainClass extends Application {
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
-		addButton.setStyle("-fx-background-color: WHITE");
-		addButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		addButton.setStyle(buttonStyle());
 
 		Button deleteButton = new Button("Delete");
-		deleteButton.setStyle("-fx-background-color: WHITE");
-		deleteButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		deleteButton.setStyle(buttonStyle());
 
 		//arranges add and delete buttons relative to each other
 		HBox editButtons = new HBox(10);
@@ -559,16 +546,12 @@ public class MainClass extends Application {
 		//creates button for loading food items
 		Button loadButton = new Button("Load Foods");
 		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		loadButton.setStyle("-fx-background-color: WHITE");
-		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		loadButton.setStyle(buttonStyle());
 
 		//adds button for saving food items
 		Button saveButton = new Button("Save Changes");
 		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle("-fx-background-color: WHITE");
-		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		saveButton.setStyle(buttonStyle());
 
 		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
 
@@ -716,21 +699,15 @@ public class MainClass extends Application {
 		//adds buttons for adding, loading, and saving meals
 		Button addButton = new Button("Add Meal");
 		addButton.setMinWidth(changeButtons.getPrefWidth());
-		addButton.setStyle("-fx-background-color: WHITE");
-		addButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		addButton.setStyle(buttonStyle());
 
 		Button loadButton = new Button("Load Meals");
 		loadButton.setMinWidth(changeButtons.getPrefWidth());
-		loadButton.setStyle("-fx-background-color: WHITE");
-		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		loadButton.setStyle(buttonStyle());
 
 		Button saveButton = new Button("Save Changes");
 		saveButton.setMinWidth(changeButtons.getPrefWidth());
-		saveButton.setStyle("-fx-background-color: WHITE");
-		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		saveButton.setStyle(buttonStyle());
 
 		changeButtons.getChildren().addAll(addButton, loadButton, saveButton);
 
@@ -778,17 +755,13 @@ public class MainClass extends Application {
 		//creates button for loading map
 		Button loadButton = new Button("Load Drone");
 		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		loadButton.setStyle("-fx-background-color: WHITE");
-		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		loadButton.setStyle(buttonStyle());
 
 
 		//adds buttons for loading and saving model
 		Button saveButton = new Button("Save Changes");
 		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle("-fx-background-color: WHITE");
-		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		saveButton.setStyle(buttonStyle());
 
 		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
 
@@ -935,15 +908,11 @@ public class MainClass extends Application {
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
-		addButton.setStyle("-fx-background-color: WHITE");
-		addButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		addButton.setStyle(buttonStyle());
 		//addButton.setOnAction(new AddButtonListener());
 
 		Button deleteButton = new Button("Delete");
-		deleteButton.setStyle("-fx-background-color: WHITE");
-		deleteButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		deleteButton.setStyle(buttonStyle());
 		//deleteButton.setOnAction(new DeleteButtonListener());
 
 		HBox addDeleteButtons = new HBox(10);
@@ -966,17 +935,13 @@ public class MainClass extends Application {
 		//creates button for loading map
 		Button loadButton = new Button("Load Map");
 		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		loadButton.setStyle("-fx-background-color: WHITE");
-		loadButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		loadButton.setStyle(buttonStyle());
 
 
 		//adds buttons for loading and saving model
 		Button saveButton = new Button("Save Changes");
 		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle("-fx-background-color: WHITE");
-		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		saveButton.setStyle(buttonStyle());
 
 		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
 
@@ -1163,9 +1128,7 @@ public class MainClass extends Application {
 
 		//save results button
 		Button saveButton = new Button("Save Results");
-		saveButton.setStyle("-fx-background-color: WHITE");
-		saveButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		saveButton.setStyle(buttonStyle());
 
 		saveButton.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
