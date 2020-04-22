@@ -5,13 +5,16 @@ import com.dromedarydrones.food.Meal;
 import com.dromedarydrones.location.Point;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
-import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -21,9 +24,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
@@ -882,12 +883,30 @@ public class MainClass extends Application {
 
 		//adds cell values to table
 		mapTable.setItems(mapPoints);
+		mapTable.setEditable(true);
 
 		//creates columns for table
 		TableColumn<Point, String> pointHeading = new TableColumn<>("Drop-Off Point");
 		pointHeading.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+		//TODO: UPDATE MAP WITH NEW LOCATION OF POINT
+
+		//allows user to edit the name of a point already in the table
+		pointHeading.setCellFactory(TextFieldTableCell.forTableColumn());
+		pointHeading.setOnEditCommit((EventHandler<CellEditEvent<Point, String>>) event ->
+				((Point) event.getTableView().getItems().get(event.getTablePosition().
+						getRow())).setName(event.getNewValue() + ""));
+
 		TableColumn<Point, String> xyHeading = new TableColumn<>("(x,y)");
 		xyHeading.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
+
+		//TODO: UPDATE MAP WITH NEW LOCATION OF POINT
+
+		//allows user to edit the coordinates of a point already in the table
+		xyHeading.setCellFactory(TextFieldTableCell.forTableColumn());
+		xyHeading.setOnEditCommit((EventHandler<CellEditEvent<Point, String>>) event ->
+				((Point) event.getTableView().getItems().get(event.getTablePosition().
+						getRow())).setCoordinates(event.getNewValue() + ""));
 
 		//adds column headings to table
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
@@ -919,11 +938,13 @@ public class MainClass extends Application {
 		addButton.setStyle("-fx-background-color: WHITE");
 		addButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 				CornerRadii.EMPTY, new BorderWidths(1))));
+		//addButton.setOnAction(new AddButtonListener());
 
 		Button deleteButton = new Button("Delete");
 		deleteButton.setStyle("-fx-background-color: WHITE");
 		deleteButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 				CornerRadii.EMPTY, new BorderWidths(1))));
+		//deleteButton.setOnAction(new DeleteButtonListener());
 
 		HBox addDeleteButtons = new HBox(10);
 		addDeleteButtons.setAlignment(Pos.CENTER_RIGHT);

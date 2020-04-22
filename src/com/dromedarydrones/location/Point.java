@@ -5,6 +5,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
+import java.util.Scanner;
 
 /**
  * @author  Christian Burns
@@ -93,6 +94,34 @@ public class Point implements XmlSerializable {
      */
     public int getY() {
         return y;
+    }
+
+    /**
+     * Method for editing the coordinates of a point
+     * @param coordinates the x, y values to which the point is set
+     * @author Isabella Patnode
+     */
+    public void setCoordinates(String coordinates) {
+        coordinates = coordinates.replace("(", "");
+        coordinates = coordinates.replace(")", "");
+        coordinates = coordinates.replace(" ", "");
+
+        Scanner scanner = new Scanner(coordinates);
+        scanner.useDelimiter(",");
+
+        if(scanner.hasNextInt()) {
+            this.x = scanner.nextInt();
+        }
+        else {
+            throw new IllegalArgumentException("Invalid coordinate pair");
+        }
+
+        if(scanner.hasNextInt()) {
+            this.y = scanner.nextInt();
+        }
+        else {
+            throw new IllegalArgumentException("Invalid coordinate pair");
+        }
     }
 
     /**
