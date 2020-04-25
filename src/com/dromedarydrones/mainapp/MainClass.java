@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IllegalFormatException;
 import java.util.List;
 
 /**
@@ -993,10 +992,18 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode
 	 */
 	public void editMapPage() {
-		//HBox topLayout = settingsTopLayout();
+		VBox leftLayout = new VBox();
+		leftLayout.setSpacing(110);
 
-		//sets up menu buttons
+		homeButton();
+
 		menuButtons();
+
+		VBox importExportDisplay = importExportSettings();
+
+		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+
+		settingTitle();
 
 		//gets list of current map destinations
 		ObservableList<Point> mapPoints = currentSimulation.getDeliveryPoints().getPoints();
@@ -1053,7 +1060,7 @@ public class MainClass extends Application {
 		StackPane plotLayout = new StackPane();
 		plotLayout.setMaxSize(300, 300);
 		plotLayout.getChildren().add(map);
-		plotLayout.setAlignment(Pos.CENTER);
+		plotLayout.setAlignment(Pos.CENTER_RIGHT);
 
 		//creates table of current simulation's points
 		TableView<Point> mapTable = new TableView<>();
@@ -1081,7 +1088,8 @@ public class MainClass extends Application {
 		xyHeading.setCellFactory(TextFieldTableCell.forTableColumn());
 		xyHeading.setOnEditCommit(event -> {
 				try {
-					event.getTableView().getItems().get(event.getTablePosition().getRow()).setCoordinates(event.getNewValue() + "");
+					event.getTableView().getItems().get(event.getTablePosition().getRow()).
+							setCoordinates(event.getNewValue() + "");
 				}
 				catch(IllegalArgumentException illegalArgument) {
 					Alert invalidInput = new Alert(Alert.AlertType.ERROR);
@@ -1104,21 +1112,9 @@ public class MainClass extends Application {
 
 		//arranges table
 		StackPane tableLayout = new StackPane();
-		tableLayout.setMaxSize(300, 300);
+		tableLayout.setMaxSize(275, 300);
 		tableLayout.setAlignment(Pos.CENTER);
 		tableLayout.getChildren().add(mapTable);
-
-		//arranges map and table of points with consideration to each other
-		HBox mapLayout = new HBox();
-		mapLayout.setSpacing(40);
-		mapLayout.setAlignment(Pos.CENTER_RIGHT);
-		mapLayout.getChildren().addAll(plotLayout, tableLayout);
-
-		//arranges map and menu buttons in the center vertically
-		HBox centerLayout = new HBox();
-		centerLayout.setSpacing(160);
-		centerLayout.setAlignment(Pos.CENTER_LEFT);
-		centerLayout.getChildren().addAll(buttonLayout, mapLayout);
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
@@ -1134,39 +1130,38 @@ public class MainClass extends Application {
 		addDeleteButtons.setPadding(new Insets(0, 80, 0, 0));
 		addDeleteButtons.getChildren().addAll(addButton, deleteButton);
 
-		//arranges map, table, and table buttons together
-		VBox buttonMap = new VBox();
-		buttonMap.getChildren().addAll(centerLayout, addDeleteButtons);
-		buttonMap.setSpacing(10);
+		VBox fullTableDisplay = new VBox(5);
+		fullTableDisplay.setAlignment(Pos.CENTER_RIGHT);
+		fullTableDisplay.getChildren().addAll(tableLayout, addDeleteButtons);
 
-		//arranges buttons for loading and saving map and table of points
-		VBox saveLoadButtons = new VBox();
-		saveLoadButtons.setPrefWidth(100);
-		saveLoadButtons.setSpacing(10);
-		saveLoadButtons.setAlignment(Pos.BOTTOM_RIGHT);
-		saveLoadButtons.setPadding(new Insets(0, 80, 0, 0));
+		HBox mapDisplay = new HBox(50);
+		mapDisplay.getChildren().addAll(plotLayout, fullTableDisplay);
+		mapDisplay.setAlignment(Pos.CENTER_LEFT);
+		mapDisplay.setPadding(new Insets(0, 0, 0, 10));
+
+		titleLayout.setAlignment(Pos.CENTER_LEFT);
+
+		VBox centerLayout = new VBox();
+		centerLayout.setSpacing(70);
+		centerLayout.setPadding(new Insets(20,0,0,0));
+		centerLayout.getChildren().addAll(titleLayout, mapDisplay);
 
 		//creates button for loading map
 		Button loadButton = new Button("Load Map");
-		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
 		loadButton.setStyle(buttonStyle());
+		//TODO: LOAD IN MAP??? ALSO WANT TO SAVE MAP???
 
+		HBox loadDisplay = new HBox();
+		loadDisplay.getChildren().add(loadButton);
+		loadDisplay.setAlignment(Pos.CENTER_RIGHT);
+		loadDisplay.setPadding(new Insets(50,95,0,0));
 
-		//adds buttons for loading and saving model
-		Button saveButton = new Button("Save Changes");
-		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle(buttonStyle());
-
-		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
-
-		//arranges map elements with load and save buttons
 		VBox mainLayout = new VBox();
-		mainLayout.getChildren().addAll(buttonMap, saveLoadButtons);
-		mainLayout.setSpacing(50);
+		mainLayout.getChildren().addAll(centerLayout, loadDisplay);
 
 		//arranges all elements of the page on the screen
-		settingLayout = new HBox(30);
-		//settingLayout.getChildren().addAll(topLayout, mainLayout);
+		settingLayout = new HBox(130);
+		settingLayout.getChildren().addAll(leftLayout, mainLayout);
 		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
@@ -1217,17 +1212,19 @@ public class MainClass extends Application {
 		fifoTitle.setWrappingWidth(300);
 		fifoTitle.setTextAlignment(TextAlignment.CENTER);
 
-		double fifoAverageTime = results.getAverageFifoTime();	//change once you can access the results
+		double fifoAverageTime = results.getAverageFifoTime();
 
-		Text fifoAverage = new Text(String.format("Average Delivery Time: %.1f minutes", fifoAverageTime / 60));
+		Text fifoAverage = new Text(String.format("Average Delivery Time: %.1f minutes",
+				fifoAverageTime / SECONDS_PER_MINUTE));
 		fifoAverage.setFont(Font.font("Serif", 18));
 		fifoAverage.setFill(Color.BLACK);
 		fifoAverage.setWrappingWidth(300);
 		fifoAverage.setTextAlignment(TextAlignment.CENTER);
 
-		double fifoWorstTime = results.getWorstFifoTime();	//change once you can access the results
+		double fifoWorstTime = results.getWorstFifoTime();
 
-		Text fifoWorst = new Text(String.format("Worst Delivery Time: %.1f minutes", fifoWorstTime / 60));
+		Text fifoWorst = new Text(String.format("Worst Delivery Time: %.1f minutes",
+				fifoWorstTime / SECONDS_PER_MINUTE));
 		fifoWorst.setFont(Font.font("Serif", 18));
 		fifoWorst.setFill(Color.BLACK);
 		fifoWorst.setWrappingWidth(300);
@@ -1245,17 +1242,19 @@ public class MainClass extends Application {
 		knapsackTitle.setWrappingWidth(300);
 		knapsackTitle.setTextAlignment(TextAlignment.CENTER);
 
-		double knapsackAverageTime = results.getAverageKnapsackTime();	//change once you can access the results
+		double knapsackAverageTime = results.getAverageKnapsackTime();
 
-		Text knapsackAverage = new Text(String.format("Average Delivery Time: %.1f minutes", knapsackAverageTime / 60));
+		Text knapsackAverage = new Text(String.format("Average Delivery Time: %.1f minutes",
+				knapsackAverageTime / SECONDS_PER_MINUTE));
 		knapsackAverage.setFont(Font.font("Serif", 18));
 		knapsackAverage.setFill(Color.BLACK);
 		knapsackAverage.setWrappingWidth(300);
 		knapsackAverage.setTextAlignment(TextAlignment.CENTER);
 
-		double knapsackWorstTime = results.getWorstKnapsackTime();	//change once you can access the results
+		double knapsackWorstTime = results.getWorstKnapsackTime();
 
-		Text knapsackWorst = new Text(String.format("Worst Delivery Time: %.1f minutes", knapsackWorstTime / 60));
+		Text knapsackWorst = new Text(String.format("Worst Delivery Time: %.1f minutes",
+				knapsackWorstTime / SECONDS_PER_MINUTE));
 		knapsackWorst.setFont(Font.font("Serif", 18));
 		knapsackWorst.setFill(Color.BLACK);
 		knapsackWorst.setWrappingWidth(300);
@@ -1291,7 +1290,8 @@ public class MainClass extends Application {
 
         //count number of orders per time slot
         for (int index = 0; index < fifoTimes.size(); index++){
-            int time = (int)(Math.floor(fifoTimes.get(index)) / 60);    //get the floor of the order delivery time
+			//get the floor of the order delivery time
+            int time = (int)(Math.floor(fifoTimes.get(index)) / SECONDS_PER_MINUTE);
             if (time < 25){
             	fifoCount[time]++;  //increment orders in this time slot
 			}
@@ -1311,7 +1311,8 @@ public class MainClass extends Application {
 
         //count number of orders per time slot
 		for (int index = 0; index < knapsackTimes.size(); index++){
-			int time = (int)(Math.floor(knapsackTimes.get(index)) / 60);    //get the floor of the order delivery time
+			//get the floor of the order delivery time
+			int time = (int)(Math.floor(knapsackTimes.get(index)) / SECONDS_PER_MINUTE);
 			if (time < 25) {
 				knapsackCount[time]++;  //increment orders in this time slot
 			}
