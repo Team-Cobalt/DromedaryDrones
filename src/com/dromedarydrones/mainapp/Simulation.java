@@ -282,6 +282,7 @@ public class Simulation implements XmlSerializable {
         return stochasticFlow;
     }
 
+
     /**Method to get list of simulation's delivery points
      * @author Isabella Patnode
      * @return the simulation's list of delivery points

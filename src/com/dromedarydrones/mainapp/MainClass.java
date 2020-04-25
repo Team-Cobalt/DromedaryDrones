@@ -5,9 +5,7 @@ import com.dromedarydrones.food.Meal;
 import com.dromedarydrones.location.Point;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.control.*;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -31,10 +29,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IllegalFormatException;
+import java.util.List;
 
 /**
  * Class that runs the simulation
- * @author Isabella Patnode and Rachel Franklin
+ * @author Izzy Patnode and Rachel Franklin
  */
 public class MainClass extends Application {
 	private Stage window; //used for creating gui
@@ -44,9 +44,13 @@ public class MainClass extends Application {
 	private HBox titleLayout; //layout regarding title of page
 	private HBox iconLayout; //layout of home icon
 	private VBox buttonLayout; //layout of setting's menu buttons
-	private VBox settingLayout; //layout of all icons in setting pages
+	private HBox settingLayout; //layout of all icons in setting pages
 	private Simulation currentSimulation; //current simulation being run
 	private SimulationResults results;
+	private final int SECONDS_PER_HOUR = 3600;
+	private final int FEET_PER_MILE = 5280;
+	private final int OUNCES_PER_POUND = 16;
+	private final int SECONDS_PER_MINUTE = 60;
 	
 	public static void main(String[] args) {
 		
@@ -71,7 +75,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -117,21 +121,24 @@ public class MainClass extends Application {
 		buttonStart.setStyle(buttonStyle());
 
 		//takes user to intermediate page when pressed/starts simulation
-		buttonStart.setOnAction(e-> startSimulation());
-		
+		buttonStart.setOnAction(event-> startSimulation());
+
+		//creates icon for settings
+		//Image settingsIcon = new Image("file:resources/SettingsIcon.png");
+
 		//button for editing the simulation
 		Button buttonEdit = new Button("Settings");
 		buttonEdit.setMinWidth(buttons.getPrefWidth());
 		buttonEdit.setStyle(buttonStyle());
 		//takes user to general settings page when clicked
-		buttonEdit.setOnAction(e -> generalEditPage());
+		buttonEdit.setOnAction(event -> generalEditPage());
 		
 		//button for exiting the gui
 		Button buttonExit = new Button("Exit Simulation");
 		buttonExit.setMinWidth(buttons.getPrefWidth());
 		buttonExit.setStyle(buttonStyle());
 		//exits the screen (gui) when clicked
-		buttonExit.setOnAction(e-> System.exit(0));
+		buttonExit.setOnAction(event-> System.exit(0));
 		
 		buttons.getChildren().addAll(buttonStart, buttonEdit, buttonExit);
 		buttons.setAlignment(Pos.BOTTOM_CENTER);
@@ -165,7 +172,7 @@ public class MainClass extends Application {
 	
 	/**
 	 * Method for running the simulation
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode
 	 */
 	public void startSimulation() {
 
@@ -202,7 +209,7 @@ public class MainClass extends Application {
 		cancelButton.setStyle(cssStyle);
 
 		//takes user back to main menu
-		cancelButton.setOnAction(e -> window.setScene(mainMenu));
+		cancelButton.setOnAction(event -> window.setScene(mainMenu));
 
 		//adds button to the display
 		HBox simulationButton = new HBox(20);
@@ -235,7 +242,7 @@ public class MainClass extends Application {
 	/**
 	 * Allows for not writing out the style of each button each time we create a button
 	 * @return a string with the style in css of each button
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode
 	 */
 	public String buttonStyle() {
 		 return "-fx-background-color: #e0e0e0; " +
@@ -245,7 +252,7 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates title (Simulation Settings) for settings pages
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode
 	 */
 	public void settingTitle() {
 		//adds title to general settings page
@@ -262,11 +269,11 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates home button icon
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode
 	 */
 	public void homeButton() {
 
-		//icon taken from Google
+		//icon created by Google
 		Image homeIcon = new Image("file:resources/home-button.png");
 		ImageView homeView = new ImageView(homeIcon);
 
@@ -276,13 +283,14 @@ public class MainClass extends Application {
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
+		iconLayout.setPadding(new Insets(0, 0, 0, 15));
 		iconLayout.getChildren().add(homeButton);
 		iconLayout.setStyle("-fx-background-color: #e0e0e0");
 	}
 
 	/**
 	 * Creates menu buttons for settings pages
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode
 	 */
 	public void menuButtons() {
 		buttonLayout = new VBox();
@@ -326,35 +334,79 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * Method for arranging title and home icon of settings
-	 * @return layout of title and home icon
-	 * @author Isabella Patnode
+	 * Decreases redundancy of code used for importing and exporting settings
+	 * @return Vbox containing buttons for importing and exporting buttons
+	 * @author Izzy Patnode
 	 */
-	public HBox settingsTopLayout() {
-		//creates heading of the page
-		settingTitle();
+	public VBox importExportSettings() {
+		VBox saveLoadButtons = new VBox(5);
+		saveLoadButtons.setPrefWidth(100);
 
-		//allows user to return to main page
-		homeButton();
+		//adds buttons for loading and saving model
+		Button saveButton = new Button("Import Settings");
+		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		saveButton.setStyle(buttonStyle());
 
-		//configures display of home button and page title
-		HBox layout = new HBox();
-		layout.setSpacing(141);
-		layout.setAlignment(Pos.TOP_LEFT);
-		layout.getChildren().addAll(iconLayout, titleLayout);
+		//saves current settings to simulation and opens file explorer to save to xml file
+		saveButton.setOnAction(event -> {
+			//saves settings in XML file to local machine
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Import Settings");
+			fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter("XML", "*.xml")
+			);
+			File file = fileChooser.showSaveDialog(window);
+			if (file != null) {
+				try { Configuration.getInstance().saveConfigs(file);
+				} catch (IOException exception) { exception.printStackTrace(); }
+			}
+		});
 
-		return layout;
+		Button loadButton = new Button("Export Settings");
+		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		loadButton.setStyle(buttonStyle());
+
+		//opens settings and loads model from user location
+		loadButton.setOnAction(event -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Export Settings");
+			fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter("XML", "*.xml")
+			);
+			File file = fileChooser.showOpenDialog(window);
+			if (file != null) {
+				try {
+					Configuration.getInstance().initialize(file);
+					currentSimulation = Configuration.getInstance().getCurrentSimulation();
+				} catch (IOException exception) { exception.printStackTrace(); }
+			}
+		});
+
+		saveLoadButtons.getChildren().addAll(saveButton, loadButton);
+
+		saveLoadButtons.setAlignment(Pos.BOTTOM_LEFT);
+		saveLoadButtons.setPadding(new Insets(0, 0, 0, 10));
+
+		return saveLoadButtons;
 	}
 
 	/**
 	 * Creates GUI page for general settings (i.e. stochastic flow)
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode and Rachel Franklin
 	 */
 	public void generalEditPage() {
-		HBox topLayout = settingsTopLayout();
+		VBox leftLayout = new VBox();
+		leftLayout.setSpacing(110);
 
-		//sets up menu buttons
+		homeButton();
+
 		menuButtons();
+
+		VBox importExportDisplay = importExportSettings();
+
+		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+
+		settingTitle();
 
 		//creates table heading for model
 		Text gridHeading = new Text("Order Volume per Hour");
@@ -377,13 +429,17 @@ public class MainClass extends Application {
 		//adds current simulation's stochastic flow values to the gridpane
 		ArrayList<Integer> currentModel = new ArrayList<>(currentSimulation.getStochasticFlow());
 
-		TextField hourOneMeals = new TextField(currentModel.get(0).toString());
+		int currentHourOne = currentModel.get(0);
+		TextField hourOneMeals = new TextField(currentHourOne + "");
 		hourOneMeals.setMaxWidth(80);
-		TextField hourTwoMeals = new TextField(currentModel.get(1).toString());
+		int currentHourTwo = currentModel.get(1);
+		TextField hourTwoMeals = new TextField(currentHourTwo + "");
 		hourTwoMeals.setMaxWidth(80);
-		TextField hourThreeMeals = new TextField(currentModel.get(2).toString());
+		int currentHourThree = currentModel.get(2);
+		TextField hourThreeMeals = new TextField(currentHourThree + "");
 		hourThreeMeals.setMaxWidth(80);
-		TextField hourFourMeals = new TextField(currentModel.get(3).toString());
+		int currentHourFour = currentModel.get(3);
+		TextField hourFourMeals = new TextField(currentHourFour + "");
 		hourFourMeals.setMaxWidth(80);
 
 		//creates gridpane for stochastic flow values
@@ -407,76 +463,59 @@ public class MainClass extends Application {
 		gridLayout.setAlignment(Pos.CENTER);
 		gridLayout.getChildren().addAll(gridHeading, generalSettings);
 
-		//configures display of menu buttons and gridpane
-		HBox centerLayout = new HBox();
-		centerLayout.setSpacing(220);
-		centerLayout.setAlignment(Pos.CENTER_LEFT);
-		centerLayout.getChildren().addAll(buttonLayout, gridLayout);
+		VBox centerLayout = new VBox();
+		centerLayout.setSpacing(140);
+		centerLayout.setAlignment(Pos.TOP_CENTER);
+		centerLayout.setPadding(new Insets(20,0,0,0));
+		centerLayout.getChildren().addAll(titleLayout, gridLayout);
 
-		//arranges btns for loading and saving model
-		VBox saveLoadButtons = new VBox();
-		saveLoadButtons.setPrefWidth(100);
-		saveLoadButtons.setSpacing(10);
-		saveLoadButtons.setAlignment(Pos.BOTTOM_RIGHT);
-		saveLoadButtons.setPadding(new Insets(0, 80, 100, 0));
+		Button editButton = new Button("Save Changes");
+		editButton.setStyle(buttonStyle());
 
-		//adds buttons for loading and saving model
-		Button saveButton = new Button("Save Changes");
-		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle(buttonStyle());
-
-		//saves current settings to simulation and opens file explorer to save to xml file
-		saveButton.setOnAction(event -> {
+		//sets current stochastic flow to edited stochastic flow
+		editButton.setOnAction(event -> {
 			ArrayList<Integer> stochasticModel = new ArrayList<>();
-			stochasticModel.add(Integer.parseInt(hourOneMeals.getText()));
-			stochasticModel.add(Integer.parseInt(hourTwoMeals.getText()));
-			stochasticModel.add(Integer.parseInt(hourThreeMeals.getText()));
-			stochasticModel.add(Integer.parseInt(hourFourMeals.getText()));
+			try {
+				stochasticModel.add(Integer.parseInt(hourOneMeals.getText()));
+				stochasticModel.add(Integer.parseInt(hourTwoMeals.getText()));
+				stochasticModel.add(Integer.parseInt(hourThreeMeals.getText()));
+				stochasticModel.add(Integer.parseInt(hourFourMeals.getText()));
 
-			//saves settings to simulation
-			currentSimulation.addStochasticFlow(stochasticModel);
+				currentSimulation.addStochasticFlow(stochasticModel);
 
-			//saves settings in XML file to local machine
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Save Changes");
-			fileChooser.getExtensionFilters().add(
-					new FileChooser.ExtensionFilter("XML", "*.xml")
-			);
-			File file = fileChooser.showSaveDialog(window);
-			if (file != null) {
-				try { Configuration.getInstance().saveConfigs(file);
-				} catch (IOException exception) { exception.printStackTrace(); }
-			}
-		});
+				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
+				saveAlert.setTitle("Confirm Changes");
+				saveAlert.setHeaderText("Changes Saved!");
+				saveAlert.showAndWait();
+			} //end of try block
+			catch(NumberFormatException illegalFormat) {
+				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+				errorAlert.setTitle("Invalid Input");
+				errorAlert.setHeaderText("Invalid Input!");
+				errorAlert.setContentText("Integer format required");
 
-		Button loadButton = new Button("Load Model");
-		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		loadButton.setStyle(buttonStyle());
+				stochasticModel.addAll(List.of(currentHourOne, currentHourTwo, currentHourThree, currentHourFour));
 
-		//opens settings and loads model from user location
-		loadButton.setOnAction(event -> {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Load Settings");
-			fileChooser.getExtensionFilters().add(
-					new FileChooser.ExtensionFilter("XML", "*.xml")
-			);
-			File file = fileChooser.showOpenDialog(window);
-			if (file != null) {
-				try {
-					Configuration.getInstance().initialize(file);
-					currentSimulation = Configuration.getInstance().getCurrentSimulation();
-				} catch (IOException exception) { exception.printStackTrace(); }
-			}
-		});
+				hourOneMeals.setText(currentHourOne + "");
+				hourTwoMeals.setText(currentHourTwo + "");
+				hourThreeMeals.setText(currentHourThree + "");
+				hourFourMeals.setText(currentHourFour + "");
 
-		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
+				errorAlert.showAndWait();
+			} //end of catch block
+		}); //end of event handler
 
-		//arranges top layout (home btn and title) and center layout (menu btn and gridpane)
-		settingLayout = new VBox();
-		settingLayout.setSpacing(103);
-		settingLayout.setPadding(new Insets(10, 0 , 0, 0));
+		VBox rightLayout = new VBox();
+		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
+		rightLayout.setPadding(new Insets(0, 0, 200, 0));
+		rightLayout.getChildren().add(editButton);
+
+		HBox mainLayout = new HBox();
+		mainLayout.getChildren().addAll(centerLayout, rightLayout);
+
+		settingLayout = new HBox(130);
 		settingLayout.setStyle("-fx-background-color: #e0e0e0");
-		settingLayout.getChildren().addAll(topLayout, centerLayout, saveLoadButtons);
+		settingLayout.getChildren().addAll(leftLayout, mainLayout);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -489,13 +528,21 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for food items settings
-	 * @author Rachel Franklin and Isabella Patnode
+	 * @author Izzy Patnode and Rachel Franklin
 	 */
 	public void editFoodPage() {
-		HBox topLayout = settingsTopLayout();
+		VBox leftLayout = new VBox();
+		leftLayout.setSpacing(110);
 
-		//sets up menu buttons
+		homeButton();
+
 		menuButtons();
+
+		VBox importExportDisplay = importExportSettings();
+
+		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+
+		settingTitle();
 
 		//create table of food items in simulation
 		TableView<FoodItem> foodTable = new TableView<>();
@@ -514,9 +561,9 @@ public class MainClass extends Application {
 
 		//allows user to edit the name of a food item already in the table
 		itemHeading.setCellFactory(TextFieldTableCell.forTableColumn());
-		itemHeading.setOnEditCommit((EventHandler<CellEditEvent<FoodItem, String>>) event ->
-				((FoodItem) event.getTableView().getItems().get(event.getTablePosition().
-						getRow())).setName(event.getNewValue().toString()));
+		itemHeading.setOnEditCommit(event ->
+				event.getTableView().getItems().get(event.getTablePosition().
+						getRow()).setName(event.getNewValue()));
 
 		//allows user to edit the weight of a food item already in the table
 		weightHeading.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter(){
@@ -530,60 +577,70 @@ public class MainClass extends Application {
 			}
 		}));
 
-		weightHeading.setOnEditCommit((EventHandler<CellEditEvent<FoodItem, Double>>) event -> {
+		weightHeading.setOnEditCommit(event -> {
+			/* If there is an error make the index 1, this allows us to determine whether to set
+			** the cell vale to the new value or the old value */
+			int errorIndex = 0;
+			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+			double oldValue = event.getOldValue();
+
 			//user must input a double
 			if (event.getNewValue().isNaN()){
-				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
 				invalidInput.setTitle("Invalid Input");
 				invalidInput.setContentText("Input must be an integer or a decimal.");
-				invalidInput.showAndWait();
-				((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).
-						setWeight(event.getOldValue());
-
-				return;
+				errorIndex = 1;
 			}
+			else {
+				double newValue = event.getNewValue();
+				double maxPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight();
 
-			double newValue = event.getNewValue();
-			double maxPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight();
+				//drone capacity cannot exceed 12 lbs, so item weight cannot exceed 12 lbs
+				if (newValue > maxPayload) {
+					invalidInput.setTitle("Invalid Input");
+					invalidInput.setContentText("Food item weight cannot exceed " + maxPayload + " oz.");
+					errorIndex = 1;
+				}
+				else if (newValue <= 0) {
+					invalidInput.setTitle("Invalid Input");
+					invalidInput.setContentText("Food item weight must weigh something.");
+					errorIndex = 1;
+				}
+				else {
+					//drone capacity cannot exceed 12 lbs, so any meal cannot exceed 12 lbs
+					ArrayList<Meal> mealTypes = currentSimulation.getMealTypes();
+					String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getName();
+					if(errorIndex == 0) {
+						for (int meal = 0; meal < mealTypes.size(); meal++) {
+							for (int food = 0; food < mealTypes.get(meal).getFoods().size(); food++) {
+								FoodItem currItem = mealTypes.get(meal).getFoods().get(food);
+								if (itemName.equals(currItem.getName())) {
+									double newWeight = currItem.getWeight() - event.getOldValue() + newValue;
+									if (newWeight > maxPayload) {
+										invalidInput.setTitle("Invalid Input");
+										invalidInput.setContentText("Input food item weight causes a meal weight to exceed the drone's " +
+												"maximum payload weight.");
+										errorIndex = 1;
+									}
+								}
+							}//foods for loop
+						}//meals for loop
+					} //checking meals if statement
+				} //else statement if newValue <= maxPayload
+			} //else statement if maxPayload is a number
 
-			//drone capacity cannot exceed 12 lbs, so item weight cannot exceed 12 lbs
-			if (newValue > maxPayload){
-				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-				invalidInput.setTitle("Invalid Input");
-				invalidInput.setContentText("Food item weight cannot exceed " + maxPayload + " oz.");
-				invalidInput.showAndWait();
-				((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).
-						setWeight(event.getOldValue());
-				return;
+			if(errorIndex == 0) {
+				//user input valid weight
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).
+						setWeight(event.getNewValue());
 			}
-
-			//drone capacity cannot exceed 12 lbs, so any meal cannot exceed 12 lbs
-			ArrayList <Meal> mealTypes = currentSimulation.getMealTypes();
-			String itemName = ((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).getName();
-			for (int meal = 0; meal < mealTypes.size(); meal++){
-				for (int food = 0; food < mealTypes.get(meal).getFoods().size(); food++){
-					FoodItem currItem = mealTypes.get(meal).getFoods().get(food);
-					if (itemName.equals(currItem.getName())){
-						double newWeight = currItem.getWeight() - event.getOldValue() + newValue;
-						if (newWeight > maxPayload){
-							Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-							invalidInput.setTitle("Invalid Input");
-							invalidInput.setContentText("Input food item weight causes a meal weight to exceed the drone's " +
-									"maximum payload weight.");
-							invalidInput.showAndWait();
-							((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).
-									setWeight(event.getOldValue());
-							return;
-						}
-					}
-				}//foods for loop
-			}//meals for loop
-
-			//user input valid weight
-			((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).
-					setWeight(event.getNewValue());
+			else {
+				//put old value as
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).
+						setWeight(oldValue);
+				invalidInput.showAndWait();
+			}
+			//TODO: WHY DOES IT SHOW THE NEW VALUE UNTIL YOU CLICK ON IT AGAIN?????
 		});//event end
-
 
 		//adds columns to table
 		foodTable.getColumns().setAll(itemHeading, weightHeading);
@@ -594,15 +651,9 @@ public class MainClass extends Application {
 
 		//arranges table on screen
 		StackPane tableLayout = new StackPane();
-		tableLayout.setAlignment(Pos.CENTER);
-		tableLayout.setMaxSize(300, 300);
+		tableLayout.setAlignment(Pos.TOP_RIGHT);
+		tableLayout.setMaxSize(202, 300);
 		tableLayout.getChildren().add(foodTable);
-
-		//arranges menu buttons and table in the center (vertically)
-		HBox centerLayout = new HBox();
-		centerLayout.setSpacing(220);
-		centerLayout.setAlignment(Pos.CENTER_LEFT);
-		centerLayout.getChildren().addAll(buttonLayout, tableLayout);
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
@@ -613,38 +664,22 @@ public class MainClass extends Application {
 
 		//arranges add and delete buttons relative to each other
 		HBox editButtons = new HBox(10);
-		editButtons.setAlignment(Pos.TOP_CENTER);
 		editButtons.getChildren().addAll(addButton, deleteButton);
-		editButtons.setPadding(new Insets(0, 20, 0, 0));
+		editButtons.setPadding(new Insets(0, 0, 0, 60));
 
 		VBox tableButtonLayout = new VBox(10);
-		tableButtonLayout.getChildren().addAll(centerLayout, editButtons);
+		tableButtonLayout.getChildren().addAll(tableLayout, editButtons);
+		tableButtonLayout.setPadding(new Insets(0,0,0,100));
 
-		//arranges buttons for loading and saving model
-		VBox saveLoadButtons = new VBox();
-		saveLoadButtons.setPrefWidth(100);
-		saveLoadButtons.setSpacing(10);
-		saveLoadButtons.setAlignment(Pos.BOTTOM_RIGHT);
-		saveLoadButtons.setPadding(new Insets(0, 80, 0, 0));
-
-		//creates button for loading food items
-		Button loadButton = new Button("Load Foods");
-		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		loadButton.setStyle(buttonStyle());
-
-		//adds button for saving food items
-		Button saveButton = new Button("Save Changes");
-		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle(buttonStyle());
-
-		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
-
-		VBox displayLayout = new VBox(10);
-		displayLayout.getChildren().addAll(tableButtonLayout, saveLoadButtons);
+		VBox centerLayout = new VBox();
+		centerLayout.setSpacing(90);
+		centerLayout.setAlignment(Pos.TOP_CENTER);
+		centerLayout.setPadding(new Insets(20,0,0,0));
+		centerLayout.getChildren().addAll(titleLayout, tableButtonLayout);
 
 		//arranges all elements of the page on the screen
-		settingLayout = new VBox(30);
-		settingLayout.getChildren().addAll(topLayout, displayLayout);
+		settingLayout = new HBox(130);
+		settingLayout.getChildren().addAll(leftLayout, centerLayout);
 		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
@@ -658,17 +693,21 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for meal settings
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode and Rachel Franklin
 	 */
 	public void editMealsPage() {
-		HBox topLayout = settingsTopLayout();
+		VBox leftLayout = new VBox();
+		leftLayout.setSpacing(110);
 
-		//sets up menu buttons
+		homeButton();
+
 		menuButtons();
 
-		//sets padding of menu buttons to match rest of settings pages
-		buttonLayout.setAlignment(Pos.TOP_LEFT);
-		buttonLayout.setPadding(new Insets(68, 0, 0, 5));
+		VBox importExportDisplay = importExportSettings();
+
+		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+
+		settingTitle();
 
 		//arranges all meals together
 		VBox mealsBox = new VBox(10);
@@ -688,7 +727,7 @@ public class MainClass extends Application {
 
 			HBox titleFormat = new HBox();
 			titleFormat.getChildren().add(mealName);
-			titleFormat.setPadding(new Insets(8, 0, 0, 0));
+			titleFormat.setPadding(new Insets(8, 0, 0, 5));
 
 			//used to store each food item in the meal and how many of it there is
 			HashMap<String, Integer> numberPerFood = new HashMap<>();
@@ -768,44 +807,31 @@ public class MainClass extends Application {
 		//allows for user to scroll through meals
 		ScrollPane mealLayout = new ScrollPane();
 		mealLayout.setContent(mealsBox);
-		mealLayout.setPrefSize(250, 400);
+		mealLayout.setMaxSize(260, 400);
 		mealLayout.setStyle("-fx-background: WHITE");
 		mealLayout.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 				CornerRadii.EMPTY, new BorderWidths(1))));
 
+		//formats display of menu column and full meal display
+		VBox centerLayout = new VBox(80);
+		centerLayout.setAlignment(Pos.TOP_CENTER);
+		centerLayout.setPadding(new Insets(20,0,0,0));
+		centerLayout.getChildren().addAll(titleLayout, mealLayout);
 
-		//formats display of buttons for changing meals
-		VBox changeButtons = new VBox();
-		changeButtons.setPrefWidth(100);
-		changeButtons.setSpacing(10);
-		changeButtons.setAlignment(Pos.BOTTOM_RIGHT);
-
-		//adds buttons for adding, loading, and saving meals
 		Button addButton = new Button("Add Meal");
-		addButton.setMinWidth(changeButtons.getPrefWidth());
 		addButton.setStyle(buttonStyle());
 
-		Button loadButton = new Button("Load Meals");
-		loadButton.setMinWidth(changeButtons.getPrefWidth());
-		loadButton.setStyle(buttonStyle());
+		VBox rightLayout = new VBox();
+		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
+		rightLayout.setPadding(new Insets(0, 0, 70, 50));
+		rightLayout.getChildren().add(addButton);
 
-		Button saveButton = new Button("Save Changes");
-		saveButton.setMinWidth(changeButtons.getPrefWidth());
-		saveButton.setStyle(buttonStyle());
-
-		changeButtons.getChildren().addAll(addButton, loadButton, saveButton);
-
-		//formats display of meal layout and corresponding buttons
-		HBox mealButtonLayout = new HBox(100);
-		mealButtonLayout.getChildren().addAll(mealLayout, changeButtons);
-
-		//formats display of menu column and full meal display
-		HBox centerLayout = new HBox(200);
-		centerLayout.getChildren().addAll(buttonLayout, mealButtonLayout);
+		HBox mainLayout = new HBox();
+		mainLayout.getChildren().addAll(centerLayout, rightLayout);
 
 		//arranges all elements of the page on the screen
-		settingLayout = new VBox(35);
-		settingLayout.getChildren().addAll(topLayout, centerLayout);
+		settingLayout = new HBox(130);
+		settingLayout.getChildren().addAll(leftLayout, mainLayout);
 		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
@@ -819,63 +845,138 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for drone settings
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode
 	 */
 	public void editDronePage() {
-		HBox topLayout = settingsTopLayout();
+		VBox leftLayout = new VBox();
+		leftLayout.setSpacing(110);
 
-		//sets up menu buttons
+		homeButton();
+
 		menuButtons();
 
-		//TODO: PUT IN DRONE SETTINGS!!!
+		VBox importExportDisplay = importExportSettings();
 
-		//arranges buttons for loading and saving map and table of points
-		VBox saveLoadButtons = new VBox();
-		saveLoadButtons.setPrefWidth(100);
-		saveLoadButtons.setSpacing(10);
-		saveLoadButtons.setAlignment(Pos.BOTTOM_RIGHT);
-		saveLoadButtons.setPadding(new Insets(0, 80, 0, 0));
+		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
 
-		//creates button for loading map
-		Button loadButton = new Button("Load Drone");
-		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		loadButton.setStyle(buttonStyle());
+		settingTitle();
 
+		Drone currentDrone = currentSimulation.getDroneSettings();
 
-		//adds buttons for loading and saving model
-		Button saveButton = new Button("Save Changes");
-		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle(buttonStyle());
+		//creates gridpane containing the current stochastic flow values
+		Text maxPayload = new Text("Max Cargo Weight (lbs): ");
+		maxPayload.setFont(Font.font("Serif", 15));
 
-		//saves current settings to simulation and opens file explorer to save to xml file
-		saveButton.setOnAction(event -> {
+		Text speed = new Text("Average Cruising Speed (mph): ");
+		speed.setFont(Font.font("Serif", 15));
 
-			//save settings to simulation
+		Text maxFlight = new Text("Max Flight Time (minutes): ");
+		maxFlight.setFont(Font.font("Serif", 15));
 
+		Text turnAround = new Text("Turn-around Time (minutes): ");
+		turnAround.setFont(Font.font("Serif", 15));
 
-			//save settings in XML file to local machine
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Save Changes");
-			fileChooser.getExtensionFilters().add(
-					new FileChooser.ExtensionFilter("XML", "*.xml")
-			);
-			File file = fileChooser.showSaveDialog(window);
-			if (file != null) {
-				try { Configuration.getInstance().saveConfigs(file);
-				} catch (IOException exception) { exception.printStackTrace(); }
-			}
-		});
+		Text unloadTime = new Text("Unloading Delay (seconds): ");
+		unloadTime.setFont(Font.font("Serif", 15));
 
-		saveLoadButtons.getChildren().addAll(loadButton, saveButton);
+		double currentPayload = currentDrone.getMaxPayloadWeight() / OUNCES_PER_POUND;
+		TextField dronePayload = new TextField(String.format("%.2f", currentPayload));
+		dronePayload.setMaxWidth(80);
 
-		//arranges map elements with load and save buttons
-		VBox mainLayout = new VBox();
-		mainLayout.getChildren().addAll(buttonLayout, saveLoadButtons);
-		mainLayout.setSpacing(50);
+		double currentSpeed = (currentDrone.getCruisingSpeed() * SECONDS_PER_HOUR) / FEET_PER_MILE;
+		TextField droneSpeed = new TextField(String.format("%.2f", currentSpeed));
+		droneSpeed.setMaxWidth(80);
+
+		double currentFlightTime = currentDrone.getFlightTime() / SECONDS_PER_MINUTE;
+		TextField droneFlight = new TextField(String.format("%.2f", currentFlightTime));
+		droneFlight.setMaxWidth(80);
+
+		double currentTurnAround = currentDrone.getTurnAroundTime() / SECONDS_PER_MINUTE;
+		TextField droneTurnAround = new TextField(String.format("%.2f", currentTurnAround));
+		droneTurnAround.setMaxWidth(80);
+
+		double currentDelivery = currentDrone.getDeliveryTime();
+		TextField droneUnload = new TextField(String.format("%.2f", currentDelivery));
+		droneUnload.setMaxWidth(80);
+
+		//creates gridpane for drone settings
+		GridPane droneSettings = new GridPane();
+		droneSettings.setAlignment(Pos.CENTER);
+		droneSettings.setVgap(15);
+		droneSettings.setMaxSize(300, 300);
+
+		//adds cells to gridpane
+		droneSettings.add(maxPayload, 0, 0);
+		droneSettings.add(dronePayload, 1, 0);
+
+		droneSettings.add(speed, 0, 1);
+		droneSettings.add(droneSpeed, 1, 1);
+
+		droneSettings.add(maxFlight, 0, 2);
+		droneSettings.add(droneFlight, 1, 2);
+
+		droneSettings.add(turnAround, 0, 3);
+		droneSettings.add(droneTurnAround, 1, 3);
+
+		droneSettings.add(unloadTime, 0, 4);
+		droneSettings.add(droneUnload, 1, 4);
+
+		VBox centerLayout = new VBox();
+		centerLayout.setSpacing(140);
+		centerLayout.setAlignment(Pos.TOP_CENTER);
+		centerLayout.setPadding(new Insets(20,0,0,0));
+		centerLayout.getChildren().addAll(titleLayout, droneSettings);
+
+		Button editButton = new Button("Save Changes");
+		editButton.setStyle(buttonStyle());
+
+		//sets current drone settings to edited drone settings
+		editButton.setOnAction(event -> {
+			try {
+				currentDrone.setMaxPayloadWeight((Double.parseDouble(dronePayload.getText()) * OUNCES_PER_POUND));
+				currentDrone.setCruisingSpeed((Double.parseDouble(droneSpeed.getText()) * FEET_PER_MILE) / SECONDS_PER_HOUR);
+				currentDrone.setFlightTime(Double.parseDouble(droneFlight.getText()) * SECONDS_PER_MINUTE);
+				currentDrone.setTurnAroundTime(Double.parseDouble(droneFlight.getText()) * SECONDS_PER_MINUTE);
+				currentDrone.setDeliveryTime(Double.parseDouble(droneUnload.getText()));
+
+				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
+				saveAlert.setTitle("Confirm Changes");
+				saveAlert.setHeaderText("Changes Saved!");
+				saveAlert.showAndWait();
+			} //end of try block
+			catch(NumberFormatException illegalFormat) {
+				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+				errorAlert.setTitle("Invalid Input");
+				errorAlert.setHeaderText("Invalid Input!");
+
+				//resets drone settings to what they were before editing
+				currentDrone.setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
+				currentDrone.setCruisingSpeed((currentSpeed * FEET_PER_MILE) / SECONDS_PER_HOUR);
+				currentDrone.setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
+				currentDrone.setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
+				currentDrone.setDeliveryTime(currentDelivery);
+
+				dronePayload.setText(String.format("%.2f", currentPayload));
+				droneSpeed.setText(String.format("%.2f", currentSpeed));
+				droneFlight.setText(String.format("%.2f", currentFlightTime));
+				droneTurnAround.setText(String.format("%.2f", currentTurnAround));
+				droneUnload.setText(String.format("%.2f", currentDelivery));
+
+				errorAlert.showAndWait();
+			} //end of catch block
+		}); //end of event handler
+
+		VBox rightLayout = new VBox();
+		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
+		rightLayout.setPadding(new Insets(0, 0, 150, 0));
+		rightLayout.getChildren().add(editButton);
+
+		HBox mainLayout = new HBox();
+		mainLayout.getChildren().addAll(centerLayout, rightLayout);
 
 		//arranges all elements of the page on the screen
-		settingLayout = new VBox(30);
-		settingLayout.getChildren().addAll(topLayout, mainLayout);
+		settingLayout = new HBox(130);
+		settingLayout.getChildren().addAll(leftLayout, mainLayout);
 		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
@@ -889,10 +990,10 @@ public class MainClass extends Application {
 
 	/**
 	 * Creates GUI page for map settings
-	 * @author Isabella Patnode
+	 * @author Izzy Patnode
 	 */
 	public void editMapPage() {
-		HBox topLayout = settingsTopLayout();
+		//HBox topLayout = settingsTopLayout();
 
 		//sets up menu buttons
 		menuButtons();
@@ -965,13 +1066,11 @@ public class MainClass extends Application {
 		TableColumn<Point, String> pointHeading = new TableColumn<>("Drop-Off Point");
 		pointHeading.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-		//TODO: UPDATE MAP WITH NEW LOCATION OF POINT
-
 		//allows user to edit the name of a point already in the table
 		pointHeading.setCellFactory(TextFieldTableCell.forTableColumn());
-		pointHeading.setOnEditCommit((EventHandler<CellEditEvent<Point, String>>) event ->
-				((Point) event.getTableView().getItems().get(event.getTablePosition().
-						getRow())).setName(event.getNewValue() + ""));
+		pointHeading.setOnEditCommit(event ->
+				event.getTableView().getItems().get(event.getTablePosition().
+						getRow()).setName(event.getNewValue() + ""));
 
 		TableColumn<Point, String> xyHeading = new TableColumn<>("(x,y)");
 		xyHeading.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
@@ -980,9 +1079,21 @@ public class MainClass extends Application {
 
 		//allows user to edit the coordinates of a point already in the table
 		xyHeading.setCellFactory(TextFieldTableCell.forTableColumn());
-		xyHeading.setOnEditCommit((EventHandler<CellEditEvent<Point, String>>) event ->
-				((Point) event.getTableView().getItems().get(event.getTablePosition().
-						getRow())).setCoordinates(event.getNewValue() + ""));
+		xyHeading.setOnEditCommit(event -> {
+				try {
+					event.getTableView().getItems().get(event.getTablePosition().getRow()).setCoordinates(event.getNewValue() + "");
+				}
+				catch(IllegalArgumentException illegalArgument) {
+					Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+					invalidInput.setTitle("Invalid Coordinate");
+					invalidInput.setContentText("Input must be a (x,y) integer pair");
+					event.getTableView().getItems().get(event.getTablePosition().getRow()).
+							setCoordinates((event.getOldValue()));
+					invalidInput.showAndWait();
+				}
+		});
+
+		//TODO: FIND A WAY TO GET THE OLD VALUE TO SHOW UP INSTANTLY???
 
 		//adds column headings to table
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
@@ -1054,8 +1165,8 @@ public class MainClass extends Application {
 		mainLayout.setSpacing(50);
 
 		//arranges all elements of the page on the screen
-		settingLayout = new VBox(30);
-		settingLayout.getChildren().addAll(topLayout, mainLayout);
+		settingLayout = new HBox(30);
+		//settingLayout.getChildren().addAll(topLayout, mainLayout);
 		settingLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		root = new StackPane();
