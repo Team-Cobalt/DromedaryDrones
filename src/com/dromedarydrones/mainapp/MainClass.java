@@ -25,6 +25,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.converter.DoubleStringConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -500,15 +501,89 @@ public class MainClass extends Application {
 		TableView<FoodItem> foodTable = new TableView<>();
 		ObservableList<FoodItem> foodItems = currentSimulation.getFoodItems();
 		foodTable.setItems(foodItems);
+		foodTable.setEditable(true);
 
 		//Create table headings
 		TableColumn<FoodItem, String> itemHeading = new TableColumn<>("Food Item");
 		itemHeading.setCellValueFactory(new PropertyValueFactory<>("name"));
 		itemHeading.setPrefWidth(100);
 
-		TableColumn<FoodItem, String> weightHeading = new TableColumn<>("Weight (oz)");
+		TableColumn<FoodItem, Double> weightHeading = new TableColumn<>("Weight (oz)");
 		weightHeading.setCellValueFactory(new PropertyValueFactory<>("weight"));
 		weightHeading.setPrefWidth(100);
+
+		//allows user to edit the name of a food item already in the table
+		itemHeading.setCellFactory(TextFieldTableCell.forTableColumn());
+		itemHeading.setOnEditCommit((EventHandler<CellEditEvent<FoodItem, String>>) event ->
+				((FoodItem) event.getTableView().getItems().get(event.getTablePosition().
+						getRow())).setName(event.getNewValue().toString()));
+
+		//allows user to edit the weight of a food item already in the table
+		weightHeading.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter(){
+			@Override
+			public Double fromString(String value){
+				try {
+					return super.fromString(value);
+				} catch(Exception e){
+					return Double.NaN;
+				}
+			}
+		}));
+
+		weightHeading.setOnEditCommit((EventHandler<CellEditEvent<FoodItem, Double>>) event -> {
+			//user must input a double
+			if (event.getNewValue().isNaN()){
+				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+				invalidInput.setTitle("Invalid Input");
+				invalidInput.setContentText("Input must be an integer or a decimal.");
+				invalidInput.showAndWait();
+				((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).
+						setWeight(event.getOldValue());
+
+				return;
+			}
+
+			double newValue = event.getNewValue();
+			double maxPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight();
+
+			//drone capacity cannot exceed 12 lbs, so item weight cannot exceed 12 lbs
+			if (newValue > maxPayload){
+				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+				invalidInput.setTitle("Invalid Input");
+				invalidInput.setContentText("Food item weight cannot exceed " + maxPayload + " oz.");
+				invalidInput.showAndWait();
+				((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).
+						setWeight(event.getOldValue());
+				return;
+			}
+
+			//drone capacity cannot exceed 12 lbs, so any meal cannot exceed 12 lbs
+			ArrayList <Meal> mealTypes = currentSimulation.getMealTypes();
+			String itemName = ((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).getName();
+			for (int meal = 0; meal < mealTypes.size(); meal++){
+				for (int food = 0; food < mealTypes.get(meal).getFoods().size(); food++){
+					FoodItem currItem = mealTypes.get(meal).getFoods().get(food);
+					if (itemName.equals(currItem.getName())){
+						double newWeight = currItem.getWeight() - event.getOldValue() + newValue;
+						if (newWeight > maxPayload){
+							Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+							invalidInput.setTitle("Invalid Input");
+							invalidInput.setContentText("Input food item weight causes a meal weight to exceed the drone's " +
+									"maximum payload weight.");
+							invalidInput.showAndWait();
+							((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).
+									setWeight(event.getOldValue());
+							return;
+						}
+					}
+				}//foods for loop
+			}//meals for loop
+
+			//user input valid weight
+			((FoodItem) event.getTableView().getItems().get(event.getTablePosition().getRow())).
+					setWeight(event.getNewValue());
+		});//event end
+
 
 		//adds columns to table
 		foodTable.getColumns().setAll(itemHeading, weightHeading);
