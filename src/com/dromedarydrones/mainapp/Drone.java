@@ -212,7 +212,7 @@ public class Drone implements XmlSerializable {
         double totalDistance = maxDistance * (size + 2);
         double seconds = totalDistance / cruisingSpeed;
         seconds += size * deliveryTime;
-        return seconds <= flightTime;
+        return seconds <= flightTime * .95;
     }
 
     /**
