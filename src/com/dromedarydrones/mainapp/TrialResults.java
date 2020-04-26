@@ -2,8 +2,8 @@ package com.dromedarydrones.mainapp;
 
 import com.dromedarydrones.food.Order;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Results class to hold information from one specific trial.
@@ -11,11 +11,11 @@ import java.util.Collections;
  */
 public class TrialResults {
 
-    private ArrayList<Order> fifoDeliveries;
+    private final List<Order> fifoDeliveries;
     private double averageFifoTime;
     private double worstFifoTime;
 
-    private ArrayList<Order> knapsackDeliveries;
+    private final List<Order> knapsackDeliveries;
     private double averageKnapsackTime;
     private double worstKnapsackTime;
 
@@ -24,7 +24,7 @@ public class TrialResults {
      * @param fifoDeliveries      order results of running the fifo simulation
      * @param knapsackDeliveries  order results of running the knapsack simulation
      */
-    public TrialResults(ArrayList<Order> fifoDeliveries, ArrayList<Order> knapsackDeliveries) {
+    public TrialResults(List<Order> fifoDeliveries, List<Order> knapsackDeliveries) {
 
         averageFifoTime = 0.0;
         averageKnapsackTime = 0.0;
@@ -57,14 +57,14 @@ public class TrialResults {
     /**
      * Returns the fifo orders.
      */
-    public ArrayList<Order> getFifoDeliveries() {
+    public List<Order> getFifoDeliveries() {
         return fifoDeliveries;
     }
 
     /**
      * Returns the knapsack orders.
      */
-    public ArrayList<Order> getKnapsackDeliveries() {
+    public List<Order> getKnapsackDeliveries() {
         return knapsackDeliveries;
     }
 

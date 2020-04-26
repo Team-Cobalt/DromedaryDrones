@@ -11,7 +11,7 @@ import java.util.Collections;
  */
 public class SimulationResults {
 
-    private ArrayList<TrialResults> trialResults;
+    private final ArrayList<TrialResults> trialResults;
 
     private double averageFifoTime;
     private double worstFifoTime;

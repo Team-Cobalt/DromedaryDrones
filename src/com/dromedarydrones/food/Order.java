@@ -74,6 +74,14 @@ public class Order implements Comparable<Order> {
 	}
 
 	/**
+	 * Returns the total weight of the order.
+	 * @author Christian Burns
+	 */
+	public double getTotalWeight() {
+		return mealOrdered.getTotalWeight();
+	}
+
+	/**
 	 * Returns the location of where the meal was ordered.
 	 */
 	public Point getDestination(){

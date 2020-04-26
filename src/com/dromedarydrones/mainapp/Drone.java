@@ -7,6 +7,7 @@ import com.dromedarydrones.xml.XmlSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -173,6 +174,45 @@ public class Drone implements XmlSerializable {
         }
 
         return duration <= flightTime;
+    }
+
+    /**
+     * Over estimates if the flight time for a set of orders won't exceed the max.
+     * @author Christian Burns
+     * @param orders  orders to check for
+     * @return        {@code true} if safe
+     */
+    public boolean isEstimatedSafeFlightTime(List<Order> orders) {
+
+        // filter out duplicate points
+        ArrayList<Point> unique = new ArrayList<>();
+        for (Order order : orders)
+            if (!unique.contains(order.getDestination()))
+                unique.add(order.getDestination());
+
+        // determine maximum distance between any two points
+        double distance, maxDistance = 0;
+        Point pointA, pointB;
+        int indexA, indexB, size = unique.size();
+        for (indexA = 0; indexA < size; indexA++) {
+            pointA = unique.get(indexA);
+            for (indexB = 0; indexB < size; indexB++) {
+                pointB = unique.get(indexB);
+                if (indexA == indexB) {
+                    distance = pointA.distanceFromPoint(null);
+                } else {
+                    distance = pointA.distanceFromPoint(pointB);
+                }
+                if (distance > maxDistance)
+                    maxDistance = distance;
+            }
+        }
+
+        // estimate flight time based on longest distance traveled
+        double totalDistance = maxDistance * (size + 2);
+        double seconds = totalDistance / cruisingSpeed;
+        seconds += size * deliveryTime;
+        return seconds <= flightTime;
     }
 
     /**

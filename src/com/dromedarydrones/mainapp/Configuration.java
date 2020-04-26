@@ -222,8 +222,8 @@ public class Configuration implements XmlSerializable {
                 for (trialNumber = 0; trialNumber < numberTrials; trialNumber++) {
 
                     TrialResults trial = trialResults.get(trialNumber);
-                    ArrayList<Order> fifoOrders = trial.getFifoDeliveries();
-                    ArrayList<Order> knapsackOrders = trial.getKnapsackDeliveries();
+                    List<Order> fifoOrders = trial.getFifoDeliveries();
+                    List<Order> knapsackOrders = trial.getKnapsackDeliveries();
                     fifoSize = fifoOrders.size();
                     knapsackSize = knapsackOrders.size();
                     minSize = Math.min(fifoOrders.size(), knapsackOrders.size());

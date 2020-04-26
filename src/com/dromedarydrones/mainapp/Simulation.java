@@ -15,6 +15,7 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.*;
 
 /**
  * A standalone configuration of a simulation containing
@@ -175,15 +176,36 @@ public class Simulation implements XmlSerializable {
     }
 
     /**
-     * Runs the simulation and returns the results.
+     * Runs the simulation and returns the result.
+     * @author Christian Burns
      */
     public SimulationResults run() {
-        ArrayList<TrialResults> trialResults = new ArrayList<>();
-        for (int index = 0; index < NUMBER_OF_TRIALS; index++) {
-            Trial trial = new Trial(mealTypes, stochasticFlow, deliveryPoints);
-            trialResults.add(trial.run());
+
+        // create and load an executor service
+        ExecutorService service = Executors.newFixedThreadPool(3);
+        List<Callable<TrialResults>> tasks = new ArrayList<>();
+        for (int index = 0; index < NUMBER_OF_TRIALS; index++)
+            tasks.add(() -> new Trial(this).run());
+
+        ArrayList<TrialResults> results = new ArrayList<>();
+
+        try {
+            // collect all the results
+            List<Future<TrialResults>> futures = service.invokeAll(tasks);
+            for (Future<TrialResults> result : futures) {
+                try {
+                    results.add(result.get());
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        } finally {
+            service.shutdown();
         }
-        return new SimulationResults(trialResults);
+
+        return new SimulationResults(results);
     }
 
     /**
