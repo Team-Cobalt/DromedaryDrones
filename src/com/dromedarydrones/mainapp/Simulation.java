@@ -119,7 +119,7 @@ public class Simulation implements XmlSerializable {
             droneSettings = new Drone(droneSettingsRoot);
         } else {
             droneSettings = new Drone();
-            System.err.println(String.format("simulation \"%s\" missing the \"dronesettings\" element", simulationName));
+            System.err.println(String.format("simulation \"%s\" missing the \"drone\" element", simulationName));
         }
 
         // load food items
