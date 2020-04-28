@@ -5,6 +5,7 @@ import com.dromedarydrones.food.Meal;
 import com.dromedarydrones.location.Point;
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -34,9 +35,11 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class that runs the simulation
@@ -720,16 +723,20 @@ public class MainClass extends Application {
 
 		//creates a gridpane for each meal in the simulation
 		for(Meal meal : currentSimulation.getMealTypes()) {
-			//arranges meal with its components
 			VBox singleMealLayout = new VBox();
 
-			//sets up name of meal
-			Text mealName = new Text(meal.getName());
+			TextField mealName = new TextField(meal.getName());
 			mealName.setFont(Font.font("Serif", 15));
-			mealName.setFill(Color.BLACK);
-			mealName.setWrappingWidth(200);
-			mealName.setTextAlignment(TextAlignment.JUSTIFY);
+			mealName.setMaxWidth(200);
 			mealName.setStyle("-fx-font-weight: bold");
+
+			//user should be able to edit meal name
+			mealName.setOnAction(event -> {
+				String newName = mealName.getText();
+				meal.setName(newName);
+				//when user presses enter
+				mealName.setText(newName);
+			});
 
 			HBox titleFormat = new HBox();
 			titleFormat.getChildren().add(mealName);
@@ -870,22 +877,9 @@ public class MainClass extends Application {
 
 			mealTable.getColumns().setAll(foodColumn, countColumn);
 			mealTable.setPrefWidth(200);
-			mealTable.setPrefHeight(300);
+			mealTable.setPrefHeight(250);
 			mealTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 					CornerRadii.EMPTY, new BorderWidths(1))));
-
-			//probability must add up to 100% -- show user to verify
-			Text probability = new Text("Probability: " + meal.getProbability());
-			probability.setFont(Font.font("Serif", 15));
-			probability.setFill(Color.BLACK);
-			probability.setWrappingWidth(200);
-			probability.setTextAlignment(TextAlignment.JUSTIFY);
-			probability.setStyle("-fx-font-weight: bold");
-
-			HBox probabilityFormat = new HBox();
-			probabilityFormat.getChildren().add(probability);
-			titleFormat.setPadding(new Insets(8, 0, 0, 5));
-
 
 			//creates button for deleting meals
 			Button deleteButton = new Button("X");
@@ -901,7 +895,7 @@ public class MainClass extends Application {
 			//formats meal components
 			singleMealLayout.setSpacing(5);
 			singleMealLayout.setAlignment(Pos.CENTER);
-			singleMealLayout.getChildren().addAll(topFormat, mealTable, probabilityFormat);
+			singleMealLayout.getChildren().addAll(topFormat, mealTable);
 
 			//adds meal to layout of all meals
 			mealsBox.getChildren().add(singleMealLayout);
@@ -915,19 +909,131 @@ public class MainClass extends Application {
 		mealLayout.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 				CornerRadii.EMPTY, new BorderWidths(1))));
 
+		Button addButton = new Button("Add Meal");
+		addButton.setStyle(buttonStyle());
+
 		//formats display of menu column and full meal display
 		VBox centerLayout = new VBox(80);
 		centerLayout.setAlignment(Pos.TOP_CENTER);
 		centerLayout.setPadding(new Insets(20,0,0,0));
-		centerLayout.getChildren().addAll(titleLayout, mealLayout);
+		centerLayout.getChildren().addAll(titleLayout, mealLayout, addButton);
 
-		Button addButton = new Button("Add Meal");
-		addButton.setStyle(buttonStyle());
+		HashMap<String, Double> probabilities = new HashMap<>();
+		for (Meal item : currentSimulation.getMealTypes()){
+			probabilities.put(item.getName(), item.getProbability());
+		}
+
+		ObservableList<HashMap.Entry<String, Double>> mealProbabilities = FXCollections
+				.observableArrayList(probabilities.entrySet());
+		//probabilities shown separate from meal contents due to nuances with editing
+		TableView<HashMap.Entry<String, Double>> probabilityTable = new TableView<>(mealProbabilities);
+		probabilityTable.setMaxSize(205, 300);
+		probabilityTable.setEditable(true);
+
+		TableColumn<HashMap.Entry<String, Double>, String> itemColumn = new TableColumn<>("Meal Type");
+		itemColumn.setCellValueFactory(
+				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, String> item) ->
+				new SimpleStringProperty(item.getValue().getKey()));
+		itemColumn.setPrefWidth(100);
+
+		TableColumn<HashMap.Entry<String, Double>, Double> probabilityColumn = new TableColumn<>("Probability");
+		probabilityColumn.setCellValueFactory(
+				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, Double> item) ->
+						new ReadOnlyObjectWrapper<>(item.getValue().getValue()));
+		probabilityColumn.setPrefWidth(100);
+		probabilityColumn.setEditable(true);
+
+		probabilityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter(){
+			@Override
+			public Double fromString(String value){
+				try {
+					return super.fromString(value);
+				} catch(Exception e){
+					return Double.NaN;
+				}
+			}
+		}));
+
+		//we don't want to save the probabilities yet -- just to the table
+		probabilityColumn.setOnEditCommit(event -> {
+			int errorIndex = 0;
+			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+			double oldValue = event.getOldValue();
+			double newValue;
+
+			if (event.getNewValue().isNaN()){
+				invalidInput.setTitle("Invalid Input");
+				invalidInput.setContentText("Input must be a decimal.");
+				errorIndex = 1;
+			}
+			else{
+				newValue = event.getNewValue();
+				if (newValue > 1.0){
+					invalidInput.setTitle("Invalid Input");
+					invalidInput.setContentText("A probability cannot be greater than 1.");
+					errorIndex = 1;
+				}
+			}
+
+			if (errorIndex == 1){
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(oldValue);
+				invalidInput.showAndWait();
+			}
+			else{
+				newValue = event.getNewValue();
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(newValue);
+			}
+
+		});
+
+		probabilityTable.getColumns().setAll(itemColumn, probabilityColumn);
+
+		StackPane probabilityLayout = new StackPane();
+		probabilityLayout.setAlignment(Pos.TOP_RIGHT);
+		probabilityLayout.setMaxSize(202, 300);
+		probabilityLayout.getChildren().add(probabilityTable);
+
+		Button saveProbsButton = new Button("Save Changes");
+		saveProbsButton.setStyle(buttonStyle());
+		saveProbsButton.setOnAction(event -> {
+			BigDecimal totalProbability = new BigDecimal(0.0);
+
+			for (HashMap.Entry<String, Double> item : mealProbabilities){
+				totalProbability = totalProbability.add(BigDecimal.valueOf(item.getValue()));
+			}
+
+			if (totalProbability.compareTo(BigDecimal.valueOf(1.0)) == 0){
+				//update settings with new values
+				for (Meal item : currentSimulation.getMealTypes()){
+					for (HashMap.Entry<String, Double> tableCell : mealProbabilities){
+						if (tableCell.getKey().equals(item.getName())){
+							item.setProbability(tableCell.getValue());
+						}
+					}
+				}
+			}
+
+			else{
+				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+				invalidInput.setTitle("Invalid Input");
+				invalidInput.setHeaderText("Invalid Input");
+				invalidInput.setContentText("Total probability of meals should equal 1.");
+				invalidInput.showAndWait();
+
+				//reset table with old values
+				mealProbabilities.clear();
+				for (Meal item : currentSimulation.getMealTypes()){
+					probabilities.put(item.getName(), item.getProbability());
+				}
+				mealProbabilities.addAll(probabilities.entrySet());
+			}
+
+		});
 
 		VBox rightLayout = new VBox();
 		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
 		rightLayout.setPadding(new Insets(0, 0, 70, 50));
-		rightLayout.getChildren().add(addButton);
+		rightLayout.getChildren().addAll(probabilityLayout, saveProbsButton);
 
 		HBox mainLayout = new HBox();
 		mainLayout.getChildren().addAll(centerLayout, rightLayout);
