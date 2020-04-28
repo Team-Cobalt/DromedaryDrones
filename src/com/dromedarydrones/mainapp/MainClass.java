@@ -837,8 +837,16 @@ public class MainClass extends Application {
 					event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(newValue);
 
 					if (newValue < oldValue){
+						int difference = oldValue - newValue;
+						int numRemoved = 0;
 						for (FoodItem item : meal.getFoods()){
-							meal.removeItem(item);
+							if (item.getName().equals(itemName)){
+								meal.removeItem(item);
+								numRemoved++;
+								if (numRemoved == difference){
+									break;
+								}
+							}
 						}
 					}
 
