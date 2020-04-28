@@ -4,7 +4,13 @@ import com.dromedarydrones.food.FoodItem;
 import com.dromedarydrones.food.Meal;
 import com.dromedarydrones.location.Point;
 import javafx.application.Application;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.scene.control.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -24,6 +30,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -730,14 +737,6 @@ public class MainClass extends Application {
 
 			//used to store each food item in the meal and how many of it there is
 			HashMap<String, Integer> numberPerFood = new HashMap<>();
-
-			//formats each food item and the probability of it
-			GridPane mealFoods = new GridPane();
-			mealFoods.setAlignment(Pos.CENTER_RIGHT);
-			mealFoods.setVgap(1);
-			mealFoods.setHgap(5);
-			mealFoods.setMaxSize(200, 200);
-
 			//counts the number of each food item in the meal (i.e. 2 burgers, 1, fries, etc.)
 			for(FoodItem mealItem: meal.getFoods()) {
 				String name = mealItem.getName();
@@ -749,39 +748,136 @@ public class MainClass extends Application {
 					numberPerFood.put(name, 1);
 				}
 			}
+			//we want to show items with a 0 that aren't in the meal too
+			for (FoodItem foodItem: currentSimulation.getFoodItems()){
+				String name = foodItem.getName();
 
-			int index = 0;
-
-			/*adds each food item and their corresponding count in meals (i.e. 2 hamburger, 0 fries)
-			**to the grid*/
-			for(FoodItem food: currentSimulation.getFoodItems()) {
-				String currentFood = food.getName();
-				Text foodName = new Text(currentFood + ":");
-				foodName.setFont(Font.font("Serif", 15));
-				mealFoods.add(foodName, 0, index);
-
-				//gets # of the specific food item in the meal
-				if(numberPerFood.containsKey(currentFood)) {
-					TextField foodCount = new TextField(numberPerFood.get(currentFood).toString());
-					foodCount.setMaxWidth(80);
-					mealFoods.add(foodCount, 1, index);
+				if(numberPerFood.containsKey(name)) {
+					numberPerFood.put(name, numberPerFood.get(name) + 0);
 				}
-				else {
-					TextField foodCount = new TextField("0");
-					foodCount.setMaxWidth(80);
-					mealFoods.add(foodCount, 1, index);
+				else{
+					numberPerFood.put(name, 0);
 				}
-
-				index++;
 			}
 
-			//creates and formats probability of meal display
-			Text probabilityName = new Text("Probability:");
-			probabilityName.setFont(Font.font("Serif", 15));
-			mealFoods.add(probabilityName, 0, index);
-			TextField probabilityValue = new TextField(meal.getProbability() + "");
-			probabilityValue.setMaxWidth(80);
-			mealFoods.add(probabilityValue, 1, index);
+			//Map must be an observable to be used in a table
+			ObservableList<HashMap.Entry<String, Integer>> itemCounts = FXCollections.
+					observableArrayList(numberPerFood.entrySet());
+			TableView<HashMap.Entry<String, Integer>> mealTable = new TableView(itemCounts);
+			//When maxwidth = prefwidth, horizontal scroll bar shows up -- make maxWidth > prefWidth
+			mealTable.setMaxSize(205, 300);
+			mealTable.setEditable(true);
+
+			//Table holds food items and counts for each meal
+			TableColumn<HashMap.Entry<String, Integer>, String> foodColumn = new TableColumn("Food Item");
+			foodColumn.setCellValueFactory(
+					(TableColumn.CellDataFeatures<HashMap.Entry<String, Integer>, String> item) ->
+					new SimpleStringProperty(item.getValue().getKey()));
+			foodColumn.setPrefWidth(100);
+			foodColumn.setEditable(true);
+
+			TableColumn<ObservableMap.Entry<String, Integer>, Integer> countColumn = new TableColumn<>("Number in Meal");
+			countColumn.setCellValueFactory(
+					(TableColumn.CellDataFeatures<HashMap.Entry<String, Integer>, Integer> item) ->
+							new ReadOnlyObjectWrapper<>(item.getValue().getValue())); //Integers don't like to play nice
+			countColumn.setPrefWidth(100);
+
+			//user should be able to change how many of an item is in a meal
+			countColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter(){
+				@Override
+				public Integer fromString(String value){
+					try {
+						return super.fromString(value);
+					} catch(Exception e){
+						return null;
+					}
+				}
+			}));
+			countColumn.setOnEditCommit(event ->{
+				int errorIndex = 0;
+				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+				int oldValue = event.getOldValue();
+				String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getKey();
+
+				//user must input a double
+				if (event.getNewValue() == null){
+					invalidInput.setTitle("Invalid Input");
+					invalidInput.setContentText("Input must be an integer.");
+					errorIndex = 1;
+				}
+				else {
+
+					double maxPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight();
+					int newValue = event.getNewValue();
+
+					//Cannot have negative amounts of an item
+					if (newValue < 0){
+						invalidInput.setTitle("Invalid Input");
+						invalidInput.setContentText("Input must be non-negative.");
+						errorIndex = 1;
+					}
+
+					else {
+						//new meal weight must not be greater than drone's maximum payload
+						double mealWeight;
+						double itemWeight = currentSimulation.getFoodItem(itemName).getWeight();
+						mealWeight = meal.getTotalWeight() - (oldValue * itemWeight) + (newValue * itemWeight);
+						if (mealWeight > maxPayload){
+							invalidInput.setTitle("Invalid Input");
+							invalidInput.setContentText("Meal weight must not exceed maximum payload. ("
+									+ maxPayload + " oz.)");
+							errorIndex = 1;
+						}
+					}
+				}
+
+				if(errorIndex == 0) {
+					//user input valid weight
+					int newValue = event.getNewValue();
+					event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(newValue);
+
+					if (newValue < oldValue){
+						for (FoodItem item : meal.getFoods()){
+							meal.removeItem(item);
+						}
+					}
+
+					else if (newValue > oldValue){
+						int difference = newValue - oldValue;
+						for (int index = 0; index < difference; index++){
+							FoodItem item = new FoodItem(currentSimulation.getFoodItem(itemName));
+							meal.addItem(item);
+						}
+					}
+
+					//if the value is the same, don't do anything
+				}
+				else {
+					//invalid input means value doesn't change
+					event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(oldValue);
+					invalidInput.showAndWait();
+				}
+			});
+
+
+			mealTable.getColumns().setAll(foodColumn, countColumn);
+			mealTable.setPrefWidth(200);
+			mealTable.setPrefHeight(300);
+			mealTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
+					CornerRadii.EMPTY, new BorderWidths(1))));
+
+			//probability must add up to 100% -- show user to verify
+			Text probability = new Text("Probability: " + meal.getProbability());
+			probability.setFont(Font.font("Serif", 15));
+			probability.setFill(Color.BLACK);
+			probability.setWrappingWidth(200);
+			probability.setTextAlignment(TextAlignment.JUSTIFY);
+			probability.setStyle("-fx-font-weight: bold");
+
+			HBox probabilityFormat = new HBox();
+			probabilityFormat.getChildren().add(probability);
+			titleFormat.setPadding(new Insets(8, 0, 0, 5));
+
 
 			//creates button for deleting meals
 			Button deleteButton = new Button("X");
@@ -797,7 +893,7 @@ public class MainClass extends Application {
 			//formats meal components
 			singleMealLayout.setSpacing(5);
 			singleMealLayout.setAlignment(Pos.CENTER);
-			singleMealLayout.getChildren().addAll(topFormat, mealFoods);
+			singleMealLayout.getChildren().addAll(topFormat, mealTable, probabilityFormat);
 
 			//adds meal to layout of all meals
 			mealsBox.getChildren().add(singleMealLayout);
