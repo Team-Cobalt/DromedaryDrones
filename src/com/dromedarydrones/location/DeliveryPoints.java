@@ -111,10 +111,16 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
         throw new IllegalArgumentException("Unknown point \"" + name + "\"");
     }
 
-    public void addPoint(String name, double latitude, double longitude) {
+    public Point addPoint(String name, double latitude, double longitude) {
         Point newPoint = new Point(name, latitude, longitude, origin);
         newPoint.refreshOrigin();
         points.add(newPoint);
+
+        return newPoint;
+    }
+
+    public void removePoint(Point point) {
+        points.remove(point);
     }
 
     /**

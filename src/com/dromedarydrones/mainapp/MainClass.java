@@ -5,10 +5,7 @@ import com.dromedarydrones.food.Meal;
 import com.dromedarydrones.location.Point;
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -39,7 +36,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Class that runs the simulation
@@ -619,9 +615,9 @@ public class MainClass extends Application {
 					ArrayList<Meal> mealTypes = currentSimulation.getMealTypes();
 					String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getName();
 					if(errorIndex == 0) {
-						for (int meal = 0; meal < mealTypes.size(); meal++) {
-							for (int food = 0; food < mealTypes.get(meal).getFoods().size(); food++) {
-								FoodItem currItem = mealTypes.get(meal).getFoods().get(food);
+						for (Meal meal : mealTypes) {
+							for (int food = 0; food < meal.getFoods().size(); food++) {
+								FoodItem currItem = meal.getFoods().get(food);
 								if (itemName.equals(currItem.getName())) {
 									double newWeight = currItem.getWeight() - event.getOldValue() + newValue;
 									if (newWeight > maxPayload) {
@@ -667,9 +663,39 @@ public class MainClass extends Application {
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
 		addButton.setStyle(buttonStyle());
+		/*
+		addButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				currentSimulation.createFoodItem("Enter Food", Double.NaN);
+				int row = foodItems.size() - 1;
+				foodTable.requestFocus();
+				foodTable.getSelectionModel().select(row);
+				foodTable.getFocusModel().focus(row);
+
+				//TODO: HOW TO GET IT SO THAT THE ROW IS HIGHLIGHTS WHEN IT IS SELECTED AGAIN
+			}
+		});*/
 
 		Button deleteButton = new Button("Delete");
 		deleteButton.setStyle(buttonStyle());
+		deleteButton.setOnAction(event -> {
+			int deletedRow = foodTable.getSelectionModel().getSelectedIndex();
+			FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
+			foodItems.remove(deletedRow);
+			currentSimulation.removeFoodItem(deletedFood);
+
+			ArrayList<Meal> currentMeals = currentSimulation.getMealTypes();
+
+			for(Meal meal : currentMeals) {
+				ArrayList<FoodItem> mealFoods = meal.getFoods();
+
+				mealFoods.remove(meal);
+			}
+
+			//DON'T KNOW IF I NEED THIS
+			//currentSimulation.addMealTypes();
+		});
 
 		//arranges add and delete buttons relative to each other
 		HBox editButtons = new HBox(10);
@@ -770,13 +796,13 @@ public class MainClass extends Application {
 			//Map must be an observable to be used in a table
 			ObservableList<HashMap.Entry<String, Integer>> itemCounts = FXCollections.
 					observableArrayList(numberPerFood.entrySet());
-			TableView<HashMap.Entry<String, Integer>> mealTable = new TableView(itemCounts);
+			TableView<HashMap.Entry<String, Integer>> mealTable = new TableView<>(itemCounts);
 			//When maxwidth = prefwidth, horizontal scroll bar shows up -- make maxWidth > prefWidth
 			mealTable.setMaxSize(205, 300);
 			mealTable.setEditable(true);
 
 			//Table holds food items and counts for each meal
-			TableColumn<HashMap.Entry<String, Integer>, String> foodColumn = new TableColumn("Food Item");
+			TableColumn<HashMap.Entry<String, Integer>, String> foodColumn = new TableColumn<>("Food Item");
 			foodColumn.setCellValueFactory(
 					(TableColumn.CellDataFeatures<HashMap.Entry<String, Integer>, String> item) ->
 					new SimpleStringProperty(item.getValue().getKey()));
@@ -1263,6 +1289,7 @@ public class MainClass extends Application {
 		for(Point destination : mapPoints) {
 			mapValues.getData().add(new XYChart.Data<>(destination.getX(), destination.getY()));
 		}
+
 		//adds points to scatter plot
 		map.getData().add(mapValues);
 
@@ -1285,30 +1312,35 @@ public class MainClass extends Application {
 
 		//allows user to edit the name of a point already in the table
 		pointHeading.setCellFactory(TextFieldTableCell.forTableColumn());
-		pointHeading.setOnEditCommit(event ->
-				event.getTableView().getItems().get(event.getTablePosition().
-						getRow()).setName(event.getNewValue() + ""));
+		pointHeading.setOnEditCommit(event -> {
+				int selectedRow = event.getTablePosition().getRow();
+				event.getTableView().getItems().get(selectedRow).setName(event.getNewValue() + "");
+				});
 
 		TableColumn<Point, String> xyHeading = new TableColumn<>("(x,y)");
 		xyHeading.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
 
-		//TODO: UPDATE MAP WITH NEW LOCATION OF POINT
-
 		//allows user to edit the coordinates of a point already in the table
 		xyHeading.setCellFactory(TextFieldTableCell.forTableColumn());
 		xyHeading.setOnEditCommit(event -> {
-				try {
-					event.getTableView().getItems().get(event.getTablePosition().getRow()).
-							setCoordinates(event.getNewValue() + "");
-				}
-				catch(IllegalArgumentException illegalArgument) {
-					Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-					invalidInput.setTitle("Invalid Coordinate");
-					invalidInput.setContentText("Input must be a (x,y) integer pair");
-					event.getTableView().getItems().get(event.getTablePosition().getRow()).
-							setCoordinates((event.getOldValue()));
-					invalidInput.showAndWait();
-				}
+			int selectedRow = event.getTablePosition().getRow();
+
+			try {
+				event.getTableView().getItems().get(selectedRow).setCoordinates(event.getNewValue() + "");
+
+				XYChart.Data<Number, Number> selectedPoint = mapValues.getData().get(selectedRow);
+				selectedPoint.setXValue(mapPoints.get(selectedRow).getX());
+				selectedPoint.setYValue(mapPoints.get(selectedRow).getY());
+
+			}
+			catch(IllegalArgumentException illegalArgument) {
+				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+				invalidInput.setTitle("Invalid Coordinate");
+				invalidInput.setContentText("Input must be a (x,y) integer pair");
+				event.getTableView().getItems().get(selectedRow).
+						setCoordinates((event.getOldValue()));
+				invalidInput.showAndWait();
+			}
 		});
 
 		//TODO: FIND A WAY TO GET THE OLD VALUE TO SHOW UP INSTANTLY???
@@ -1329,11 +1361,34 @@ public class MainClass extends Application {
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
 		addButton.setStyle(buttonStyle());
-		//addButton.setOnAction(new AddButtonListener());
+		/*
+		addButton.setOnAction(event -> {
+			Point newPoint = currentSimulation.getDeliveryPoints().addPoint("Point name", Double.NaN, Double.NaN);
+
+			mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
+
+			int row = currentSimulation.getDeliveryPoints().numPoints() - 1;
+
+			mapTable.requestFocus();
+			mapTable.getSelectionModel().select(row);
+			mapTable.getFocusModel().focus(row);
+
+			//TODO: HOW TO GET IT SO THAT THE ROW IS HIGHLIGHTS WHEN IT IS SELECTED AGAIN
+		});*/
 
 		Button deleteButton = new Button("Delete");
 		deleteButton.setStyle(buttonStyle());
-		//deleteButton.setOnAction(new DeleteButtonListener());
+		deleteButton.setOnAction(event -> {
+			int deletedRow = mapTable.getSelectionModel().getSelectedIndex();
+			Point deletedPoint = mapTable.getSelectionModel().getSelectedItem();
+
+			mapValues.getData().remove(deletedRow);
+
+			mapPoints.remove(deletedRow);
+			currentSimulation.getDeliveryPoints().removePoint(deletedPoint);
+
+			//TODO: DO I NEED TO REFRESH THE ORIGIN
+		});
 
 		HBox addDeleteButtons = new HBox(10);
 		addDeleteButtons.setAlignment(Pos.CENTER_RIGHT);
@@ -1499,9 +1554,9 @@ public class MainClass extends Application {
 		ArrayList<Double> fifoTimes = new ArrayList<>(results.getFifoTimes());
 
         //count number of orders per time slot
-        for (int index = 0; index < fifoTimes.size(); index++){
+		for(Double fifoTime: fifoTimes) {
 			//get the floor of the order delivery time
-            int time = (int)(Math.floor(fifoTimes.get(index)) / SECONDS_PER_MINUTE);
+            int time = (int)(Math.floor(fifoTime) / SECONDS_PER_MINUTE);
             if (time < 25){
             	fifoCount[time]++;  //increment orders in this time slot
 			}
@@ -1520,9 +1575,9 @@ public class MainClass extends Application {
         ArrayList<Double> knapsackTimes = new ArrayList<>(results.getKnapsackTimes());
 
         //count number of orders per time slot
-		for (int index = 0; index < knapsackTimes.size(); index++){
+		for (Double knapsackTime: knapsackTimes){
 			//get the floor of the order delivery time
-			int time = (int)(Math.floor(knapsackTimes.get(index)) / SECONDS_PER_MINUTE);
+			int time = (int)(Math.floor(knapsackTime) / SECONDS_PER_MINUTE);
 			if (time < 25) {
 				knapsackCount[time]++;  //increment orders in this time slot
 			}
@@ -1542,10 +1597,10 @@ public class MainClass extends Application {
 		barChart.getData().add(knapsackSeries);
 
 		//change bar colors on chart
-		for (XYChart.Data data: fifoSeries.getData()){
+		for (XYChart.Data<String, Number> data: fifoSeries.getData()){
 			data.getNode().setStyle("-fx-bar-fill: red;");
 		}
-		for (XYChart.Data data: knapsackSeries.getData()){
+		for (XYChart.Data<String, Number> data: knapsackSeries.getData()){
 			data.getNode().setStyle("-fx-bar-fill: blue;");
 		}
 
