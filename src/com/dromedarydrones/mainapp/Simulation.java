@@ -22,7 +22,7 @@ import java.util.concurrent.*;
  * meals, food items, delivery points, and drone settings.
  * @author  Christian Burns and Isabella Patnode
  */
-public class Simulation implements XmlSerializable {
+public class Simulation implements XmlSerializable, Callable<SimulationResults> {
 
 	private String simulationName;          // name of the simulation
     private ArrayList<Integer> stochasticFlow;   //stochastic flow for simulation
@@ -179,6 +179,39 @@ public class Simulation implements XmlSerializable {
      * Runs the simulation and returns the result.
      * @author Christian Burns
      */
+    @Override
+    public SimulationResults call() {
+        // create and load an executor service
+        ExecutorService service = Executors.newFixedThreadPool(3);
+        List<Callable<TrialResults>> tasks = new ArrayList<>();
+        for (int index = 0; index < NUMBER_OF_TRIALS; index++)
+            tasks.add(() -> new Trial(this).run());
+
+        ArrayList<TrialResults> results = new ArrayList<>();
+
+        try {
+            // collect all the results
+            List<Future<TrialResults>> futures = service.invokeAll(tasks);
+            for (Future<TrialResults> result : futures) {
+                try {
+                    results.add(result.get());
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (CancellationException | InterruptedException ignore) {
+        } finally {
+            service.shutdown();
+        }
+
+        return new SimulationResults(results);
+    }
+
+    /**
+     * Runs the simulation and returns the result.
+     * @author Christian Burns
+     */
+    @Deprecated
     public SimulationResults run() {
 
         // create and load an executor service
@@ -346,6 +379,7 @@ public class Simulation implements XmlSerializable {
      * @see Simulation#getFoodItem(String name)
      */
     public boolean removeFoodItem(FoodItem food) {
+        mealTypes.forEach(m -> m.removeItem(food));
         return foodItems.remove(food);
     }
 

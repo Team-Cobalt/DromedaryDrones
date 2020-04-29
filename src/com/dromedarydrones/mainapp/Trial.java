@@ -5,9 +5,6 @@ import com.dromedarydrones.food.Order;
 import com.dromedarydrones.location.DeliveryPoints;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author  Isabella Patnode, Christian Burns,
@@ -20,11 +17,11 @@ public class Trial {
     private final DeliveryPoints deliveryPoints;    // all available destinations
     private final ArrayList<Integer> ordersPerHour; // number of orders to deliver each hour
 
-    private final Queue<Order> fifoOrderQueue;  // fifo order queue
-    private final Queue<Order> knapOrderQueue;  // knapsack order queue
-    private final List<Order> fifoResults;
-    private final List<Order> knapResults;
-    private final Random random;                // random number generator
+    private final Queue<Order> fifoOrderQueue;      // fifo order queue
+    private final Queue<Order> knapOrderQueue;      // knapsack order queue
+    private final List<Order> fifoResults;          // order queue for the fifo algorithm
+    private final List<Order> knapResults;          // order queue for the knapsack algorithm
+    private final Random random;                    // random number generator
 
     private static final int SECONDS_PER_HOUR = 3600;   // 60 seconds * 60 minutes
 
@@ -60,39 +57,6 @@ public class Trial {
     public TrialResults run() {
         runFifoDeliveries();
         runKnapsackDeliveries();
-        return new TrialResults(fifoResults, knapResults);
-    }
-
-    /**
-     * Use run() instead
-     * Runs the simulation for one trial and returns the result.
-     *
-     * @author Christian Burns
-     * @see Trial#run()
-     */
-    @Deprecated
-    public TrialResults runInParallel() {
-        ExecutorService service = Executors.newFixedThreadPool(2);
-        List<Callable<Void>> tasks = new ArrayList<>();
-
-        tasks.add(() -> {
-            runFifoDeliveries();
-            return null;
-        });
-
-        tasks.add(() -> {
-            runKnapsackDeliveries();
-            return null;
-        });
-
-        try {
-            service.invokeAll(tasks);
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        } finally {
-            service.shutdown();
-        }
-
         return new TrialResults(fifoResults, knapResults);
     }
 
@@ -229,6 +193,7 @@ public class Trial {
      *          to the start of the simulation in seconds.
      */
     private List<Order> generateOrders() {
+
         ArrayList<Order> orders = new ArrayList<>();
         int hour, mealsPerHour, mealNum, creationTime;
         int hourCount = ordersPerHour.size();

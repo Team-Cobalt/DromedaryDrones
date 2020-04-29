@@ -4,6 +4,7 @@ import com.dromedarydrones.food.FoodItem;
 import com.dromedarydrones.food.Meal;
 import com.dromedarydrones.location.Point;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -36,12 +37,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * Class that runs the simulation
  * @author Izzy Patnode and Rachel Franklin
  */
 public class MainClass extends Application {
+
 	private Stage window; //used for creating gui
 	private Scene mainMenu; //main menu page
 	private StackPane root;
@@ -56,6 +59,11 @@ public class MainClass extends Application {
 	private final int FEET_PER_MILE = 5280;
 	private final int OUNCES_PER_POUND = 16;
 	private final int SECONDS_PER_MINUTE = 60;
+	private static final String LIGHT_GRAY_BACKGROUND_STYLE = "-fx-background-color: #e0e0e0; ";
+	private static final String BOLD_FONT_STYLE = "-fx-font-weight: bold; ";
+
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private Future<SimulationResults> futureResults;
 	
 	public static void main(String[] args) {
 		
@@ -80,10 +88,45 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * Runs the simulation asynchronously so as not to block the UI thread.
+	 * Once the simulation finishes, the result is retrieved and the results
+	 * page is navigated to.
+	 *
+	 * @author Christian Burns
+	 * @throws NullPointerException if no simulation configuration exists
+	 */
+	private void runSimulation() {
+
+		// fetch the simulation to be run and submit it to the executor
+		Simulation activeSimulation = Configuration.getInstance().getCurrentSimulation();
+		futureResults = executor.submit(activeSimulation);
+
+		// retrieve the simulation results and transition to the results page
+		new Thread(() -> {
+			try {
+				results = futureResults.get();			// waits for the results to be generated
+				Platform.runLater(this::resultsPage);	// calls resultsPage() via the UI thread
+			} catch (CancellationException ignore) {
+				// this will occur when cancelling a running simulation
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}).start();
+	}
+
+	/**
+	 * Cancels the simulation currently running.
+	 * @author Christian Burns
+	 */
+	private void abortSimulation() {
+		futureResults.cancel(true);
+	}
+
+	/**
 	 * @author Izzy Patnode
 	 */
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) {
 		window = primaryStage;
 
 		//grabs current simulation for accessing necessary values
@@ -158,7 +201,7 @@ public class MainClass extends Application {
 		menuLayout.getChildren().addAll(picture, firstLayout);
 		menuLayout.setSpacing(10);
 		menuLayout.setAlignment(Pos.CENTER);
-		menuLayout.setStyle("-fx-background-color: #e0e0e0");
+		menuLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 		
 		
 		root = new StackPane();
@@ -174,7 +217,19 @@ public class MainClass extends Application {
 		window.setResizable(false);
 		window.show();
 	}
-	
+
+	/**
+	 * Called when the program is told to shutdown.
+	 * Shuts down the executor service.
+	 * @author Christian Burns
+	 */
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		try { executor.shutdownNow();
+		} catch (Exception ignore) {}
+	}
+
 	/**
 	 * Method for running the simulation
 	 * @author Izzy Patnode
@@ -208,13 +263,16 @@ public class MainClass extends Application {
 
 		//allows the user to cancel the simulation
 		Button cancelButton = new Button("Cancel Simulation");
-		String cssStyle = "-fx-background-color: #e0e0e0; " +
+		String cssStyle = LIGHT_GRAY_BACKGROUND_STYLE +
 				"-fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 		cancelButton.setStyle(cssStyle);
 
 		//takes user back to main menu
-		cancelButton.setOnAction(event -> window.setScene(mainMenu));
+		cancelButton.setOnAction(event -> {
+			abortSimulation();
+			window.setScene(mainMenu);
+		});
 
 		//adds button to the display
 		HBox simulationButton = new HBox(20);
@@ -225,7 +283,7 @@ public class MainClass extends Application {
 		VBox simulationLayout = new VBox(35);
 		simulationLayout.getChildren().addAll(titleLayout, simulationPicture, simulationButton);
 		simulationLayout.setAlignment(Pos.CENTER);
-		simulationLayout.setStyle("-fx-background-color: #e0e0e0");
+		simulationLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 
 		root = new StackPane();
 		root.getChildren().add(simulationLayout);
@@ -235,13 +293,7 @@ public class MainClass extends Application {
 		//sets screen to display page
 		window.setScene(simulationPage);
 
-		//window.show();
-
-		//TODO: GET PAGE TO SHOW
-
-		//results = currentSimulation.run();
-
-		//resultsPage();
+		runSimulation();
 	}
 
 	/**
@@ -250,7 +302,7 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode
 	 */
 	public String buttonStyle() {
-		 return "-fx-background-color: #e0e0e0; " +
+		 return LIGHT_GRAY_BACKGROUND_STYLE +
 		"-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
@@ -283,14 +335,14 @@ public class MainClass extends Application {
 		ImageView homeView = new ImageView(homeIcon);
 
 		Button homeButton = new Button("", homeView);
-		homeButton.setStyle("-fx-background-color: #e0e0e0");
+		homeButton.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 		homeButton.setOnAction(e-> window.setScene(mainMenu));
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
 		iconLayout.setPadding(new Insets(0, 0, 0, 15));
 		iconLayout.getChildren().add(homeButton);
-		iconLayout.setStyle("-fx-background-color: #e0e0e0");
+		iconLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 	}
 
 	/**
@@ -419,7 +471,7 @@ public class MainClass extends Application {
 		gridHeading.setFill(Color.BLACK);
 		gridHeading.setWrappingWidth(200);
 		gridHeading.setTextAlignment(TextAlignment.CENTER);
-		gridHeading.setStyle("-fx-font-weight: bold");
+		gridHeading.setStyle(BOLD_FONT_STYLE);
 
 		//creates gridpane containing the current stochastic flow values
 		Text hourOne = new Text("Hour 1: ");
@@ -519,7 +571,7 @@ public class MainClass extends Application {
 		mainLayout.getChildren().addAll(centerLayout, rightLayout);
 
 		settingLayout = new HBox(130);
-		settingLayout.setStyle("-fx-background-color: #e0e0e0");
+		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
 
 		root = new StackPane();
@@ -684,15 +736,6 @@ public class MainClass extends Application {
 			FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
 			foodItems.remove(deletedRow);
 			currentSimulation.removeFoodItem(deletedFood);
-
-			ArrayList<Meal> currentMeals = currentSimulation.getMealTypes();
-
-			for(Meal meal : currentMeals) {
-				ArrayList<FoodItem> mealFoods = meal.getFoods();
-
-				mealFoods.remove(meal);
-			}
-
 			//DON'T KNOW IF I NEED THIS
 			//currentSimulation.addMealTypes();
 		});
@@ -715,7 +758,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, centerLayout);
-		settingLayout.setStyle("-fx-background-color: #e0e0e0");
+		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -754,7 +797,7 @@ public class MainClass extends Application {
 			TextField mealName = new TextField(meal.getName());
 			mealName.setFont(Font.font("Serif", 15));
 			mealName.setMaxWidth(200);
-			mealName.setStyle("-fx-font-weight: bold");
+			mealName.setStyle(BOLD_FONT_STYLE);
 
 			//user should be able to edit meal name
 			mealName.setOnAction(event -> {
@@ -770,27 +813,17 @@ public class MainClass extends Application {
 
 			//used to store each food item in the meal and how many of it there is
 			HashMap<String, Integer> numberPerFood = new HashMap<>();
+
 			//counts the number of each food item in the meal (i.e. 2 burgers, 1, fries, etc.)
-			for(FoodItem mealItem: meal.getFoods()) {
+			for (FoodItem mealItem : meal.getFoods()) {
 				String name = mealItem.getName();
-
-				if(numberPerFood.containsKey(name)) {
-					numberPerFood.put(name, numberPerFood.get(name) + 1);
-				}
-				else {
-					numberPerFood.put(name, 1);
-				}
+				numberPerFood.put(name, numberPerFood.getOrDefault(name, 0) + 1);
 			}
-			//we want to show items with a 0 that aren't in the meal too
-			for (FoodItem foodItem: currentSimulation.getFoodItems()){
-				String name = foodItem.getName();
 
-				if(numberPerFood.containsKey(name)) {
-					numberPerFood.put(name, numberPerFood.get(name) + 0);
-				}
-				else{
-					numberPerFood.put(name, 0);
-				}
+			//we want to show items with a 0 that aren't in the meal too
+			for (FoodItem foodItem : currentSimulation.getFoodItems()){
+				String name = foodItem.getName();
+				numberPerFood.put(name, numberPerFood.getOrDefault(name, 0));
 			}
 
 			//Map must be an observable to be used in a table
@@ -909,7 +942,7 @@ public class MainClass extends Application {
 
 			//creates button for deleting meals
 			Button deleteButton = new Button("X");
-			deleteButton.setStyle("-fx-background-color: WHITE; -fx-font-weight: bold; -fx-font-size: 15; " +
+			deleteButton.setStyle(BOLD_FONT_STYLE + "-fx-background-color: WHITE; -fx-font-size: 15; " +
 					"fx-font-family: Serif");
 			deleteButton.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID,
 					CornerRadii.EMPTY, new BorderWidths(0))));
@@ -1022,13 +1055,13 @@ public class MainClass extends Application {
 		Button saveProbsButton = new Button("Save Changes");
 		saveProbsButton.setStyle(buttonStyle());
 		saveProbsButton.setOnAction(event -> {
-			BigDecimal totalProbability = new BigDecimal(0.0);
+			BigDecimal totalProbability = BigDecimal.ZERO;
 
-			for (HashMap.Entry<String, Double> item : mealProbabilities){
+			for (HashMap.Entry<String, Double> item : mealProbabilities) {
 				totalProbability = totalProbability.add(BigDecimal.valueOf(item.getValue()));
 			}
 
-			if (totalProbability.compareTo(BigDecimal.valueOf(1.0)) == 0){
+			if (totalProbability.compareTo(BigDecimal.ONE) == 0){
 				//update settings with new values
 				for (Meal item : currentSimulation.getMealTypes()){
 					for (HashMap.Entry<String, Double> tableCell : mealProbabilities){
@@ -1067,7 +1100,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
-		settingLayout.setStyle("-fx-background-color: #e0e0e0");
+		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -1087,7 +1120,6 @@ public class MainClass extends Application {
 		leftLayout.setSpacing(110);
 
 		homeButton();
-
 		menuButtons();
 
 		VBox importExportDisplay = importExportSettings();
@@ -1097,22 +1129,23 @@ public class MainClass extends Application {
 		settingTitle();
 
 		Drone currentDrone = currentSimulation.getDroneSettings();
+		Font font = Font.font("Serif", 15);
 
 		//creates gridpane containing the current stochastic flow values
 		Text maxPayload = new Text("Max Cargo Weight (lbs): ");
-		maxPayload.setFont(Font.font("Serif", 15));
+		maxPayload.setFont(font);
 
 		Text speed = new Text("Average Cruising Speed (mph): ");
-		speed.setFont(Font.font("Serif", 15));
+		speed.setFont(font);
 
 		Text maxFlight = new Text("Max Flight Time (minutes): ");
-		maxFlight.setFont(Font.font("Serif", 15));
+		maxFlight.setFont(font);
 
 		Text turnAround = new Text("Turn-around Time (minutes): ");
-		turnAround.setFont(Font.font("Serif", 15));
+		turnAround.setFont(font);
 
 		Text unloadTime = new Text("Unloading Delay (seconds): ");
-		unloadTime.setFont(Font.font("Serif", 15));
+		unloadTime.setFont(font);
 
 		double currentPayload = currentDrone.getMaxPayloadWeight() / OUNCES_PER_POUND;
 		TextField dronePayload = new TextField(String.format("%.2f", currentPayload));
@@ -1212,7 +1245,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
-		settingLayout.setStyle("-fx-background-color: #e0e0e0");
+		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -1427,7 +1460,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
-		settingLayout.setStyle("-fx-background-color: #e0e0e0");
+		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -1630,7 +1663,7 @@ public class MainClass extends Application {
 		VBox finalLayout = new VBox();
 		//top layout, stats, barChart, save button
 		finalLayout.getChildren().addAll(topLayout, statsLayout, barChart, buttonBox);
-		finalLayout.setStyle("-fx-background-color: #e0e0e0");
+		finalLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 
 		StackPane root = new StackPane();
 		root.getChildren().add(finalLayout);

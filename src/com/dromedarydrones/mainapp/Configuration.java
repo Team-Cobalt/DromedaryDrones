@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  * Master configuration class to track of each separate saved
@@ -34,7 +35,7 @@ public class Configuration implements XmlSerializable {
     public static Configuration getInstance() { return INSTANCE; }
 
 	private Simulation currentSimulation; // the current simulation state
-	private ArrayList<Simulation> simulations; // all saved simulation states
+	private final ArrayList<Simulation> simulations; // all saved simulation states
 
     /**
      * Default constructor for internal use.
@@ -44,6 +45,14 @@ public class Configuration implements XmlSerializable {
 		currentSimulation = null;
 		simulations = new ArrayList<>();
 	}
+
+    /**
+     * Returns a list of all simulation names.
+     * @author Christian Burns
+     */
+	public List<String> getAllSimulationNames() {
+	    return simulations.stream().map(Simulation::getName).collect(Collectors.toList());
+    }
 
     /**
      * Retrieves the simulation state by its name.

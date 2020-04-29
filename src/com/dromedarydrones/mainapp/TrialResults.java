@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class TrialResults {
 
+    private static final int TWO_HOURS = 60 * 60 * 2;   // 60 seconds * 60 minutes * 2 hours
+
     private final List<Order> fifoDeliveries;
     private double averageFifoTime;
     private double worstFifoTime;
@@ -62,13 +64,6 @@ public class TrialResults {
     }
 
     /**
-     * Returns the knapsack orders.
-     */
-    public List<Order> getKnapsackDeliveries() {
-        return knapsackDeliveries;
-    }
-
-    /**
      * Returns the average fifo wait time
      */
     public double getAverageFifoTime() {
@@ -83,6 +78,23 @@ public class TrialResults {
     }
 
     /**
+     * Returns the number of fifo orders that had
+     * a delivery time exceeding two hours.
+     * @author Christian Burns
+     */
+    public int numExpiredFifoOrders() {
+        return (int) fifoDeliveries.stream()
+                .filter(d -> d.getWaitTime() > TWO_HOURS).count();
+    }
+
+    /**
+     * Returns the knapsack orders.
+     */
+    public List<Order> getKnapsackDeliveries() {
+        return knapsackDeliveries;
+    }
+
+    /**
      * Returns the average knapsack wait time
      */
     public double getAverageKnapsackTime() {
@@ -94,5 +106,15 @@ public class TrialResults {
      */
     public double getWorstKnapsackTime() {
         return worstKnapsackTime;
+    }
+
+    /**
+     * Returns the number of knapsack orders that
+     * had a delivery time exceeding two hours.
+     * @author Christian Burns
+     */
+    public int numExpiredKnapsackOrders() {
+        return (int) knapsackDeliveries.stream()
+                .filter(d -> d.getWaitTime() > TWO_HOURS).count();
     }
 }

@@ -127,13 +127,8 @@ public class Meal implements XmlSerializable {
 	 * @param food the food item to be removed from the meal
 	 */
 	public void removeItem(FoodItem food) {
-		if(!foods.isEmpty() && foods.contains(food)) {
+		if (foods.remove(food))
 			totalWeight -= food.getWeight();
-			foods.remove(food);
-		}
-		else {
-			System.out.println("Food not contained in meal");
-		}
 	}
 
 	@Override
