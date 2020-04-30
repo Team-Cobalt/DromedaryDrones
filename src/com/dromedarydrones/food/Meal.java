@@ -16,11 +16,9 @@ import java.util.Map;
  *
  */
 public class Meal implements XmlSerializable {
-	private ArrayList<FoodItem> foods; //list of foods in the meal
+	private final ArrayList<FoodItem> foods; //list of foods in the meal
 	private String name; //name of the meal
 	private double probability; //probability a customer orders the meal
-	private double totalWeight; //the weight of the meal
-	private final double DRONE_WEIGHT = 192; //max cargo weight in ounces
 	
 	/**
 	 * Default constructor for Meal class
@@ -29,7 +27,6 @@ public class Meal implements XmlSerializable {
 		foods = new ArrayList<>();
 		name = "";
 		probability = 0.0;
-		totalWeight = 0.0;
 	}
 	
 	/**
@@ -40,22 +37,10 @@ public class Meal implements XmlSerializable {
 	 * @throws IllegalArgumentException if meal weight exceeds drone's cargo weight limit
 	 */
 	public Meal(List<FoodItem> mealFoods, String name, double probability) {
-		double mealWeight = 0.0;
-		
-		for(FoodItem food: mealFoods) {
-			mealWeight += food.getWeight();
-		}
-		
-		if(mealWeight <= DRONE_WEIGHT) {
-			//MAKE SURE THIS COPYING DOESN'T RUIN ANYTHING
-			foods = new ArrayList<>(mealFoods);
-			this.name = name;
-			this.probability = probability;
-			totalWeight = mealWeight;
-		}
-		else {
-			throw new IllegalArgumentException(name + " exceeds maximum cargo weight");
-		}
+		//MAKE SURE THIS COPYING DOESN'T RUIN ANYTHING
+		foods = new ArrayList<>(mealFoods);
+		this.name = name;
+		this.probability = probability;
 	}
 	
 	/**
@@ -103,7 +88,10 @@ public class Meal implements XmlSerializable {
 	 * @return the total weight of the meal
 	 */
 	public double getTotalWeight() {
-		return totalWeight;
+		double weight = 0;
+		for (FoodItem food : foods)
+			weight += food.getWeight();
+		return weight;
 	}
 	
 	/**
@@ -112,14 +100,7 @@ public class Meal implements XmlSerializable {
 	 * @throws IllegalArgumentException if food causes weight to exceed 12 pounds
 	 */
 	public void addItem(FoodItem food) {
-		
-		if(totalWeight + food.getWeight() <= DRONE_WEIGHT) {
-			foods.add(food);
-		}
-		else { //THROW ERROR
-			throw new IllegalArgumentException("Unable to add " + food + " due to weight restrictions");
-		}
-	
+		foods.add(food);
 	}
 	
 	/**
@@ -127,8 +108,7 @@ public class Meal implements XmlSerializable {
 	 * @param food the food item to be removed from the meal
 	 */
 	public void removeItem(FoodItem food) {
-		if (foods.remove(food))
-			totalWeight -= food.getWeight();
+		foods.remove(food);
 	}
 
 	@Override
