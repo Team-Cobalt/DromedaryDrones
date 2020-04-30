@@ -171,9 +171,6 @@ public class MainClass extends Application {
 		//takes user to intermediate page when pressed/starts simulation
 		buttonStart.setOnAction(event-> startSimulation());
 
-		//creates icon for settings
-		//Image settingsIcon = new Image("file:resources/SettingsIcon.png");
-
 		//button for editing the simulation
 		Button buttonEdit = new Button("Settings");
 		buttonEdit.setMinWidth(buttons.getPrefWidth());
@@ -548,7 +545,7 @@ public class MainClass extends Application {
 			catch(NumberFormatException illegalFormat) {
 				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 				errorAlert.setTitle("Invalid Input");
-				errorAlert.setHeaderText("Invalid Input!");
+				errorAlert.setHeaderText("Error: Invalid Input");
 				errorAlert.setContentText("Integer format required");
 
 				stochasticModel.addAll(List.of(currentHourOne, currentHourTwo, currentHourThree, currentHourFour));
@@ -644,6 +641,7 @@ public class MainClass extends Application {
 			//user must input a double
 			if (event.getNewValue().isNaN()){
 				invalidInput.setTitle("Invalid Input");
+				invalidInput.setHeaderText("Error: Invalid Input");
 				invalidInput.setContentText("Input must be an integer or a decimal.");
 				errorIndex = 1;
 			}
@@ -654,11 +652,13 @@ public class MainClass extends Application {
 				//drone capacity cannot exceed 12 lbs, so item weight cannot exceed 12 lbs
 				if (newValue > maxPayload) {
 					invalidInput.setTitle("Invalid Input");
+					invalidInput.setHeaderText("Error: Invalid Input");
 					invalidInput.setContentText("Food item weight cannot exceed " + maxPayload + " oz.");
 					errorIndex = 1;
 				}
 				else if (newValue <= 0) {
 					invalidInput.setTitle("Invalid Input");
+					invalidInput.setHeaderText("Error: Invalid Input");
 					invalidInput.setContentText("Food item weight must weigh something.");
 					errorIndex = 1;
 				}
@@ -674,8 +674,9 @@ public class MainClass extends Application {
 									double newWeight = currItem.getWeight() - event.getOldValue() + newValue;
 									if (newWeight > maxPayload) {
 										invalidInput.setTitle("Invalid Input");
-										invalidInput.setContentText("Input food item weight causes a meal weight to exceed the drone's " +
-												"maximum payload weight.");
+										invalidInput.setHeaderText("Error: Invalid Input");
+										invalidInput.setContentText("Input food item weight causes a meal weight to " +
+												"exceed the drone's maximum payload weight.");
 										errorIndex = 1;
 									}
 								}
@@ -696,7 +697,9 @@ public class MainClass extends Application {
 						setWeight(oldValue);
 				invalidInput.showAndWait();
 			}
-			//TODO: WHY DOES IT SHOW THE NEW VALUE UNTIL YOU CLICK ON IT AGAIN?????
+
+			event.getTableView().refresh();
+
 		});//event end
 
 		//adds columns to table
@@ -868,6 +871,7 @@ public class MainClass extends Application {
 				//user must input a double
 				if (event.getNewValue() == null){
 					invalidInput.setTitle("Invalid Input");
+					invalidInput.setHeaderText("Error: Invalid Input");
 					invalidInput.setContentText("Input must be an integer.");
 					errorIndex = 1;
 				}
@@ -879,6 +883,7 @@ public class MainClass extends Application {
 					//Cannot have negative amounts of an item
 					if (newValue < 0){
 						invalidInput.setTitle("Invalid Input");
+						invalidInput.setHeaderText("Error: Invalid Input");
 						invalidInput.setContentText("Input must be non-negative.");
 						errorIndex = 1;
 					}
@@ -890,6 +895,7 @@ public class MainClass extends Application {
 						mealWeight = meal.getTotalWeight() - (oldValue * itemWeight) + (newValue * itemWeight);
 						if (mealWeight > maxPayload){
 							invalidInput.setTitle("Invalid Input");
+							invalidInput.setHeaderText("Error: Invalid Input");
 							invalidInput.setContentText("Meal weight must not exceed maximum payload. ("
 									+ maxPayload + " oz.)");
 							errorIndex = 1;
@@ -1022,6 +1028,7 @@ public class MainClass extends Application {
 
 			if (event.getNewValue().isNaN()){
 				invalidInput.setTitle("Invalid Input");
+				invalidInput.setHeaderText("Error: Invalid Input");
 				invalidInput.setContentText("Input must be a decimal.");
 				errorIndex = 1;
 			}
@@ -1029,6 +1036,7 @@ public class MainClass extends Application {
 				newValue = event.getNewValue();
 				if (newValue > 1.0){
 					invalidInput.setTitle("Invalid Input");
+					invalidInput.setHeaderText("Error: Invalid Input");
 					invalidInput.setContentText("A probability cannot be greater than 1.");
 					errorIndex = 1;
 				}
@@ -1075,7 +1083,7 @@ public class MainClass extends Application {
 			else{
 				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
 				invalidInput.setTitle("Invalid Input");
-				invalidInput.setHeaderText("Invalid Input");
+				invalidInput.setHeaderText("Error: Invalid Input");
 				invalidInput.setContentText("Total probability of meals should equal 1.");
 				invalidInput.showAndWait();
 
@@ -1357,26 +1365,82 @@ public class MainClass extends Application {
 		xyHeading.setCellFactory(TextFieldTableCell.forTableColumn());
 		xyHeading.setOnEditCommit(event -> {
 			int selectedRow = event.getTablePosition().getRow();
+			String oldCoordinates = event.getOldValue();
 
 			try {
-				event.getTableView().getItems().get(selectedRow).setCoordinates(event.getNewValue() + "");
+				int oldXValue = event.getTableView().getItems().get(selectedRow).getX();
+				int oldYValue = event.getTableView().getItems().get(selectedRow).getY();
 
-				XYChart.Data<Number, Number> selectedPoint = mapValues.getData().get(selectedRow);
-				selectedPoint.setXValue(mapPoints.get(selectedRow).getX());
-				selectedPoint.setYValue(mapPoints.get(selectedRow).getY());
+				if((oldXValue != 0 || oldYValue != 0)) {
+					Drone currentDrone = currentSimulation.getDroneSettings();
+					double maxDistanceAllowed = (currentDrone.getFlightTime() * currentDrone.getCruisingSpeed()) / 2;
+
+					event.getTableView().getItems().get(selectedRow).setCoordinates(event.getNewValue() + "");
+
+					Point newPoint = event.getTableView().getSelectionModel().getSelectedItem();
+
+					if(newPoint.distanceFromPoint(newPoint.getOrigin()) <= maxDistanceAllowed) {
+						int newXValue = newPoint.getX();
+						int newYValue = newPoint.getY();
+
+						XYChart.Data<Number, Number> selectedPoint = mapValues.getData().get(selectedRow);
+						selectedPoint.setXValue(newXValue);
+						selectedPoint.setYValue(newYValue);
+
+						double upperXBound = xAxis.getUpperBound() - 100;
+						double lowerXBound = xAxis.getLowerBound() + 100;
+
+						if(newXValue > upperXBound) {
+							upperXBound = newXValue;
+							xAxis.setUpperBound(upperXBound + 100);
+						}
+						if(newXValue <= lowerXBound) {
+							lowerXBound = newXValue;
+							xAxis.setLowerBound(lowerXBound - 100);
+						}
+
+						double upperYBound = yAxis.getUpperBound() - 100;
+						double lowerYBound = yAxis.getLowerBound() + 100;
+
+						if(newYValue > upperYBound) {
+							upperYBound = newYValue;
+							yAxis.setUpperBound(upperYBound + 100);
+						}
+						if(newYValue < lowerYBound) {
+							yAxis.setLowerBound(lowerYBound - 100);
+						}
+					}
+					else {
+						Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
+						blockOrigin.setTitle("Maximum Distance Exceeded");
+						blockOrigin.setHeaderText("Error: Maximum Distance Exceeded");
+						blockOrigin.setContentText("Coordinates are outside of drone range");
+						event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
+						blockOrigin.showAndWait();
+					}
+
+				}
+				else {
+					Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
+					blockOrigin.setTitle("Origin Change Attempted");
+					blockOrigin.setHeaderText("Error: Origin Change Attempted");
+					blockOrigin.setContentText("Origin must be at (0,0)");
+					event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
+					blockOrigin.showAndWait();
+				}
 
 			}
 			catch(IllegalArgumentException illegalArgument) {
 				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-				invalidInput.setTitle("Invalid Coordinate");
+				invalidInput.setTitle("Invalid Coordinates");
+				invalidInput.setHeaderText("Error: Invalid Coordinates");
 				invalidInput.setContentText("Input must be a (x,y) integer pair");
-				event.getTableView().getItems().get(selectedRow).
-						setCoordinates((event.getOldValue()));
+				event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
 				invalidInput.showAndWait();
 			}
-		});
 
-		//TODO: FIND A WAY TO GET THE OLD VALUE TO SHOW UP INSTANTLY???
+			event.getTableView().refresh();
+		});
 
 		//adds column headings to table
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
@@ -1415,12 +1479,19 @@ public class MainClass extends Application {
 			int deletedRow = mapTable.getSelectionModel().getSelectedIndex();
 			Point deletedPoint = mapTable.getSelectionModel().getSelectedItem();
 
-			mapValues.getData().remove(deletedRow);
+			if(deletedPoint.getX() != 0 || deletedPoint.getY() != 0) {
+				mapValues.getData().remove(deletedRow);
 
-			mapPoints.remove(deletedRow);
-			currentSimulation.getDeliveryPoints().removePoint(deletedPoint);
-
-			//TODO: DO I NEED TO REFRESH THE ORIGIN
+				mapPoints.remove(deletedRow);
+				currentSimulation.getDeliveryPoints().removePoint(deletedPoint);
+			}
+			else {
+				Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
+				blockOrigin.setTitle("Origin Deletion Attempted");
+				blockOrigin.setHeaderText("Error: Origin Deletion Attempted");
+				blockOrigin.setContentText("Cannot delete origin");
+				blockOrigin.showAndWait();
+			}
 		});
 
 		HBox addDeleteButtons = new HBox(10);

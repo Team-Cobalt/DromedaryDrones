@@ -102,6 +102,7 @@ public class Point implements XmlSerializable {
      * @author Isabella Patnode
      */
     public void setCoordinates(String coordinates) {
+        int newX, newY;
         coordinates = coordinates.replace("(", "");
         coordinates = coordinates.replace(")", "");
         coordinates = coordinates.replace(" ", "");
@@ -130,6 +131,10 @@ public class Point implements XmlSerializable {
      */
     public String getCoordinates() {
         return "(" + x + ", " + y + ")";
+    }
+
+    public Point getOrigin() {
+        return origin;
     }
 
     /**
