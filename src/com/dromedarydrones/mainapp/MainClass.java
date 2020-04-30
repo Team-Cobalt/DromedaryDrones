@@ -630,7 +630,6 @@ public class MainClass extends Application {
 				}
 			}
 		}));
-
 		weightHeading.setOnEditCommit(event -> {
 			/* If there is an error make the index 1, this allows us to determine whether to set
 			** the cell vale to the new value or the old value */
@@ -790,6 +789,130 @@ public class MainClass extends Application {
 
 		settingTitle();
 
+
+		//formats display of meal probabilities
+		HashMap<String, Double> probabilities = new HashMap<>();
+		for (Meal item : currentSimulation.getMealTypes()){
+			probabilities.put(item.getName(), item.getProbability());
+		}
+		ObservableList<HashMap.Entry<String, Double>> mealProbabilities = FXCollections
+				.observableArrayList(probabilities.entrySet());
+		//probabilities shown separate from meal contents due to nuances with editing
+		TableView<HashMap.Entry<String, Double>> probabilityTable = new TableView<>(mealProbabilities);
+		probabilityTable.setMaxSize(205, 300);
+		probabilityTable.setEditable(true);
+
+		TableColumn<HashMap.Entry<String, Double>, String> itemColumn = new TableColumn<>("Meal Type");
+		itemColumn.setCellValueFactory(
+				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, String> item) ->
+						new SimpleStringProperty(item.getValue().getKey()));
+		itemColumn.setPrefWidth(100);
+
+		TableColumn<HashMap.Entry<String, Double>, Double> probabilityColumn = new TableColumn<>("Probability");
+		probabilityColumn.setCellValueFactory(
+				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, Double> item) ->
+						new ReadOnlyObjectWrapper<>(item.getValue().getValue()));
+		probabilityColumn.setPrefWidth(100);
+		probabilityColumn.setEditable(true);
+
+		probabilityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter(){
+			@Override
+			public Double fromString(String value){
+				try {
+					return super.fromString(value);
+				} catch(Exception e){
+					return Double.NaN;
+				}
+			}
+		}));
+
+		//we don't want to save the probabilities yet -- just to the table
+		probabilityColumn.setOnEditCommit(event -> {
+			int errorIndex = 0;
+			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+			double oldValue = event.getOldValue();
+			double newValue;
+
+			if (event.getNewValue().isNaN()){
+				invalidInput.setTitle("Invalid Input");
+				invalidInput.setHeaderText("Error: Invalid Input");
+				invalidInput.setContentText("Input must be a decimal.");
+				errorIndex = 1;
+			}
+			else{
+				newValue = event.getNewValue();
+				if (newValue > 1.0){
+					invalidInput.setTitle("Invalid Input");
+					invalidInput.setHeaderText("Error: Invalid Input");
+					invalidInput.setContentText("A probability cannot be greater than 1.");
+					errorIndex = 1;
+				}
+			}
+
+			if (errorIndex == 1){
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(oldValue);
+				invalidInput.showAndWait();
+			}
+			else{
+				newValue = event.getNewValue();
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(newValue);
+			}
+
+		});
+
+		probabilityTable.getColumns().setAll(itemColumn, probabilityColumn);
+
+		StackPane probabilityLayout = new StackPane();
+		probabilityLayout.setAlignment(Pos.TOP_RIGHT);
+		probabilityLayout.setMaxSize(202, 300);
+		probabilityLayout.getChildren().add(probabilityTable);
+
+		Button saveProbsButton = new Button("Save Changes");
+		saveProbsButton.setStyle(buttonStyle());
+		saveProbsButton.setOnAction(event -> {
+			BigDecimal totalProbability = BigDecimal.ZERO;
+
+			for (HashMap.Entry<String, Double> item : mealProbabilities) {
+				totalProbability = totalProbability.add(BigDecimal.valueOf(item.getValue()));
+			}
+
+			if (totalProbability.compareTo(BigDecimal.ONE) == 0){
+				//update settings with new values
+				for (Meal item : currentSimulation.getMealTypes()){
+					for (HashMap.Entry<String, Double> tableCell : mealProbabilities){
+						if (tableCell.getKey().equals(item.getName())){
+							item.setProbability(tableCell.getValue());
+						}
+					}
+				}
+
+				for (Meal item : currentSimulation.getMealTypes()){
+					System.out.println(item.getProbability());
+				}
+			}
+
+			else{
+				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+				invalidInput.setTitle("Invalid Input");
+				invalidInput.setHeaderText("Error: Invalid Input");
+				invalidInput.setContentText("Total probability of meals should equal 1.");
+				invalidInput.showAndWait();
+
+				//reset table with old values
+				mealProbabilities.clear();
+				for (Meal item : currentSimulation.getMealTypes()){
+					probabilities.put(item.getName(), item.getProbability());
+				}
+				mealProbabilities.addAll(probabilities.entrySet());
+			}
+
+		});
+
+		VBox rightLayout = new VBox();
+		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
+		rightLayout.setPadding(new Insets(0, 0, 70, 50));
+		rightLayout.getChildren().addAll(probabilityLayout, saveProbsButton);
+
 		//arranges all meals together
 		VBox mealsBox = new VBox(10);
 
@@ -868,7 +991,7 @@ public class MainClass extends Application {
 				int oldValue = event.getOldValue();
 				String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getKey();
 
-				//user must input a double
+				//user must input an integer
 				if (event.getNewValue() == null){
 					invalidInput.setTitle("Invalid Input");
 					invalidInput.setHeaderText("Error: Invalid Input");
@@ -953,6 +1076,38 @@ public class MainClass extends Application {
 			deleteButton.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID,
 					CornerRadii.EMPTY, new BorderWidths(0))));
 
+
+			deleteButton.setOnAction(event -> {
+				//total probability of meals after meal deletion should equal 1.0
+				BigDecimal mealProbability = new BigDecimal(meal.getProbability());
+				if (mealProbability.compareTo(BigDecimal.valueOf(0.0)) != 0){
+					Alert probabilityAlert = new Alert(Alert.AlertType.ERROR);
+					probabilityAlert.setTitle("Error");
+					probabilityAlert.setContentText("This meal's probability must be set to 0 before it can be deleted. " +
+							"Please refactor the probabilities so that this meal's probability is 0 and the rest are " +
+							"equivalent to 1.0.");
+					probabilityAlert.showAndWait();
+				}
+
+				else{
+					String nameToDelete = meal.getName();
+					HashMap.Entry<String, Double> mealToDelete = mealProbabilities.get(0);
+					for (int i = 0; i < mealProbabilities.size(); i++){
+						mealToDelete = mealProbabilities.get(i);
+						if (mealToDelete.getKey().equals(nameToDelete)){
+							break;
+						}
+					}
+
+					mealsBox.getChildren().remove(singleMealLayout);
+					mealProbabilities.remove(mealToDelete);	//this isn't right - turn to entry <>
+					probabilities.remove(mealToDelete);
+					probabilityTable.refresh();
+					currentSimulation.removeMeal(meal);
+				}
+
+			});
+
 			//formats delete button with meal heading
 			HBox topFormat = new HBox();
 			topFormat.getChildren().addAll(titleFormat, deleteButton);
@@ -982,125 +1137,6 @@ public class MainClass extends Application {
 		centerLayout.setAlignment(Pos.TOP_CENTER);
 		centerLayout.setPadding(new Insets(20,0,0,0));
 		centerLayout.getChildren().addAll(titleLayout, mealLayout, addButton);
-
-		HashMap<String, Double> probabilities = new HashMap<>();
-		for (Meal item : currentSimulation.getMealTypes()){
-			probabilities.put(item.getName(), item.getProbability());
-		}
-
-		ObservableList<HashMap.Entry<String, Double>> mealProbabilities = FXCollections
-				.observableArrayList(probabilities.entrySet());
-		//probabilities shown separate from meal contents due to nuances with editing
-		TableView<HashMap.Entry<String, Double>> probabilityTable = new TableView<>(mealProbabilities);
-		probabilityTable.setMaxSize(205, 300);
-		probabilityTable.setEditable(true);
-
-		TableColumn<HashMap.Entry<String, Double>, String> itemColumn = new TableColumn<>("Meal Type");
-		itemColumn.setCellValueFactory(
-				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, String> item) ->
-				new SimpleStringProperty(item.getValue().getKey()));
-		itemColumn.setPrefWidth(100);
-
-		TableColumn<HashMap.Entry<String, Double>, Double> probabilityColumn = new TableColumn<>("Probability");
-		probabilityColumn.setCellValueFactory(
-				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, Double> item) ->
-						new ReadOnlyObjectWrapper<>(item.getValue().getValue()));
-		probabilityColumn.setPrefWidth(100);
-		probabilityColumn.setEditable(true);
-
-		probabilityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter(){
-			@Override
-			public Double fromString(String value){
-				try {
-					return super.fromString(value);
-				} catch(Exception e){
-					return Double.NaN;
-				}
-			}
-		}));
-
-		//we don't want to save the probabilities yet -- just to the table
-		probabilityColumn.setOnEditCommit(event -> {
-			int errorIndex = 0;
-			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-			double oldValue = event.getOldValue();
-			double newValue;
-
-			if (event.getNewValue().isNaN()){
-				invalidInput.setTitle("Invalid Input");
-				invalidInput.setHeaderText("Error: Invalid Input");
-				invalidInput.setContentText("Input must be a decimal.");
-				errorIndex = 1;
-			}
-			else{
-				newValue = event.getNewValue();
-				if (newValue > 1.0){
-					invalidInput.setTitle("Invalid Input");
-					invalidInput.setHeaderText("Error: Invalid Input");
-					invalidInput.setContentText("A probability cannot be greater than 1.");
-					errorIndex = 1;
-				}
-			}
-
-			if (errorIndex == 1){
-				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(oldValue);
-				invalidInput.showAndWait();
-			}
-			else{
-				newValue = event.getNewValue();
-				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(newValue);
-			}
-
-		});
-
-		probabilityTable.getColumns().setAll(itemColumn, probabilityColumn);
-
-		StackPane probabilityLayout = new StackPane();
-		probabilityLayout.setAlignment(Pos.TOP_RIGHT);
-		probabilityLayout.setMaxSize(202, 300);
-		probabilityLayout.getChildren().add(probabilityTable);
-
-		Button saveProbsButton = new Button("Save Changes");
-		saveProbsButton.setStyle(buttonStyle());
-		saveProbsButton.setOnAction(event -> {
-			BigDecimal totalProbability = BigDecimal.ZERO;
-
-			for (HashMap.Entry<String, Double> item : mealProbabilities) {
-				totalProbability = totalProbability.add(BigDecimal.valueOf(item.getValue()));
-			}
-
-			if (totalProbability.compareTo(BigDecimal.ONE) == 0){
-				//update settings with new values
-				for (Meal item : currentSimulation.getMealTypes()){
-					for (HashMap.Entry<String, Double> tableCell : mealProbabilities){
-						if (tableCell.getKey().equals(item.getName())){
-							item.setProbability(tableCell.getValue());
-						}
-					}
-				}
-			}
-
-			else{
-				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-				invalidInput.setTitle("Invalid Input");
-				invalidInput.setHeaderText("Error: Invalid Input");
-				invalidInput.setContentText("Total probability of meals should equal 1.");
-				invalidInput.showAndWait();
-
-				//reset table with old values
-				mealProbabilities.clear();
-				for (Meal item : currentSimulation.getMealTypes()){
-					probabilities.put(item.getName(), item.getProbability());
-				}
-				mealProbabilities.addAll(probabilities.entrySet());
-			}
-
-		});
-
-		VBox rightLayout = new VBox();
-		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
-		rightLayout.setPadding(new Insets(0, 0, 70, 50));
-		rightLayout.getChildren().addAll(probabilityLayout, saveProbsButton);
 
 		HBox mainLayout = new HBox();
 		mainLayout.getChildren().addAll(centerLayout, rightLayout);
