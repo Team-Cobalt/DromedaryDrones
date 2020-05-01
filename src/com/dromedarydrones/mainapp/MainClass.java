@@ -35,6 +35,7 @@ import javafx.util.converter.IntegerStringConverter;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1975,10 +1976,20 @@ public class MainClass extends Application {
 		fifoWorst.setWrappingWidth(300);
 		fifoWorst.setTextAlignment(TextAlignment.CENTER);
 
+		double fifoExpiredPercent = results.getPercentFifoExpired();
+		DecimalFormat df = new DecimalFormat("##.####");
+		df.format(fifoExpiredPercent);
+
+		Text fifoExpired = new Text(String.format("Average Expired Orders: %.2f%%",
+				(fifoExpiredPercent*100)));
+		fifoExpired.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoExpired.setWrappingWidth(300);
+		fifoExpired.setTextAlignment(TextAlignment.CENTER);
+
 		VBox fifoLayout = new VBox();
 		fifoLayout.setSpacing(5);
 		fifoLayout.setAlignment(Pos.TOP_CENTER);
-		fifoLayout.getChildren().addAll(fifoTitle, fifoAverage, fifoWorst);
+		fifoLayout.getChildren().addAll(fifoTitle, fifoAverage, fifoWorst, fifoExpired);
 
 		//knapsack stats
 		Text knapsackTitle = new Text("Knapsack Packing Delivery");
@@ -2002,10 +2013,19 @@ public class MainClass extends Application {
 		knapsackWorst.setWrappingWidth(300);
 		knapsackWorst.setTextAlignment(TextAlignment.CENTER);
 
+		double knapsackExpiredPercent = results.getPercentKnapsackExpired();
+		df.format(knapsackExpiredPercent);	//Decimal format initialized earlier
+
+		Text knapsackExpired = new Text(String.format("Average Expired Orders: %.2f%%",
+				(knapsackExpiredPercent*100)));
+		knapsackExpired.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackExpired.setWrappingWidth(300);
+		knapsackExpired.setTextAlignment(TextAlignment.CENTER);
+
 		VBox knapsackLayout = new VBox();
 		knapsackLayout.setSpacing(5);
 		knapsackLayout.setAlignment(Pos.TOP_CENTER);
-		knapsackLayout.getChildren().addAll(knapsackTitle, knapsackAverage, knapsackWorst);
+		knapsackLayout.getChildren().addAll(knapsackTitle, knapsackAverage, knapsackWorst, knapsackExpired);
 
 		//set up stats layout
 		HBox statsLayout = new HBox();
