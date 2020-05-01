@@ -10,6 +10,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -27,7 +29,9 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -1354,9 +1358,9 @@ public class MainClass extends Application {
 		//allows user to edit the name of a point already in the table
 		pointHeading.setCellFactory(TextFieldTableCell.forTableColumn());
 		pointHeading.setOnEditCommit(event -> {
-				int selectedRow = event.getTablePosition().getRow();
-				event.getTableView().getItems().get(selectedRow).setName(event.getNewValue() + "");
-				});
+			int selectedRow = event.getTablePosition().getRow();
+			event.getTableView().getItems().get(selectedRow).setName(event.getNewValue() + "");
+		});
 
 		TableColumn<Point, String> xyHeading = new TableColumn<>("(x,y)");
 		xyHeading.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
@@ -1458,20 +1462,111 @@ public class MainClass extends Application {
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
 		addButton.setStyle(buttonStyle());
-		/*
+
 		addButton.setOnAction(event -> {
-			Point newPoint = currentSimulation.getDeliveryPoints().addPoint("Point name", Double.NaN, Double.NaN);
+			Stage addDialog = new Stage();
+			addDialog.setTitle("New Point");
+			addDialog.initOwner(window);
+			addDialog.initModality(Modality.WINDOW_MODAL);
+			addDialog.initStyle(StageStyle.UTILITY);
 
-			mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
+			GridPane newPointGrid = new GridPane();
+			newPointGrid.setHgap(10);
+			newPointGrid.setVgap(10);
 
-			int row = currentSimulation.getDeliveryPoints().numPoints() - 1;
+			TextField pointName = new TextField();
+			TextField coordinates = new TextField();
 
-			mapTable.requestFocus();
-			mapTable.getSelectionModel().select(row);
-			mapTable.getFocusModel().focus(row);
+			Text pointTitle = new Text("Name");
+			Text coordinateTitle = new Text("Coordinates");
 
-			//TODO: HOW TO GET IT SO THAT THE ROW IS HIGHLIGHTS WHEN IT IS SELECTED AGAIN
-		});*/
+			newPointGrid.add(pointTitle, 0, 0);
+			newPointGrid.add(pointName, 1, 0);
+			newPointGrid.add(coordinateTitle, 0, 1);
+			newPointGrid.add(coordinates, 1, 1);
+
+			Button confirmButton = new Button("Finish");
+			confirmButton.setOnAction(event1 -> {
+				Point newPoint = currentSimulation.getDeliveryPoints().
+						addPoint(pointName.getText(), Double.NaN, Double.NaN);
+
+				try {
+					newPoint.setCoordinates(coordinates.getText());
+
+					Drone currentDrone = currentSimulation.getDroneSettings();
+					double maxDistanceAllowed = (currentDrone.getFlightTime() * currentDrone.getCruisingSpeed()) / 2;
+
+					if(newPoint.distanceFromPoint(newPoint.getOrigin()) <= maxDistanceAllowed) {
+						int newXValue = newPoint.getX();
+						int newYValue = newPoint.getY();
+
+						mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
+
+						double upperXBound = xAxis.getUpperBound() - 100;
+						double lowerXBound = xAxis.getLowerBound() + 100;
+
+						if(newXValue > upperXBound) {
+							upperXBound = newXValue;
+							xAxis.setUpperBound(upperXBound + 100);
+						}
+						if(newXValue <= lowerXBound) {
+							lowerXBound = newXValue;
+							xAxis.setLowerBound(lowerXBound - 100);
+						}
+
+						double upperYBound = yAxis.getUpperBound() - 100;
+						double lowerYBound = yAxis.getLowerBound() + 100;
+
+						if(newYValue > upperYBound) {
+							upperYBound = newYValue;
+							yAxis.setUpperBound(upperYBound + 100);
+						}
+						if(newYValue < lowerYBound) {
+							yAxis.setLowerBound(lowerYBound - 100);
+						}
+
+						ObservableList<Point> newMapPoints = currentSimulation.getDeliveryPoints().getPoints();
+
+						mapTable.setItems(newMapPoints);
+
+						addDialog.close();
+					}
+					else {
+						Alert invalidCoordinates = new Alert(Alert.AlertType.ERROR);
+						invalidCoordinates.setTitle("Maximum Distance Exceeded");
+						invalidCoordinates.setHeaderText("Error: Maximum Distance Exceeded");
+						invalidCoordinates.setContentText("Coordinates are outside of drone range");
+						currentSimulation.getDeliveryPoints().removePoint(newPoint);
+						invalidCoordinates.showAndWait();
+					}
+				}
+				catch(IllegalArgumentException illegalArgument) {
+					Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+					invalidInput.setTitle("Invalid Coordinates");
+					invalidInput.setHeaderText("Error: Invalid Coordinates");
+					invalidInput.setContentText("Input must be a (x,y) integer pair");
+					currentSimulation.getDeliveryPoints().removePoint(newPoint);
+					invalidInput.showAndWait();
+				}
+			});
+
+			Button cancelButton = new Button("Cancel");
+			cancelButton.setCancelButton(true);
+			cancelButton.setOnAction(event12 -> addDialog.close());
+
+			HBox dialogButtons = new HBox(10);
+			dialogButtons.getChildren().addAll(confirmButton, cancelButton);
+			dialogButtons.setAlignment(Pos.BOTTOM_CENTER);
+
+			VBox dialogLayout = new VBox(10);
+			dialogLayout.getChildren().addAll(newPointGrid, dialogButtons);
+
+			Scene dialogScene = new Scene(dialogLayout);
+			addDialog.setScene(dialogScene);
+			addDialog.show();
+
+			//TODO: FIGURE OUT HOW TO MAKE NEW ROW CLICKABLE
+		});
 
 		Button deleteButton = new Button("Delete");
 		deleteButton.setStyle(buttonStyle());
@@ -1518,7 +1613,7 @@ public class MainClass extends Application {
 		//creates button for loading map
 		Button loadButton = new Button("Load Map");
 		loadButton.setStyle(buttonStyle());
-		//TODO: LOAD IN MAP??? ALSO WANT TO SAVE MAP???
+		//TODO: LOAD IN MAP
 
 		HBox loadDisplay = new HBox();
 		loadDisplay.getChildren().add(loadButton);

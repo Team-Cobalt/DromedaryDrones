@@ -102,7 +102,6 @@ public class Point implements XmlSerializable {
      * @author Isabella Patnode
      */
     public void setCoordinates(String coordinates) {
-        int newX, newY;
         coordinates = coordinates.replace("(", "");
         coordinates = coordinates.replace(")", "");
         coordinates = coordinates.replace(" ", "");
