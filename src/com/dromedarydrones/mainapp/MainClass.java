@@ -43,7 +43,18 @@ import java.util.concurrent.*;
 
 /**
  * Class that runs the simulation
- * @author Izzy Patnode and Rachel Franklin
+ * @author Izzy Patnode, Rachel Franklin, and Christian Burns
+ *
+ *			COLOR PALETTE
+ *	-----------------------------
+ * Main Background: 	e0e0e0 (Light Grey)
+ * Sidebar Background: 	aeaeae (Dark Grey)
+ * Button Text:			0047ab (Cobalt Blue)
+ * Button Outline:		0047ab (Cobalt Blue)
+ * GUI Text:			0047ab (Cobalt Blue)
+ * Bar Chart:			8e000 (Dark Red) and 0047ab (Cobalt Blue)
+ * Map Points:			0047ab (Cobalt Blue)
+ *
  */
 public class MainClass extends Application {
 
@@ -61,8 +72,10 @@ public class MainClass extends Application {
 	private final int FEET_PER_MILE = 5280;
 	private final int OUNCES_PER_POUND = 16;
 	private final int SECONDS_PER_MINUTE = 60;
-	private static final String LIGHT_GRAY_BACKGROUND_STYLE = "-fx-background-color: #e0e0e0; ";
-	private static final String BOLD_FONT_STYLE = "-fx-font-weight: bold; ";
+	private static final String LIGHT_GRAY_BACKGROUND_STYLE = "-fx-background-color: #e0e0e0;";
+	private static final String BOLD_FONT_STYLE = "-fx-font-weight: bold;";
+	private static final String SIDEBAR_STYLE = "-fx-border-style: hidden solid hidden hidden;" +
+			"-fx-border-width: 1.25; -fx-border-color: black; -fx-padding: 0 5 7 0";
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private Future<SimulationResults> futureResults;
@@ -137,7 +150,7 @@ public class MainClass extends Application {
 		//adds camel image to main menu
 		Image image = new Image("file:resources/CuteCamel.png");
 
-		ImageView imageView = new javafx.scene.image.ImageView(image);
+		ImageView imageView = new ImageView(image);
 
 		imageView.setX(50);
 		imageView.setY(50);
@@ -168,7 +181,7 @@ public class MainClass extends Application {
 		//button for starting the simulation
 		Button buttonStart = new Button("Start Simulation");
 		buttonStart.setMinWidth(buttons.getPrefWidth());
-		buttonStart.setStyle(buttonStyle());
+		buttonStart.setStyle(mainButtonStyle());
 
 		//takes user to intermediate page when pressed/starts simulation
 		buttonStart.setOnAction(event-> startSimulation());
@@ -176,14 +189,14 @@ public class MainClass extends Application {
 		//button for editing the simulation
 		Button buttonEdit = new Button("Settings");
 		buttonEdit.setMinWidth(buttons.getPrefWidth());
-		buttonEdit.setStyle(buttonStyle());
+		buttonEdit.setStyle(mainButtonStyle());
 		//takes user to general settings page when clicked
 		buttonEdit.setOnAction(event -> generalEditPage());
 
 		//button for exiting the gui
 		Button buttonExit = new Button("Exit Simulation");
 		buttonExit.setMinWidth(buttons.getPrefWidth());
-		buttonExit.setStyle(buttonStyle());
+		buttonExit.setStyle(mainButtonStyle());
 		//exits the screen (gui) when clicked
 		buttonExit.setOnAction(event-> System.exit(0));
 
@@ -300,9 +313,14 @@ public class MainClass extends Application {
 	 * @return a string with the style in css of each button
 	 * @author Izzy Patnode
 	 */
-	public String buttonStyle() {
+	public String mainButtonStyle() {
 		 return LIGHT_GRAY_BACKGROUND_STYLE +
 		"-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
+				"-fx-border-width: 1; -fx-border-color: #0047ab";
+	}
+
+	public String secondaryButtonStyle() {
+		return "-fx-background-color: #aeaeae; -fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
@@ -311,10 +329,8 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode
 	 */
 	public void settingTitle() {
-		//adds title to general settings page
 		title = new Text("Simulation Settings");
-		title.setFont(Font.font("Serif", 30));
-		title.setFill(Color.BLACK);
+		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
 		title.setWrappingWidth(400);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -328,20 +344,19 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode
 	 */
 	public void homeButton() {
-
 		//icon created by Google
 		Image homeIcon = new Image("file:resources/home-button.png");
 		ImageView homeView = new ImageView(homeIcon);
 
 		Button homeButton = new Button("", homeView);
-		homeButton.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		homeButton.setStyle("-fx-background-color: #aeaeae");
 		homeButton.setOnAction(e-> window.setScene(mainMenu));
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
 		iconLayout.setPadding(new Insets(0, 0, 0, 15));
 		iconLayout.getChildren().add(homeButton);
-		iconLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		iconLayout.setStyle("-fx-background-color: #aeaeae");
 	}
 
 	/**
@@ -355,32 +370,32 @@ public class MainClass extends Application {
 
 		Button generalButton = new Button("General Settings");
 		generalButton.setMinWidth(buttonLayout.getPrefWidth());
-		generalButton.setStyle(buttonStyle());
+		generalButton.setStyle(secondaryButtonStyle());
 		generalButton.setOnAction(e -> generalEditPage());
 
 		Button foodButton = new Button("Food Settings");
 		foodButton.setMinWidth(buttonLayout.getPrefWidth());
-		foodButton.setStyle(buttonStyle());
+		foodButton.setStyle(secondaryButtonStyle());
 		foodButton.setOnAction(e -> editFoodPage());
 
 		Button mealButton = new Button("Meal Settings");
 		mealButton.setMinWidth(buttonLayout.getPrefWidth());
-		mealButton.setStyle(buttonStyle());
+		mealButton.setStyle(secondaryButtonStyle());
 		mealButton.setOnAction(e -> editMealsPage());
 
 		Button droneButton = new Button("Drone Settings");
 		droneButton.setMinWidth(buttonLayout.getPrefWidth());
-		droneButton.setStyle(buttonStyle());
+		droneButton.setStyle(secondaryButtonStyle());
 		droneButton.setOnAction(e -> editDronePage());
 
 		Button mapButton = new Button("Map Settings");
 		mapButton.setMinWidth(buttonLayout.getPrefWidth());
-		mapButton.setStyle(buttonStyle());
+		mapButton.setStyle(secondaryButtonStyle());
 		mapButton.setOnAction(e -> editMapPage());
 
 		Button startButton = new Button("Start Simulation");
 		startButton.setMinWidth(buttonLayout.getPrefWidth());
-		startButton.setStyle(buttonStyle());
+		startButton.setStyle(secondaryButtonStyle());
 		startButton.setOnAction(e -> startSimulation());
 
 		buttonLayout.getChildren().addAll(generalButton, foodButton, mealButton, droneButton, mapButton, startButton);
@@ -401,7 +416,7 @@ public class MainClass extends Application {
 		//adds buttons for loading and saving model
 		Button saveButton = new Button("Import Settings");
 		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		saveButton.setStyle(buttonStyle());
+		saveButton.setStyle(secondaryButtonStyle());
 
 		//saves current settings to simulation and opens file explorer to save to xml file
 		saveButton.setOnAction(event -> {
@@ -420,7 +435,7 @@ public class MainClass extends Application {
 
 		Button loadButton = new Button("Export Settings");
 		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
-		loadButton.setStyle(buttonStyle());
+		loadButton.setStyle(secondaryButtonStyle());
 
 		//opens settings and loads model from user location
 		loadButton.setOnAction(event -> {
@@ -453,6 +468,7 @@ public class MainClass extends Application {
 	public void generalEditPage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
+		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
 
 		homeButton();
 
@@ -526,7 +542,7 @@ public class MainClass extends Application {
 		centerLayout.getChildren().addAll(titleLayout, gridLayout);
 
 		Button editButton = new Button("Save Changes");
-		editButton.setStyle(buttonStyle());
+		editButton.setStyle(mainButtonStyle());
 
 		//sets current stochastic flow to edited stochastic flow
 		editButton.setOnAction(event -> {
@@ -570,8 +586,8 @@ public class MainClass extends Application {
 		mainLayout.getChildren().addAll(centerLayout, rightLayout);
 
 		settingLayout = new HBox(130);
-		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
+		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -589,6 +605,7 @@ public class MainClass extends Application {
 	public void editFoodPage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
+		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
 
 		homeButton();
 
@@ -718,7 +735,7 @@ public class MainClass extends Application {
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
-		addButton.setStyle(buttonStyle());
+		addButton.setStyle(mainButtonStyle());
 
 		Text newFoodNameLabel = new Text("Food name: ");
 		TextField newFoodName = new TextField();
@@ -753,7 +770,7 @@ public class MainClass extends Application {
 		});
 
 		Button deleteButton = new Button("Delete");
-		deleteButton.setStyle(buttonStyle());
+		deleteButton.setStyle(mainButtonStyle());
 		deleteButton.setOnAction(event -> {
 			int deletedRow = foodTable.getSelectionModel().getSelectedIndex();
 			FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
@@ -802,6 +819,7 @@ public class MainClass extends Application {
 	public void editMealsPage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
+		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
 
 		homeButton();
 
@@ -892,7 +910,7 @@ public class MainClass extends Application {
 		probabilityLayout.getChildren().add(probabilityTable);
 
 		Button saveProbsButton = new Button("Save Changes");
-		saveProbsButton.setStyle(buttonStyle());
+		saveProbsButton.setStyle(mainButtonStyle());
 		saveProbsButton.setOnAction(event -> {
 			BigDecimal totalProbability = BigDecimal.ZERO;
 
@@ -1152,7 +1170,7 @@ public class MainClass extends Application {
 				CornerRadii.EMPTY, new BorderWidths(1))));
 
 		Button addButton = new Button("Add Meal");
-		addButton.setStyle(buttonStyle());
+		addButton.setStyle(mainButtonStyle());
 		addButton.setOnAction(event ->{	//doesn't return to this page
 			addMealPage();	//needs fixing
 		});
@@ -1309,7 +1327,7 @@ public class MainClass extends Application {
 */
 
 		Button save = new Button ("OK");
-		save.setStyle(buttonStyle());
+		save.setStyle(mainButtonStyle());
 		save.setOnAction(event ->{
 				return;
 		});
@@ -1342,6 +1360,7 @@ public class MainClass extends Application {
 	public void editDronePage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
+		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
 
 		homeButton();
 		menuButtons();
@@ -1420,7 +1439,7 @@ public class MainClass extends Application {
 		centerLayout.getChildren().addAll(titleLayout, droneSettings);
 
 		Button editButton = new Button("Save Changes");
-		editButton.setStyle(buttonStyle());
+		editButton.setStyle(mainButtonStyle());
 
 		//sets current drone settings to edited drone settings
 		editButton.setOnAction(event -> {
@@ -1487,6 +1506,7 @@ public class MainClass extends Application {
 	public void editMapPage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
+		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
 
 		homeButton();
 
@@ -1538,7 +1558,7 @@ public class MainClass extends Application {
 		map.setHorizontalGridLinesVisible(false);
 		map.setVerticalGridLinesVisible(false);
 		map.setLegendVisible(false);
-		map.setStyle("-fx-background: WHITE");
+		map.setStyle("-fx-background: #e0e0e0");
 
 		//creates points from destination coordinates for scatter plot
 		XYChart.Series<Number, Number> mapValues = new XYChart.Series<>();
@@ -1549,6 +1569,10 @@ public class MainClass extends Application {
 
 		//adds points to scatter plot
 		map.getData().add(mapValues);
+
+		for(Node mapPoint : map.lookupAll(".series" + 0)) {
+			mapPoint.setStyle("-fx-background-color: #0047ab");
+		}
 
 		//arranges map
 		StackPane plotLayout = new StackPane();
@@ -1673,7 +1697,7 @@ public class MainClass extends Application {
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
-		addButton.setStyle(buttonStyle());
+		addButton.setStyle(mainButtonStyle());
 
 		addButton.setOnAction(event -> {
 			Stage addDialog = new Stage();
@@ -1741,6 +1765,10 @@ public class MainClass extends Application {
 
 						mapTable.setItems(newMapPoints);
 
+						for(Node mapPoint : map.lookupAll(".series" + 0)) {
+							mapPoint.setStyle("-fx-background-color: #0047ab");
+						}
+
 						addDialog.close();
 					}
 					else {
@@ -1776,12 +1804,10 @@ public class MainClass extends Application {
 			Scene dialogScene = new Scene(dialogLayout);
 			addDialog.setScene(dialogScene);
 			addDialog.show();
-
-			//TODO: FIGURE OUT HOW TO MAKE NEW ROW CLICKABLE
 		});
 
 		Button deleteButton = new Button("Delete");
-		deleteButton.setStyle(buttonStyle());
+		deleteButton.setStyle(mainButtonStyle());
 		deleteButton.setOnAction(event -> {
 			int deletedRow = mapTable.getSelectionModel().getSelectedIndex();
 			Point deletedPoint = mapTable.getSelectionModel().getSelectedItem();
@@ -1824,7 +1850,7 @@ public class MainClass extends Application {
 
 		//creates button for loading map
 		Button loadButton = new Button("Load Map");
-		loadButton.setStyle(buttonStyle());
+		loadButton.setStyle(mainButtonStyle());
 		//TODO: LOAD IN MAP
 
 		HBox loadDisplay = new HBox();
@@ -1847,11 +1873,6 @@ public class MainClass extends Application {
 
 		//sets screen to display page
 		window.setScene(mapEditPage);
-
-		//changing the color of the points on the map must be done after the scene is set
-		for(Node mapPoint : map.lookupAll(".series" + 0)) {
-			mapPoint.setStyle("-fx-background-color: blue");
-		}
 	}
 
 	/**
@@ -1859,11 +1880,9 @@ public class MainClass extends Application {
 	 * @author Rachel Franklin
 	 */
 	public void resultsPage() {
-
 		//creates heading of page
 		title = new Text("Simulation Results");
-		title.setFont(Font.font("Serif", 30));
-		title.setFill(Color.BLACK);
+		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
 		title.setWrappingWidth(400);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -1872,8 +1891,19 @@ public class MainClass extends Application {
 		titleLayout.getChildren().add(title);
 		titleLayout.setAlignment(Pos.CENTER);
 
-		//sets up home button icon
-		homeButton();
+		//icon created by Google
+		Image homeIcon = new Image("file:resources/home-button.png");
+		ImageView homeView = new ImageView(homeIcon);
+
+		Button homeButton = new Button("", homeView);
+		homeButton.setStyle("-fx-background-color: #e0e0e0");
+		homeButton.setOnAction(e-> window.setScene(mainMenu));
+
+		iconLayout = new HBox();
+		iconLayout.setAlignment(Pos.TOP_LEFT);
+		iconLayout.setPadding(new Insets(0, 0, 0, 15));
+		iconLayout.getChildren().add(homeButton);
+		iconLayout.setStyle("-fx-background-color: #e0e0e0");
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
@@ -1883,8 +1913,7 @@ public class MainClass extends Application {
 
 		//fifo stats
 		Text fifoTitle = new Text("FIFO Delivery");
-		fifoTitle.setFont(Font.font("Serif", FontWeight.BOLD, 18));
-		fifoTitle.setFill(Color.BLACK);
+		fifoTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
 		fifoTitle.setWrappingWidth(300);
 		fifoTitle.setTextAlignment(TextAlignment.CENTER);
 
@@ -1892,8 +1921,7 @@ public class MainClass extends Application {
 
 		Text fifoAverage = new Text(String.format("Average Delivery Time: %.1f minutes",
 				fifoAverageTime / SECONDS_PER_MINUTE));
-		fifoAverage.setFont(Font.font("Serif", 18));
-		fifoAverage.setFill(Color.BLACK);
+		fifoAverage.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
 		fifoAverage.setWrappingWidth(300);
 		fifoAverage.setTextAlignment(TextAlignment.CENTER);
 
@@ -1901,8 +1929,7 @@ public class MainClass extends Application {
 
 		Text fifoWorst = new Text(String.format("Worst Delivery Time: %.1f minutes",
 				fifoWorstTime / SECONDS_PER_MINUTE));
-		fifoWorst.setFont(Font.font("Serif", 18));
-		fifoWorst.setFill(Color.BLACK);
+		fifoWorst.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
 		fifoWorst.setWrappingWidth(300);
 		fifoWorst.setTextAlignment(TextAlignment.CENTER);
 
@@ -1913,8 +1940,7 @@ public class MainClass extends Application {
 
 		//knapsack stats
 		Text knapsackTitle = new Text("Knapsack Packing Delivery");
-		knapsackTitle.setFont(Font.font("Serif", FontWeight.BOLD, 18));
-		knapsackTitle.setFill(Color.BLACK);
+		knapsackTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
 		knapsackTitle.setWrappingWidth(300);
 		knapsackTitle.setTextAlignment(TextAlignment.CENTER);
 
@@ -1922,8 +1948,7 @@ public class MainClass extends Application {
 
 		Text knapsackAverage = new Text(String.format("Average Delivery Time: %.1f minutes",
 				knapsackAverageTime / SECONDS_PER_MINUTE));
-		knapsackAverage.setFont(Font.font("Serif", 18));
-		knapsackAverage.setFill(Color.BLACK);
+		knapsackAverage.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
 		knapsackAverage.setWrappingWidth(300);
 		knapsackAverage.setTextAlignment(TextAlignment.CENTER);
 
@@ -1931,8 +1956,7 @@ public class MainClass extends Application {
 
 		Text knapsackWorst = new Text(String.format("Worst Delivery Time: %.1f minutes",
 				knapsackWorstTime / SECONDS_PER_MINUTE));
-		knapsackWorst.setFont(Font.font("Serif", 18));
-		knapsackWorst.setFill(Color.BLACK);
+		knapsackWorst.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
 		knapsackWorst.setWrappingWidth(300);
 		knapsackWorst.setTextAlignment(TextAlignment.CENTER);
 
@@ -2009,17 +2033,17 @@ public class MainClass extends Application {
 
 		//change bar colors on chart
 		for (XYChart.Data<String, Number> data: fifoSeries.getData()){
-			data.getNode().setStyle("-fx-bar-fill: red;");
+			data.getNode().setStyle("-fx-bar-fill: #8e0000;");
 		}
 		for (XYChart.Data<String, Number> data: knapsackSeries.getData()){
-			data.getNode().setStyle("-fx-bar-fill: blue;");
+			data.getNode().setStyle("-fx-bar-fill: #0047ab;");
 		}
 
-		barChart.setStyle("-fx-background: WHITE");
+		barChart.setStyle("-fx-background: #e0e0e0");
 
 		//save results button
 		Button saveButton = new Button("Save Results");
-		saveButton.setStyle(buttonStyle());
+		saveButton.setStyle(mainButtonStyle());
 
 		saveButton.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
@@ -2054,10 +2078,10 @@ public class MainClass extends Application {
 		//change legend colors to reflect bar colors
 		//note - this must be done after scene is set
 		for (Node node : barChart.lookupAll(".bar-legend-symbol.default-color0")) {
-			node.setStyle("-fx-background-color: red;");
+			node.setStyle("-fx-background-color: #8e0000;");
 		}
 		for (Node node : barChart.lookupAll(".bar-legend-symbol.default-color1")) {
-			node.setStyle("-fx-background-color: blue;");
+			node.setStyle("-fx-background-color: #0047ab;");
 		}
 	}
 }
