@@ -5,7 +5,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
-import java.util.Scanner;
 
 /**
  * @author  Christian Burns
@@ -16,7 +15,7 @@ public class Point implements XmlSerializable {
     private double latitude;
     private double longitude;
 
-    private Point origin;
+    private final Point origin;
     private int x = 0;
     private int y = 0;
 
@@ -99,28 +98,19 @@ public class Point implements XmlSerializable {
     /**
      * Method for editing the coordinates of a point
      * @param coordinates the x, y values to which the point is set
-     * @author Isabella Patnode
+     * @author Isabella Patnode, Christian Burns
      */
     public void setCoordinates(String coordinates) {
-        coordinates = coordinates.replace("(", "");
-        coordinates = coordinates.replace(")", "");
-        coordinates = coordinates.replace(" ", "");
-
-        Scanner scanner = new Scanner(coordinates);
-        scanner.useDelimiter(",");
-
-        if(scanner.hasNextInt()) {
-            this.x = scanner.nextInt();
-        }
-        else {
-            throw new IllegalArgumentException("Invalid coordinate pair");
-        }
-
-        if(scanner.hasNextInt()) {
-            this.y = scanner.nextInt();
-        }
-        else {
-            throw new IllegalArgumentException("Invalid coordinate pair");
+        String cleaned = coordinates.replaceAll("[( )]", "");
+        String[] values = cleaned.split(",", 2);
+        try {
+            int xValue = Integer.parseInt(values[0]);
+            int yValue = Integer.parseInt(values[1]);
+            x = xValue; // set the new x value now that we know both x and y exist
+            y = yValue; // set the new y value now that we know both x and y exist
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            throw new IllegalArgumentException(
+                    String.format("invalid coordinates: expected \"int,int\", found \"%s\"", coordinates));
         }
     }
 

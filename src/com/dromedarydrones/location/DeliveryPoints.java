@@ -18,9 +18,9 @@ import java.util.function.Consumer;
  */
 public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
 
-    private Point origin;
-    private ArrayList<Point> points;
-    private Random rand;
+    private final Point origin;
+    private final ArrayList<Point> points;
+    private final Random rand;
 
     public DeliveryPoints() {
         points = new ArrayList<>();

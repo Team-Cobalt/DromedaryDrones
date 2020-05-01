@@ -52,7 +52,7 @@ import java.util.concurrent.*;
  * Button Text:			0047ab (Cobalt Blue)
  * Button Outline:		0047ab (Cobalt Blue)
  * GUI Text:			0047ab (Cobalt Blue)
- * Bar Chart:			8e000 (Dark Red) and 0047ab (Cobalt Blue)
+ * Bar Chart:			8e0000 (Dark Red) and 0047ab (Cobalt Blue)
  * Map Points:			0047ab (Cobalt Blue)
  *
  */
@@ -84,19 +84,7 @@ public class MainClass extends Application {
 
 		//loads specified configuration settings
 		Configuration configuration = Configuration.getInstance();
-
-		try {
-			// try loading the file
-			configuration.initialize();
-		} catch (IOException ioException) {
-			try {
-				// try loading the default GCC data
-				configuration.initialize();
-			} catch (Exception exception) {
-				// something went very wrong
-				exception.printStackTrace();
-			}
-		}
+		configuration.initialize();
 
 		//launches GUI and simulation
 		launch(args);
@@ -135,6 +123,30 @@ public class MainClass extends Application {
 	 */
 	private void abortSimulation() {
 		futureResults.cancel(true);
+	}
+
+	/**
+	 * Saves the simulation configuration and handles file save dialog if needed.
+	 * @author Christian Burns
+	 * @throws IOException
+	 */
+	private void saveSimulation() throws IOException {
+		Configuration cfg = Configuration.getInstance();
+		File cfgFile = cfg.getLastConfigFile();
+
+		if (cfgFile == null) {
+			//saves settings in XML file to local machine
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Save Settings");
+			fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter("XML", "*.xml")
+			);
+			cfgFile = fileChooser.showSaveDialog(window);
+		}
+
+		if (cfgFile != null) {
+			cfg.saveConfigs(cfgFile);
+		}
 	}
 
 	/**
@@ -446,10 +458,13 @@ public class MainClass extends Application {
 			);
 			File file = fileChooser.showOpenDialog(window);
 			if (file != null) {
+				Configuration.getInstance().initialize(file);
 				try {
-					Configuration.getInstance().initialize(file);
-					currentSimulation = Configuration.getInstance().getCurrentSimulation();
-				} catch (IOException exception) { exception.printStackTrace(); }
+					Configuration.getInstance().setLastConfigFile(file);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				currentSimulation = Configuration.getInstance().getCurrentSimulation();
 			}
 		});
 
