@@ -846,7 +846,6 @@ public class MainClass extends Application {
 
 		settingTitle();
 
-
 		//formats display of meal probabilities
 		HashMap<String, Double> probabilities = new HashMap<>();
 		for (Meal item : currentSimulation.getMealTypes()){
@@ -941,10 +940,6 @@ public class MainClass extends Application {
 							item.setProbability(tableCell.getValue());
 						}
 					}
-				}
-
-				for (Meal item : currentSimulation.getMealTypes()){
-					System.out.println(item.getProbability());
 				}
 			}
 
@@ -1227,15 +1222,22 @@ public class MainClass extends Application {
 		titleLayout = new HBox();
 		titleLayout.getChildren().add(title);
 		titleLayout.setAlignment(Pos.CENTER);
-/*
-		//formats display of meal probabilities
+
+		//user should name the food item
+		Text nameText = new Text("Food name: ");
+		TextField nameField = new TextField();
+
+		HBox nameLayout = new HBox();
+		nameLayout.getChildren().addAll(nameText, nameField);
+		nameLayout.setAlignment(Pos.CENTER);
+
+		//formats display of meal counts
 		HashMap<FoodItem, Integer> foodItems = new HashMap<>();
 		for (FoodItem item : currentSimulation.getFoodItems()){
 			foodItems.put(item, 0);
 		}
 		ObservableList<HashMap.Entry<FoodItem, Integer>> foodInMeal = FXCollections
 				.observableArrayList(foodItems.entrySet());
-		//probabilities shown separate from meal contents due to nuances with editing
 		TableView<HashMap.Entry<FoodItem, Integer>> foodTable = new TableView<>(foodInMeal);
 		foodTable.setMaxSize(205, 300);
 		foodTable.setEditable(true);
@@ -1268,7 +1270,7 @@ public class MainClass extends Application {
 
 			int errorIndex = 0;
 			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-			double oldValue = event.getOldValue();
+			int oldValue = event.getOldValue();
 
 			//user must input an integer
 			if (event.getNewValue() == null){
@@ -1277,14 +1279,26 @@ public class MainClass extends Application {
 				invalidInput.setContentText("Input must be an integer.");
 				errorIndex = 1;
 			}
+			//if given an integer value, proceed
 			else {
-				double newValue = event.getNewValue();
+				int newValue = event.getNewValue();
 				double maxPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight();
-				double itemWeight = event.getRowValue().getValue();
-				System.out.println("Item weight =" + itemWeight);
+				double itemWeight = event.getRowValue().getKey().getWeight();
+
+				double mealWeight = 0;
+				HashMap.Entry <FoodItem, Integer> currentItem;
+				for (int index = 0; index < event.getTableView().getItems().size(); index++){
+					currentItem = event.getTableView().getItems().get(index);
+					if (currentItem.equals(event.getRowValue())){	//make sure new value is accounted for
+						mealWeight += newValue * (itemWeight);
+					}
+					else{
+						mealWeight += currentItem.getValue() * (currentItem.getKey().getWeight());
+					}
+				}
 
 				//drone capacity cannot exceed 12 lbs, so items combined weight cannot exceed 12 lbs
-				if (newValue*itemWeight > maxPayload) {
+				if (mealWeight > maxPayload) {
 					invalidInput.setTitle("Invalid Input");
 					invalidInput.setHeaderText("Error: Invalid Input");
 					invalidInput.setContentText("Meal weight cannot exceed " + maxPayload + " oz.");
@@ -1296,39 +1310,18 @@ public class MainClass extends Application {
 					invalidInput.setContentText("Negative values not permitted.");
 					errorIndex = 1;
 				}
-				else {
-					//drone capacity cannot exceed 12 lbs, so any meal cannot exceed 12 lbs
-					ArrayList<Meal> mealTypes = currentSimulation.getMealTypes();
-					String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getName();
-					if(errorIndex == 0) {
-						for (Meal meal : mealTypes) {
-							for (int food = 0; food < meal.getFoods().size(); food++) {
-								FoodItem currItem = meal.getFoods().get(food);
-								if (itemName.equals(currItem.getName())) {
-									double newWeight = currItem.getWeight() - event.getOldValue() + newValue;
-									if (newWeight > maxPayload) {
-										invalidInput.setTitle("Invalid Input");
-										invalidInput.setHeaderText("Error: Invalid Input");
-										invalidInput.setContentText("Input food item weight causes a meal weight to " +
-												"exceed the drone's maximum payload weight.");
-										errorIndex = 1;
-									}
-								}
-							}//foods for loop
-						}//meals for loop
-					} //checking meals if statement
-				} //else statement if newValue <= maxPayload
-			} //else statement if maxPayload is a number
+			}
 
 			if(errorIndex == 0) {
 				//user input valid weight
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
-						setWeight(event.getNewValue());
+						setValue(event.getNewValue());
 			}
 			else {
 				//put old value as
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
-						setWeight(oldValue);
+						setValue(oldValue);
+				foodTable.refresh();
 				invalidInput.showAndWait();
 			}
 
@@ -1339,26 +1332,60 @@ public class MainClass extends Application {
 		foodTable.setPrefHeight(300);
 		foodTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 				CornerRadii.EMPTY, new BorderWidths(1))));
-*/
 
 		Button save = new Button ("OK");
 		save.setStyle(mainButtonStyle());
 		save.setOnAction(event ->{
+			int errorIndex = 0;
+			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+			invalidInput.setTitle("Invalid Meal Input");
+
+			//meal must have a name
+			if (nameField.getText().equals("")){
+				errorIndex = 1;
+				invalidInput.setContentText("Meal must be given a name.");
+			}
+
+			if (errorIndex == 0){
+				//food items to put in meal
+				ArrayList <FoodItem> foodToAdd = new ArrayList<>();
+				for (int index = 0; index < currentSimulation.getFoodItems().size(); index++){
+					int countFood = foodInMeal.get(index).getValue();
+					for (int countIndex = 0; countIndex < countFood; countIndex++){
+						foodToAdd.add(foodInMeal.get(index).getKey());
+					}
+				}
+
+				//add new meal to simulation
+				currentSimulation.addMealType(new Meal(foodToAdd, nameField.getText(), 0));
+				Alert probabilityNotice = new Alert(Alert.AlertType.INFORMATION);
+				probabilityNotice.setTitle("Meal Created with Probability of 0");
+				probabilityNotice.setHeaderText(null);
+				probabilityNotice.setContentText("Your meal has been created with its probability " +
+						"set to 0. You can change that through the probability table on the meals " +
+						"edit page. Remember, probabilities of all meals combined should equal 1.");
+				probabilityNotice.showAndWait();
+
+				editMealsPage();
 				return;
-		});
-/*
+			}
+			else{
+				invalidInput.showAndWait();
+			}
+        });
+
 		StackPane tableLayout = new StackPane();
 		tableLayout.setAlignment(Pos.TOP_RIGHT);
 		tableLayout.setMaxSize(202, 300);
 		tableLayout.getChildren().add(foodTable);
-*/
+
 		VBox centerLayout = new VBox(80);
 		centerLayout.setAlignment(Pos.TOP_CENTER);
 		centerLayout.setPadding(new Insets(20,0,0,0));
-		centerLayout.getChildren().addAll(titleLayout, save);
+		centerLayout.getChildren().addAll(titleLayout, nameLayout, tableLayout, save);
 
 		settingLayout = new HBox(130);
-		//settingLayout.getChildren().addAll(layouts);
+		settingLayout.getChildren().addAll(centerLayout);
 		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
 
 		root = new StackPane();
