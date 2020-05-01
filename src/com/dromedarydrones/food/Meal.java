@@ -37,7 +37,13 @@ public class Meal implements XmlSerializable {
 	 * @throws IllegalArgumentException if meal weight exceeds drone's cargo weight limit
 	 */
 	public Meal(List<FoodItem> mealFoods, String name, double probability) {
-		//MAKE SURE THIS COPYING DOESN'T RUIN ANYTHING
+		if(mealFoods == null)
+			throw new IllegalArgumentException("List of foods cannot be null.");
+		if(name == null)
+			throw new IllegalArgumentException("Name cannot be null.");
+		if(probability < 0.0)
+			throw new IllegalArgumentException("Probability cannot be negative.");
+
 		foods = new ArrayList<>(mealFoods);
 		this.name = name;
 		this.probability = probability;
@@ -48,6 +54,9 @@ public class Meal implements XmlSerializable {
 	 * @param name the name of the meal
 	 */
 	public void setName(String name) {
+		if(name == null)
+			throw new IllegalArgumentException("Invalid name.");
+
 		this.name = name;
 	}
 	
@@ -56,6 +65,9 @@ public class Meal implements XmlSerializable {
 	 * @param prob new probability of the meal
 	 */
 	public void setProbability(double prob) {
+		if(prob < 0)
+			throw new IllegalArgumentException("Invalid probability.");
+
 		this.probability = prob;
 	}
 	

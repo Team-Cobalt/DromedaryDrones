@@ -61,6 +61,12 @@ javafx { // JavaFX options
 
 test {
     useJUnit()
+
+    testLogging {
+        events "passed", "failed", "skipped"
+    }
+
+    outputs.upToDateWhen {false}
 }
 
 jar{

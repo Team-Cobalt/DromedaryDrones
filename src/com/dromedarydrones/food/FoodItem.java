@@ -30,6 +30,12 @@ public class FoodItem implements XmlSerializable {
 	 * @param weight the weight of the food item
 	 */
 	public FoodItem(String name, double weight) {
+		if(name == null)
+			throw new IllegalArgumentException("Name cannot be null.");
+
+		if(weight <= 0.0)
+			throw new IllegalArgumentException("Weight cannot be less than or equal to 0.");
+
 		this.name = name;
 		this.weight = weight;
 	}
@@ -54,6 +60,9 @@ public class FoodItem implements XmlSerializable {
 	 * @param name the new name of the food item
 	 */
 	public void setName(String name) {
+		if(name == null)
+			throw new IllegalArgumentException("Name cannot be null.");
+
 		this.name = name;
 	}
 	
@@ -61,7 +70,10 @@ public class FoodItem implements XmlSerializable {
 	 * Updates the weight of the current food item
 	 * @param weight the new weight of the food item
 	 */
-	public void setWeight(double weight) {
+	public void setWeight(double weight){
+		if(weight <= 0.0)
+			throw new IllegalArgumentException("Weight cannot be less than or equal to 0.");
+
 		this.weight = weight;
 	}
 	
