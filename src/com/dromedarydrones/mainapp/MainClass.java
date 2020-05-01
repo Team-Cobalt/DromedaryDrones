@@ -10,8 +10,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,13 +32,13 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
-
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -68,9 +66,9 @@ public class MainClass extends Application {
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private Future<SimulationResults> futureResults;
-	
+
 	public static void main(String[] args) {
-		
+
 		//loads specified configuration settings
 		Configuration configuration = Configuration.getInstance();
 
@@ -88,7 +86,7 @@ public class MainClass extends Application {
 		}
 
 		//launches GUI and simulation
-		launch(args); 
+		launch(args);
 	}
 
 	/**
@@ -138,21 +136,21 @@ public class MainClass extends Application {
 
 		//adds camel image to main menu
 		Image image = new Image("file:resources/CuteCamel.png");
-		
+
 		ImageView imageView = new javafx.scene.image.ImageView(image);
-		
+
 		imageView.setX(50);
 		imageView.setY(50);
-		
+
 		imageView.setFitHeight(175);
 		imageView.setFitWidth(175);
-		
+
 		imageView.setPreserveRatio(true);
-		
+
 		VBox picture = new VBox(15);
 		picture.getChildren().add(imageView);
 		picture.setAlignment(Pos.TOP_CENTER);
-		
+
 		//adds opening heading to main menu
 		title = new Text("Welcome to Dromedary Drones!");
 		title.setStyle("-fx-font-family: Serif; -fx-font-size: 50; -fx-fill: #0047ab");
@@ -162,7 +160,7 @@ public class MainClass extends Application {
 		titleLayout = new HBox(20);
 		titleLayout.getChildren().add(title);
 		titleLayout.setAlignment(Pos.BASELINE_CENTER);
-		
+
 		//adds buttons to main menu
 		VBox buttons = new VBox(10);
 		buttons.setPrefWidth(100);
@@ -181,35 +179,35 @@ public class MainClass extends Application {
 		buttonEdit.setStyle(buttonStyle());
 		//takes user to general settings page when clicked
 		buttonEdit.setOnAction(event -> generalEditPage());
-		
+
 		//button for exiting the gui
 		Button buttonExit = new Button("Exit Simulation");
 		buttonExit.setMinWidth(buttons.getPrefWidth());
 		buttonExit.setStyle(buttonStyle());
 		//exits the screen (gui) when clicked
 		buttonExit.setOnAction(event-> System.exit(0));
-		
+
 		buttons.getChildren().addAll(buttonStart, buttonEdit, buttonExit);
 		buttons.setAlignment(Pos.BOTTOM_CENTER);
-		
+
 		//arranges title and buttons on the screen
 		VBox firstLayout = new VBox(30);
 		firstLayout.getChildren().addAll(titleLayout, buttons);
 		firstLayout.setAlignment(Pos.CENTER);
-		
+
 		//arranges all elements of the main menu on the screen
 		VBox menuLayout = new VBox(30);
 		menuLayout.getChildren().addAll(picture, firstLayout);
 		menuLayout.setSpacing(10);
 		menuLayout.setAlignment(Pos.CENTER);
 		menuLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
-		
-		
+
+
 		root = new StackPane();
 		root.getChildren().add(menuLayout);
-		
+
 		mainMenu = new Scene(root, 900, 600);
-		
+
 		//sets starting window to the main menu
 		window.setScene(mainMenu);
 		window.sizeToScene();
@@ -721,19 +719,38 @@ public class MainClass extends Application {
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
 		addButton.setStyle(buttonStyle());
-		/*
-		addButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				currentSimulation.createFoodItem("Enter Food", Double.NaN);
-				int row = foodItems.size() - 1;
-				foodTable.requestFocus();
-				foodTable.getSelectionModel().select(row);
-				foodTable.getFocusModel().focus(row);
 
-				//TODO: HOW TO GET IT SO THAT THE ROW IS HIGHLIGHTS WHEN IT IS SELECTED AGAIN
+		Text newFoodNameLabel = new Text("Food name: ");
+		TextField newFoodName = new TextField();
+		Text newFoodWeightLabel = new Text("Weight: ");
+		TextField newFoodWeight = new TextField();
+
+		addButton.setOnAction(event -> {
+			Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+			errorAlert.setTitle("Invalid Input");
+			errorAlert.setHeaderText("Error: Invalid Input");
+
+			try {
+				double newWeight = Double.parseDouble(newFoodWeight.getText());
+				if (newWeight > currentSimulation.getDroneSettings().getMaxPayloadWeight()){
+					errorAlert.setContentText("Food weight cannot exceed drone's maximum payload.");
+					errorAlert.showAndWait();
+				} else if (newWeight <= 0.0){
+					errorAlert.setContentText("Food must weigh something.");
+					errorAlert.showAndWait();
+				} else if (newFoodName.getText().equals("")){
+					errorAlert.setContentText("Food must have a name.");
+					errorAlert.showAndWait();
+				}
+
+				currentSimulation.addFoodItem(new FoodItem(newFoodName.getText(), newWeight));
+				foodTable.refresh();
 			}
-		});*/
+			catch(NumberFormatException illegalFormat) {
+				errorAlert.setContentText("Number format required");
+				errorAlert.showAndWait();
+			}
+		});
 
 		Button deleteButton = new Button("Delete");
 		deleteButton.setStyle(buttonStyle());
@@ -742,8 +759,6 @@ public class MainClass extends Application {
 			FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
 			foodItems.remove(deletedRow);
 			currentSimulation.removeFoodItem(deletedFood);
-			//DON'T KNOW IF I NEED THIS
-			//currentSimulation.addMealTypes();
 		});
 
 		//arranges add and delete buttons relative to each other
@@ -751,8 +766,13 @@ public class MainClass extends Application {
 		editButtons.getChildren().addAll(addButton, deleteButton);
 		editButtons.setPadding(new Insets(0, 0, 0, 60));
 
+		HBox addDeleteFields = new HBox(10);
+		addDeleteFields.getChildren().addAll(newFoodNameLabel, newFoodName, newFoodWeightLabel,
+				newFoodWeight, editButtons);
+		addDeleteFields.setPadding(new Insets(0, 0,0,60));
+
 		VBox tableButtonLayout = new VBox(10);
-		tableButtonLayout.getChildren().addAll(tableLayout, editButtons);
+		tableButtonLayout.getChildren().addAll(tableLayout, addDeleteFields);
 		tableButtonLayout.setPadding(new Insets(0,0,0,100));
 
 		VBox centerLayout = new VBox();
@@ -1079,8 +1099,6 @@ public class MainClass extends Application {
 					"fx-font-family: Serif");
 			deleteButton.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID,
 					CornerRadii.EMPTY, new BorderWidths(0))));
-
-
 			deleteButton.setOnAction(event -> {
 				//total probability of meals after meal deletion should equal 1.0
 				BigDecimal mealProbability = new BigDecimal(meal.getProbability());
@@ -1135,6 +1153,9 @@ public class MainClass extends Application {
 
 		Button addButton = new Button("Add Meal");
 		addButton.setStyle(buttonStyle());
+		addButton.setOnAction(event ->{	//doesn't return to this page
+			addMealPage();	//needs fixing
+		});
 
 		//formats display of menu column and full meal display
 		VBox centerLayout = new VBox(80);
@@ -1157,6 +1178,161 @@ public class MainClass extends Application {
 
 		//sets screen to display page
 		window.setScene(mealEditPage);
+	}
+
+	/**
+	 * Creates page for adding a meal
+	 * @author Rachel Franklin
+	 */
+	public void addMealPage(){
+		title = new Text("Add Meal");
+		title.setFont(Font.font("Serif", 30));
+		title.setFill(Color.BLACK);
+		title.setWrappingWidth(400);
+		title.setTextAlignment(TextAlignment.CENTER);
+
+		titleLayout = new HBox();
+		titleLayout.getChildren().add(title);
+		titleLayout.setAlignment(Pos.CENTER);
+/*
+		//formats display of meal probabilities
+		HashMap<FoodItem, Integer> foodItems = new HashMap<>();
+		for (FoodItem item : currentSimulation.getFoodItems()){
+			foodItems.put(item, 0);
+		}
+		ObservableList<HashMap.Entry<FoodItem, Integer>> foodInMeal = FXCollections
+				.observableArrayList(foodItems.entrySet());
+		//probabilities shown separate from meal contents due to nuances with editing
+		TableView<HashMap.Entry<FoodItem, Integer>> foodTable = new TableView<>(foodInMeal);
+		foodTable.setMaxSize(205, 300);
+		foodTable.setEditable(true);
+
+		TableColumn<HashMap.Entry<FoodItem, Integer>, String> foodColumn = new TableColumn<>("Food Item");
+		foodColumn.setCellValueFactory(
+				(TableColumn.CellDataFeatures<HashMap.Entry<FoodItem, Integer>, String> item) ->
+						new SimpleStringProperty(item.getValue().getKey().getName()));
+		foodColumn.setPrefWidth(100);
+
+		TableColumn<HashMap.Entry<FoodItem, Integer>, Integer> countColumn = new TableColumn<>("Count in Meal");
+		countColumn.setCellValueFactory(
+				(TableColumn.CellDataFeatures<HashMap.Entry<FoodItem, Integer>, Integer> item) ->
+						new ReadOnlyObjectWrapper<>(item.getValue().getValue()));
+		countColumn.setPrefWidth(100);
+		countColumn.setEditable(true);
+
+		//user determines count of food item in meal
+		countColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter(){
+			@Override
+			public Integer fromString(String value){
+				try {
+					return super.fromString(value);
+				} catch(Exception e){
+					return null;
+				}
+			}
+		}));
+		countColumn.setOnEditCommit(event -> {
+
+			int errorIndex = 0;
+			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+			double oldValue = event.getOldValue();
+
+			//user must input an integer
+			if (event.getNewValue() == null){
+				invalidInput.setTitle("Invalid Input");
+				invalidInput.setHeaderText("Error: Invalid Input");
+				invalidInput.setContentText("Input must be an integer.");
+				errorIndex = 1;
+			}
+			else {
+				double newValue = event.getNewValue();
+				double maxPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight();
+				double itemWeight = event.getRowValue().getValue();
+				System.out.println("Item weight =" + itemWeight);
+
+				//drone capacity cannot exceed 12 lbs, so items combined weight cannot exceed 12 lbs
+				if (newValue*itemWeight > maxPayload) {
+					invalidInput.setTitle("Invalid Input");
+					invalidInput.setHeaderText("Error: Invalid Input");
+					invalidInput.setContentText("Meal weight cannot exceed " + maxPayload + " oz.");
+					errorIndex = 1;
+				}
+				else if (newValue <= 0) {
+					invalidInput.setTitle("Invalid Input");
+					invalidInput.setHeaderText("Error: Invalid Input");
+					invalidInput.setContentText("Negative values not permitted.");
+					errorIndex = 1;
+				}
+				else {
+					//drone capacity cannot exceed 12 lbs, so any meal cannot exceed 12 lbs
+					ArrayList<Meal> mealTypes = currentSimulation.getMealTypes();
+					String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getName();
+					if(errorIndex == 0) {
+						for (Meal meal : mealTypes) {
+							for (int food = 0; food < meal.getFoods().size(); food++) {
+								FoodItem currItem = meal.getFoods().get(food);
+								if (itemName.equals(currItem.getName())) {
+									double newWeight = currItem.getWeight() - event.getOldValue() + newValue;
+									if (newWeight > maxPayload) {
+										invalidInput.setTitle("Invalid Input");
+										invalidInput.setHeaderText("Error: Invalid Input");
+										invalidInput.setContentText("Input food item weight causes a meal weight to " +
+												"exceed the drone's maximum payload weight.");
+										errorIndex = 1;
+									}
+								}
+							}//foods for loop
+						}//meals for loop
+					} //checking meals if statement
+				} //else statement if newValue <= maxPayload
+			} //else statement if maxPayload is a number
+
+			if(errorIndex == 0) {
+				//user input valid weight
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).
+						setWeight(event.getNewValue());
+			}
+			else {
+				//put old value as
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).
+						setWeight(oldValue);
+				invalidInput.showAndWait();
+			}
+
+		});//event end
+
+		foodTable.getColumns().setAll(foodColumn, countColumn);
+		foodTable.setPrefWidth(200);
+		foodTable.setPrefHeight(300);
+		foodTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
+				CornerRadii.EMPTY, new BorderWidths(1))));
+*/
+
+		Button save = new Button ("OK");
+		save.setStyle(buttonStyle());
+		save.setOnAction(event ->{
+				return;
+		});
+/*
+		StackPane tableLayout = new StackPane();
+		tableLayout.setAlignment(Pos.TOP_RIGHT);
+		tableLayout.setMaxSize(202, 300);
+		tableLayout.getChildren().add(foodTable);
+*/
+		VBox centerLayout = new VBox(80);
+		centerLayout.setAlignment(Pos.TOP_CENTER);
+		centerLayout.setPadding(new Insets(20,0,0,0));
+		centerLayout.getChildren().addAll(titleLayout, save);
+
+		settingLayout = new HBox(130);
+		//settingLayout.getChildren().addAll(layouts);
+		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+
+		root = new StackPane();
+		root.getChildren().addAll(settingLayout, centerLayout);
+
+		Scene addMealPage = new Scene (root, 900, 600);
+		window.setScene(addMealPage);
 	}
 
 	/**
