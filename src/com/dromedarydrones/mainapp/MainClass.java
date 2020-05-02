@@ -1315,7 +1315,7 @@ public class MainClass extends Application {
 				else if (newValue <= 0) {
 					invalidInput.setTitle("Invalid Input");
 					invalidInput.setHeaderText("Error: Invalid Input");
-					invalidInput.setContentText("Negative values not permitted.");
+					invalidInput.setContentText("Negative values or 0 not permitted.");
 					errorIndex = 1;
 				}
 			}
@@ -1348,10 +1348,22 @@ public class MainClass extends Application {
 			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
 			invalidInput.setTitle("Invalid Meal Input");
 
+			double mealWeight = 0;
+			HashMap.Entry <FoodItem, Integer> currentItem;
+			for (int index = 0; index < foodTable.getItems().size(); index++){
+				currentItem = foodTable.getItems().get(index);
+				mealWeight += currentItem.getValue() * (currentItem.getKey().getWeight());
+			}
+
 			//meal must have a name
 			if (nameField.getText().equals("")){
 				errorIndex = 1;
 				invalidInput.setContentText("Meal must be given a name.");
+			}
+			//meal must have food items
+			else if(mealWeight <= 0){
+				errorIndex = 1;
+				invalidInput.setContentText("Meal must have food items.");
 			}
 
 			if (errorIndex == 0){
