@@ -2041,65 +2041,71 @@ public class MainClass extends Application {
 		xAxis.setLabel("Delivery Time (in minutes)");
 		yAxis.setLabel("Number of Orders");
 
-		//sets up fifo and knapsack packing series of data
-		XYChart.Series<String, Number> fifoSeries = new XYChart.Series<>();
-		XYChart.Series<String, Number> knapsackSeries = new XYChart.Series<>();
-		fifoSeries.setName("FIFO");
-		knapsackSeries.setName("Knapsack Packing");
+		final int columns = 26;
 
-        int [] fifoCount = new int [26];    //keeps track of how many orders occur per each time range
-		ArrayList<Double> fifoTimes = new ArrayList<>(results.getFifoTimes());
+		var fifoDurations = new int[columns];
+		var knapsackDurations = new int[columns];
 
-        //count number of orders per time slot
-		for(Double fifoTime: fifoTimes) {
-			//get the floor of the order delivery time
-            int time = (int)(Math.floor(fifoTime) / SECONDS_PER_MINUTE);
-            if (time < 25){
-            	fifoCount[time]++;  //increment orders in this time slot
-			}
-            else{
-            	fifoCount[25]++;
-			}
-        }
+		// determine the absolute minimum delivery time of all averages
+		int minDuration = (int) results.getWorstFifoTime();
 
-        //add data from fifo times
-        for (int index = 0; index < fifoCount.length - 1; index++){
-            fifoSeries.getData().add(new XYChart.Data<>(index + "-" + (index + 1), fifoCount[index]));
-        }
-        fifoSeries.getData().add(new XYChart.Data<>("25+", fifoCount[25]));
-
-        int [] knapsackCount = new int [26];	//keeps track of how many orders occur per each time range
-        ArrayList<Double> knapsackTimes = new ArrayList<>(results.getKnapsackTimes());
-
-        //count number of orders per time slot
-		for (Double knapsackTime: knapsackTimes){
-			//get the floor of the order delivery time
-			int time = (int)(Math.floor(knapsackTime) / SECONDS_PER_MINUTE);
-			if (time < 25) {
-				knapsackCount[time]++;  //increment orders in this time slot
-			}
-			else{
-				knapsackCount[25]++;
-			}
+		for (var fifoTime : results.getFifoTimes()) {
+			int duration = (int) (fifoTime / SECONDS_PER_MINUTE);
+			if (minDuration > duration) minDuration = duration;
+		}
+		for (var knapsackTime : results.getKnapsackTimes()) {
+			int duration = (int) (knapsackTime / SECONDS_PER_MINUTE);
+			if (minDuration > duration) minDuration = duration;
 		}
 
-		//add data from knapsack times
-		for (int index = 0; index < knapsackCount.length - 1; index++){
-			knapsackSeries.getData().add(new XYChart.Data<>(index + "-" + (index + 1), knapsackCount[index]));
+		// increment the array values to reflect the distribution
+		for (var fifoTime : results.getFifoTimes()) {
+			int duration = (int)(Math.floor(fifoTime) / SECONDS_PER_MINUTE);
+			int index = (duration - minDuration);
+			if (index < columns) fifoDurations[index]++;
+			else fifoDurations[columns - 1]++;
 		}
-		knapsackSeries.getData().add(new XYChart.Data<>("25+", knapsackCount[25]));
+		for (var knapsackTime : results.getKnapsackTimes()) {
+			int duration = (int)(Math.floor(knapsackTime) / SECONDS_PER_MINUTE);
+			int index = (duration - minDuration);
+			if (index < columns) knapsackDurations[index]++;
+			else knapsackDurations[columns - 1]++;
+		}
 
-		//add series data to bar chart
+		var fifoSeries = new XYChart.Series<String, Number>(
+				"FIFO", FXCollections.observableArrayList());
+		var fifoSeriesData = fifoSeries.getData();
+
+		// add the data values for fifo into the chart
+		for (int index = 0; index < columns; index++) {
+			int start = minDuration + index;
+			int end = start + 1;
+			var label = index == columns - 1 ? start + "+" : start + "-" + end;
+			var data = new XYChart.Data<String, Number>(label, fifoDurations[index]);
+			fifoSeriesData.add(data);
+		}
+
+		var knapsackSeries = new XYChart.Series<String, Number>(
+				"Knapsack Packing", FXCollections.observableArrayList());
+		var knapsackSeriesData = knapsackSeries.getData();
+
+		// add the values for knapsack into the chart
+		for (int index = 0; index < columns; index++) {
+			int start = minDuration + index;
+			int end = start + 1;
+			var label = index == columns - 1 ? start + "+" : start + "-" + end;
+			var data = new XYChart.Data<String, Number>(label, knapsackDurations[index]);
+			knapsackSeriesData.add(data);
+		}
+
 		barChart.getData().add(fifoSeries);
 		barChart.getData().add(knapsackSeries);
 
-		//change bar colors on chart
-		for (XYChart.Data<String, Number> data: fifoSeries.getData()){
+		// color the data columns
+		for (var data : fifoSeries.getData())
 			data.getNode().setStyle("-fx-bar-fill: #8e0000;");
-		}
-		for (XYChart.Data<String, Number> data: knapsackSeries.getData()){
+		for (var data : knapsackSeries.getData())
 			data.getNode().setStyle("-fx-bar-fill: #0047ab;");
-		}
 
 		barChart.setStyle("-fx-background: #e0e0e0");
 
