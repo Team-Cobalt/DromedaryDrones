@@ -632,6 +632,7 @@ public class MainClass extends Application {
 
 	/**
 	 * TESTED!!!
+	 * JUST NEED TO REDO THE LAYOUT
 	 * Creates GUI page for food items settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -655,7 +656,8 @@ public class MainClass extends Application {
 		ObservableList<FoodItem> foodItems = currentSimulation.getFoodItems();
 		foodTable.setItems(foodItems);
 		foodTable.setEditable(true);
-		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
+		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0; " +
+				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
 		//Create table headings
 		TableColumn<FoodItem, String> itemHeading = new TableColumn<>("Food Item");
@@ -891,7 +893,8 @@ public class MainClass extends Application {
 		TableView<HashMap.Entry<String, Double>> probabilityTable = new TableView<>(mealProbabilities);
 		probabilityTable.setMaxSize(205, 300);
 		probabilityTable.setEditable(true);
-		probabilityTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
+		probabilityTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
+				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
 		TableColumn<HashMap.Entry<String, Double>, String> itemColumn = new TableColumn<>("Meal Type");
 		itemColumn.setCellValueFactory(
@@ -1046,7 +1049,8 @@ public class MainClass extends Application {
 			//When maxwidth = prefwidth, horizontal scroll bar shows up -- make maxWidth > prefWidth
 			mealTable.setMaxSize(205, 300);
 			mealTable.setEditable(true);
-			mealTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
+			mealTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
+					"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
 			//Table holds food items and counts for each meal
 			TableColumn<HashMap.Entry<String, Integer>, String> foodColumn = new TableColumn<>("Food Item");
@@ -1155,8 +1159,6 @@ public class MainClass extends Application {
 			mealTable.getColumns().setAll(foodColumn, countColumn);
 			mealTable.setPrefWidth(200);
 			mealTable.setPrefHeight(250);
-			mealTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-					CornerRadii.EMPTY, new BorderWidths(1))));
 
 			//creates button for deleting meals
 			Button deleteButton = new Button("X");
@@ -1211,9 +1213,8 @@ public class MainClass extends Application {
 		ScrollPane mealLayout = new ScrollPane();
 		mealLayout.setContent(mealsBox);
 		mealLayout.setMaxSize(260, 400);
-		mealLayout.setStyle("-fx-background: #e0e0e0");
-		mealLayout.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
+		mealLayout.setStyle("-fx-background: #e0e0e0; -fx-border-style: solid; " +
+				"-fx-border-width: 1; -fx-border-color: black");
 
 		Button addButton = new Button("Add Meal");
 		addButton.setStyle(primaryButtonStyle());
@@ -1445,7 +1446,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETE AND TESTED!!!!!
+	 * COMPLETED AND TESTED!!!!!
 	 * Creates GUI page for drone settings
 	 * @author Izzy Patnode
 	 */
@@ -1596,7 +1597,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETE AND TESTED!!!!!
+	 * COMPLETED AND TESTED!!!!!
 	 * Creates GUI page for map settings
 	 * @author Izzy Patnode
 	 */
@@ -1683,7 +1684,8 @@ public class MainClass extends Application {
 		//adds cell values to table
 		mapTable.setItems(mapPoints);
 		mapTable.setEditable(true);
-		mapTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
+		mapTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
+				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
 		//creates columns for table
 		TableColumn<Point, String> pointHeading = new TableColumn<>("Drop-Off Point");
@@ -1784,8 +1786,6 @@ public class MainClass extends Application {
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
 		mapTable.setPrefWidth(275);
 		mapTable.setPrefHeight(300);
-		mapTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
 
 		//arranges table
 		StackPane tableLayout = new StackPane();
