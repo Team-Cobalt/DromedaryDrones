@@ -23,7 +23,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
@@ -39,7 +38,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -49,11 +47,11 @@ import java.util.concurrent.*;
  *			COLOR PALETTE
  *	-----------------------------
  * Main Background: 	e0e0e0 (Light Grey)
- * Sidebar Background: 	aeaeae (Dark Grey)
+ * Sidebar Background: 	bdbdbd (Grey)
  * Button Text:			0047ab (Cobalt Blue)
  * Button Outline:		0047ab (Cobalt Blue)
  * GUI Text:			0047ab (Cobalt Blue)
- * Bar Chart:			8e0000 (Dark Red) and 0047ab (Cobalt Blue)
+ * Bar Chart:			ae000b (Dark Red) and 0047ab (Cobalt Blue)
  * Map Points:			0047ab (Cobalt Blue)
  *
  */
@@ -73,7 +71,8 @@ public class MainClass extends Application {
 	private final int FEET_PER_MILE = 5280;
 	private final int OUNCES_PER_POUND = 16;
 	private final int SECONDS_PER_MINUTE = 60;
-	private static final String LIGHT_GRAY_BACKGROUND_STYLE = "-fx-background-color: #e0e0e0;";
+	private static final String PRIMARY_BACKGROUND_COLOR = "-fx-background-color: #e0e0e0;";
+	private static final String SECONDARY_BACKGROUND_COLOR = "-fx-background-color: #bdbdbd;";
 	private static final String BOLD_FONT_STYLE = "-fx-font-weight: bold;";
 	private static final String SIDEBAR_STYLE = "-fx-border-style: hidden solid hidden hidden;" +
 			"-fx-border-width: 1.25; -fx-border-color: black; -fx-padding: 0 5 7 0";
@@ -226,7 +225,7 @@ public class MainClass extends Application {
 		menuLayout.getChildren().addAll(picture, firstLayout);
 		menuLayout.setSpacing(10);
 		menuLayout.setAlignment(Pos.CENTER);
-		menuLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		menuLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 
 		root = new StackPane();
@@ -288,7 +287,7 @@ public class MainClass extends Application {
 
 		//allows the user to cancel the simulation
 		Button cancelButton = new Button("Cancel Simulation");
-		String cssStyle = LIGHT_GRAY_BACKGROUND_STYLE +
+		String cssStyle = PRIMARY_BACKGROUND_COLOR +
 				"-fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 		cancelButton.setStyle(cssStyle);
@@ -308,7 +307,7 @@ public class MainClass extends Application {
 		VBox simulationLayout = new VBox(35);
 		simulationLayout.getChildren().addAll(titleLayout, simulationPicture, simulationButton);
 		simulationLayout.setAlignment(Pos.CENTER);
-		simulationLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		simulationLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		root = new StackPane();
 		root.getChildren().add(simulationLayout);
@@ -327,13 +326,13 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode
 	 */
 	public String mainButtonStyle() {
-		 return LIGHT_GRAY_BACKGROUND_STYLE +
+		 return PRIMARY_BACKGROUND_COLOR +
 		"-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
 	public String secondaryButtonStyle() {
-		return "-fx-background-color: #aeaeae; -fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
+		return SECONDARY_BACKGROUND_COLOR + "-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
@@ -362,14 +361,14 @@ public class MainClass extends Application {
 		ImageView homeView = new ImageView(homeIcon);
 
 		Button homeButton = new Button("", homeView);
-		homeButton.setStyle("-fx-background-color: #aeaeae");
+		homeButton.setStyle(SECONDARY_BACKGROUND_COLOR);
 		homeButton.setOnAction(e-> window.setScene(mainMenu));
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
 		iconLayout.setPadding(new Insets(0, 0, 0, 15));
 		iconLayout.getChildren().add(homeButton);
-		iconLayout.setStyle("-fx-background-color: #aeaeae");
+		iconLayout.setStyle(SECONDARY_BACKGROUND_COLOR);
 	}
 
 	/**
@@ -427,7 +426,7 @@ public class MainClass extends Application {
 		saveLoadButtons.setPrefWidth(100);
 
 		//adds buttons for loading and saving model
-		Button saveButton = new Button("Import Settings");
+		Button saveButton = new Button("Export Settings");
 		saveButton.setMinWidth(saveLoadButtons.getPrefWidth());
 		saveButton.setStyle(secondaryButtonStyle());
 
@@ -435,7 +434,7 @@ public class MainClass extends Application {
 		saveButton.setOnAction(event -> {
 			//saves settings in XML file to local machine
 			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Import Settings");
+			fileChooser.setTitle("Export Settings");
 			fileChooser.getExtensionFilters().add(
 					new FileChooser.ExtensionFilter("XML", "*.xml")
 			);
@@ -446,14 +445,14 @@ public class MainClass extends Application {
 			}
 		});
 
-		Button loadButton = new Button("Export Settings");
+		Button loadButton = new Button("Import Settings");
 		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
 		loadButton.setStyle(secondaryButtonStyle());
 
 		//opens settings and loads model from user location
 		loadButton.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Export Settings");
+			fileChooser.setTitle("Import Settings");
 			fileChooser.getExtensionFilters().add(
 					new FileChooser.ExtensionFilter("XML", "*.xml")
 			);
@@ -484,7 +483,7 @@ public class MainClass extends Application {
 	public void generalEditPage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
-		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
+		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
 
 		homeButton();
 
@@ -603,7 +602,7 @@ public class MainClass extends Application {
 
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
-		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		settingLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -621,7 +620,7 @@ public class MainClass extends Application {
 	public void editFoodPage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
-		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
+		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
 
 		homeButton();
 
@@ -638,6 +637,7 @@ public class MainClass extends Application {
 		ObservableList<FoodItem> foodItems = currentSimulation.getFoodItems();
 		foodTable.setItems(foodItems);
 		foodTable.setEditable(true);
+		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
 
 		//Create table headings
 		TableColumn<FoodItem, String> itemHeading = new TableColumn<>("Food Item");
@@ -817,7 +817,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, centerLayout);
-		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		settingLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -835,7 +835,7 @@ public class MainClass extends Application {
 	public void editMealsPage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
-		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
+		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
 
 		homeButton();
 
@@ -858,6 +858,7 @@ public class MainClass extends Application {
 		TableView<HashMap.Entry<String, Double>> probabilityTable = new TableView<>(mealProbabilities);
 		probabilityTable.setMaxSize(205, 300);
 		probabilityTable.setEditable(true);
+		probabilityTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
 
 		TableColumn<HashMap.Entry<String, Double>, String> itemColumn = new TableColumn<>("Meal Type");
 		itemColumn.setCellValueFactory(
@@ -924,9 +925,9 @@ public class MainClass extends Application {
 		probabilityLayout.setMaxSize(202, 300);
 		probabilityLayout.getChildren().add(probabilityTable);
 
-		Button saveProbsButton = new Button("Save Changes");
-		saveProbsButton.setStyle(mainButtonStyle());
-		saveProbsButton.setOnAction(event -> {
+		Button saveProbabilityButton = new Button("Save Changes");
+		saveProbabilityButton.setStyle(mainButtonStyle());
+		saveProbabilityButton.setOnAction(event -> {
 			BigDecimal totalProbability = BigDecimal.ZERO;
 
 			for (HashMap.Entry<String, Double> item : mealProbabilities) {
@@ -964,7 +965,7 @@ public class MainClass extends Application {
 		VBox rightLayout = new VBox();
 		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
 		rightLayout.setPadding(new Insets(0, 0, 70, 50));
-		rightLayout.getChildren().addAll(probabilityLayout, saveProbsButton);
+		rightLayout.getChildren().addAll(probabilityLayout, saveProbabilityButton);
 
 		//arranges all meals together
 		VBox mealsBox = new VBox(10);
@@ -1012,6 +1013,7 @@ public class MainClass extends Application {
 			//When maxwidth = prefwidth, horizontal scroll bar shows up -- make maxWidth > prefWidth
 			mealTable.setMaxSize(205, 300);
 			mealTable.setEditable(true);
+			mealTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
 
 			//Table holds food items and counts for each meal
 			TableColumn<HashMap.Entry<String, Integer>, String> foodColumn = new TableColumn<>("Food Item");
@@ -1021,7 +1023,8 @@ public class MainClass extends Application {
 			foodColumn.setPrefWidth(100);
 			foodColumn.setEditable(true);
 
-			TableColumn<ObservableMap.Entry<String, Integer>, Integer> countColumn = new TableColumn<>("Number in Meal");
+			TableColumn<ObservableMap.Entry<String, Integer>, Integer> countColumn =
+					new TableColumn<>("Number in Meal");
 			countColumn.setCellValueFactory(
 					(TableColumn.CellDataFeatures<HashMap.Entry<String, Integer>, Integer> item) ->
 							new ReadOnlyObjectWrapper<>(item.getValue().getValue())); //Integers don't like to play nice
@@ -1086,12 +1089,12 @@ public class MainClass extends Application {
 
 					if (newValue < oldValue){
 						int difference = oldValue - newValue;
-						int numRemoved = 0;
+						int numberRemoved = 0;
 						for (FoodItem item : meal.getFoods()){
 							if (item.getName().equals(itemName)){
 								meal.removeItem(item);
-								numRemoved++;
-								if (numRemoved == difference){
+								numberRemoved++;
+								if (numberRemoved == difference){
 									break;
 								}
 							}
@@ -1124,19 +1127,18 @@ public class MainClass extends Application {
 
 			//creates button for deleting meals
 			Button deleteButton = new Button("X");
-			deleteButton.setStyle(BOLD_FONT_STYLE + "-fx-background-color: WHITE; -fx-font-size: 15; " +
-					"fx-font-family: Serif");
-			deleteButton.setBorder(new Border(new BorderStroke(Color.WHITE, BorderStrokeStyle.SOLID,
-					CornerRadii.EMPTY, new BorderWidths(0))));
+			deleteButton.setStyle(BOLD_FONT_STYLE + "-fx-background-color: #e0e0e0; -fx-font-size: 15; " +
+					"fx-font-family: Serif; -fx-border-style: hidden; -fx-border-color: #e0e0e0; -fx-border-width: 1");
+
 			deleteButton.setOnAction(event -> {
 				//total probability of meals after meal deletion should equal 1.0
 				BigDecimal mealProbability = new BigDecimal(meal.getProbability());
 				if (mealProbability.compareTo(BigDecimal.valueOf(0.0)) != 0){
 					Alert probabilityAlert = new Alert(Alert.AlertType.ERROR);
 					probabilityAlert.setTitle("Error");
-					probabilityAlert.setContentText("This meal's probability must be set to 0 before it can be deleted. " +
-							"Please refactor the probabilities so that this meal's probability is 0 and the rest are " +
-							"equivalent to 1.0.");
+					probabilityAlert.setContentText("This meal's probability must be set to 0 before it can be " +
+							"deleted. Please refactor the probabilities so that this meal's probability is 0 and " +
+							"the rest are equivalent to 1.0.");
 					probabilityAlert.showAndWait();
 				}
 
@@ -1176,7 +1178,7 @@ public class MainClass extends Application {
 		ScrollPane mealLayout = new ScrollPane();
 		mealLayout.setContent(mealsBox);
 		mealLayout.setMaxSize(260, 400);
-		mealLayout.setStyle("-fx-background: WHITE");
+		mealLayout.setStyle("-fx-background: #e0e0e0");
 		mealLayout.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 				CornerRadii.EMPTY, new BorderWidths(1))));
 
@@ -1198,7 +1200,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
-		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		settingLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -1215,8 +1217,7 @@ public class MainClass extends Application {
 	 */
 	public void addMealPage(){
 		title = new Text("Add Meal");
-		title.setFont(Font.font("Serif", 30));
-		title.setFill(Color.BLACK);
+		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
 		title.setWrappingWidth(400);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -1242,6 +1243,7 @@ public class MainClass extends Application {
 		TableView<HashMap.Entry<FoodItem, Integer>> foodTable = new TableView<>(foodInMeal);
 		foodTable.setMaxSize(205, 300);
 		foodTable.setEditable(true);
+		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
 
 		TableColumn<HashMap.Entry<FoodItem, Integer>, String> foodColumn = new TableColumn<>("Food Item");
 		foodColumn.setCellValueFactory(
@@ -1387,7 +1389,7 @@ public class MainClass extends Application {
 
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(centerLayout);
-		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		settingLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		root = new StackPane();
 		root.getChildren().addAll(settingLayout, centerLayout);
@@ -1403,7 +1405,7 @@ public class MainClass extends Application {
 	public void editDronePage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
-		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
+		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
 
 		homeButton();
 		menuButtons();
@@ -1531,7 +1533,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
-		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		settingLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -1549,7 +1551,7 @@ public class MainClass extends Application {
 	public void editMapPage() {
 		VBox leftLayout = new VBox();
 		leftLayout.setSpacing(110);
-		leftLayout.setStyle("-fx-background-color: #aeaeae;" + SIDEBAR_STYLE);
+		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
 
 		homeButton();
 
@@ -1565,34 +1567,34 @@ public class MainClass extends Application {
 		ObservableList<Point> mapPoints = currentSimulation.getDeliveryPoints().getPoints();
 
 		//finds maximum and minimum destinations points (in coordinates)
-		int maxY = mapPoints.get(0).getY();
-		int maxX = mapPoints.get(0).getX();
-		int minY = mapPoints.get(0).getY();
-		int minX = mapPoints.get(0).getX();
+		int upperYBound = mapPoints.get(0).getY();
+		int upperXBound = mapPoints.get(0).getX();
+		int lowerYBound = mapPoints.get(0).getY();
+		int lowerXBound = mapPoints.get(0).getX();
 
 		for(Point point : mapPoints) {
 			int currentY = point.getY();
 			int currentX = point.getX();
 
-			if (currentY >= maxY) {
-				maxY = currentY;
+			if (currentY >= upperYBound) {
+				upperYBound = currentY;
 			}
-			if(currentY <= minY) {
-				minY = currentY;
+			if(currentY <= lowerYBound) {
+				lowerYBound = currentY;
 			}
-			if(currentX >= maxX) {
-				maxX = currentX;
+			if(currentX >= upperXBound) {
+				upperXBound = currentX;
 			}
-			if(currentX <= minX) {
-				minX = currentX;
+			if(currentX <= lowerXBound) {
+				lowerXBound = currentX;
 			}
 		}
 
 		//creates the axes for the map scatter plot
-		NumberAxis xAxis = new NumberAxis(minX - 100, maxX + 100, 100);
+		NumberAxis xAxis = new NumberAxis(lowerXBound - 100, upperXBound + 100, 100);
 		xAxis.setLabel("");
 		xAxis.setTickMarkVisible(false);
-		NumberAxis yAxis = new NumberAxis(minY - 100, maxY + 100, 100);
+		NumberAxis yAxis = new NumberAxis(lowerYBound - 100, upperYBound + 100, 100);
 		yAxis.setLabel("");
 		yAxis.setTickMarkVisible(false);
 
@@ -1629,6 +1631,7 @@ public class MainClass extends Application {
 		//adds cell values to table
 		mapTable.setItems(mapPoints);
 		mapTable.setEditable(true);
+		mapTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
 
 		//creates columns for table
 		TableColumn<Point, String> pointHeading = new TableColumn<>("Drop-Off Point");
@@ -1670,27 +1673,27 @@ public class MainClass extends Application {
 						selectedPoint.setXValue(newXValue);
 						selectedPoint.setYValue(newYValue);
 
-						double upperXBound = xAxis.getUpperBound() - 100;
-						double lowerXBound = xAxis.getLowerBound() + 100;
+						int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
+						int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
 
-						if(newXValue > upperXBound) {
-							upperXBound = newXValue;
-							xAxis.setUpperBound(upperXBound + 100);
+						if(newXValue > currentUpperXBound) {
+							currentUpperXBound = newXValue;
+							xAxis.setUpperBound(currentUpperXBound + 100);
 						}
-						if(newXValue <= lowerXBound) {
-							lowerXBound = newXValue;
-							xAxis.setLowerBound(lowerXBound - 100);
+						if(newXValue <= currentLowerXBound) {
+							currentLowerXBound = newXValue;
+							xAxis.setLowerBound(currentLowerXBound - 100);
 						}
 
-						double upperYBound = yAxis.getUpperBound() - 100;
-						double lowerYBound = yAxis.getLowerBound() + 100;
+						int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
+						int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
 
-						if(newYValue > upperYBound) {
-							upperYBound = newYValue;
-							yAxis.setUpperBound(upperYBound + 100);
+						if(newYValue > currentUpperYBound) {
+							currentUpperYBound = newYValue;
+							yAxis.setUpperBound(currentUpperYBound + 100);
 						}
-						if(newYValue < lowerYBound) {
-							yAxis.setLowerBound(lowerYBound - 100);
+						if(newYValue < currentLowerYBound) {
+							yAxis.setLowerBound(currentLowerYBound - 100);
 						}
 					}
 					else {
@@ -1724,6 +1727,11 @@ public class MainClass extends Application {
 
 			event.getTableView().refresh();
 		});
+
+		upperXBound =  (int) xAxis.getUpperBound() - 100;
+		lowerXBound = (int) xAxis.getLowerBound() + 100;
+		upperYBound = (int) yAxis.getUpperBound() - 100;
+		lowerYBound = (int) yAxis.getLowerBound() + 100;
 
 		//adds column headings to table
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
@@ -1781,27 +1789,27 @@ public class MainClass extends Application {
 
 						mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
 
-						double upperXBound = xAxis.getUpperBound() - 100;
-						double lowerXBound = xAxis.getLowerBound() + 100;
+						int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
+						int cuurentLowerXBound = (int) xAxis.getLowerBound() + 100;
 
-						if(newXValue > upperXBound) {
-							upperXBound = newXValue;
-							xAxis.setUpperBound(upperXBound + 100);
+						if(newXValue > currentUpperXBound) {
+							currentUpperXBound = newXValue;
+							xAxis.setUpperBound(currentUpperXBound + 100);
 						}
-						if(newXValue <= lowerXBound) {
-							lowerXBound = newXValue;
-							xAxis.setLowerBound(lowerXBound - 100);
+						if(newXValue <= cuurentLowerXBound) {
+							cuurentLowerXBound = newXValue;
+							xAxis.setLowerBound(cuurentLowerXBound - 100);
 						}
 
-						double upperYBound = yAxis.getUpperBound() - 100;
-						double lowerYBound = yAxis.getLowerBound() + 100;
+						int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
+						int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
 
-						if(newYValue > upperYBound) {
-							upperYBound = newYValue;
-							yAxis.setUpperBound(upperYBound + 100);
+						if(newYValue > currentUpperYBound) {
+							currentUpperYBound = newYValue;
+							yAxis.setUpperBound(currentUpperYBound + 100);
 						}
-						if(newYValue < lowerYBound) {
-							yAxis.setLowerBound(lowerYBound - 100);
+						if(newYValue < currentLowerYBound) {
+							yAxis.setLowerBound(currentLowerYBound - 100);
 						}
 
 						ObservableList<Point> newMapPoints = currentSimulation.getDeliveryPoints().getPoints();
@@ -1907,7 +1915,7 @@ public class MainClass extends Application {
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
 		settingLayout.getChildren().addAll(leftLayout, mainLayout);
-		settingLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		settingLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		root = new StackPane();
 		root.getChildren().add(settingLayout);
@@ -1939,14 +1947,14 @@ public class MainClass extends Application {
 		ImageView homeView = new ImageView(homeIcon);
 
 		Button homeButton = new Button("", homeView);
-		homeButton.setStyle("-fx-background-color: #e0e0e0");
+		homeButton.setStyle(PRIMARY_BACKGROUND_COLOR);
 		homeButton.setOnAction(e-> window.setScene(mainMenu));
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
 		iconLayout.setPadding(new Insets(0, 0, 0, 15));
 		iconLayout.getChildren().add(homeButton);
-		iconLayout.setStyle("-fx-background-color: #e0e0e0");
+		iconLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		//configures display of home button and page title
 		HBox topLayout = new HBox();
@@ -2103,7 +2111,7 @@ public class MainClass extends Application {
 
 		// color the data columns
 		for (var data : fifoSeries.getData())
-			data.getNode().setStyle("-fx-bar-fill: #8e0000;");
+			data.getNode().setStyle("-fx-bar-fill: #ae000b;");
 		for (var data : knapsackSeries.getData())
 			data.getNode().setStyle("-fx-bar-fill: #0047ab;");
 
@@ -2133,7 +2141,7 @@ public class MainClass extends Application {
 		VBox finalLayout = new VBox();
 		//top layout, stats, barChart, save button
 		finalLayout.getChildren().addAll(topLayout, statsLayout, barChart, buttonBox);
-		finalLayout.setStyle(LIGHT_GRAY_BACKGROUND_STYLE);
+		finalLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		StackPane root = new StackPane();
 		root.getChildren().add(finalLayout);
@@ -2146,7 +2154,7 @@ public class MainClass extends Application {
 		//change legend colors to reflect bar colors
 		//note - this must be done after scene is set
 		for (Node node : barChart.lookupAll(".bar-legend-symbol.default-color0")) {
-			node.setStyle("-fx-background-color: #8e0000;");
+			node.setStyle("-fx-background-color: #ae000b;");
 		}
 		for (Node node : barChart.lookupAll(".bar-legend-symbol.default-color1")) {
 			node.setStyle("-fx-background-color: #0047ab;");
