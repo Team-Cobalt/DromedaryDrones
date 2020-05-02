@@ -631,8 +631,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * TESTED!!!
-	 * JUST NEED TO REDO THE LAYOUT
+	 * COMPLETED AND TESTED!!!
 	 * Creates GUI page for food items settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -720,12 +719,17 @@ public class MainClass extends Application {
 					//drone capacity cannot exceed 12 lbs, so any meal cannot exceed 12 lbs
 					ArrayList<Meal> mealTypes = currentSimulation.getMealTypes();
 					String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getName();
-					if(errorIndex == 0) {
 						for (Meal meal : mealTypes) {
-							for (int food = 0; food < meal.getFoods().size(); food++) {
-								FoodItem currItem = meal.getFoods().get(food);
-								if (itemName.equals(currItem.getName())) {
-									double newWeight = currItem.getWeight() - event.getOldValue() + newValue;
+							double newWeight = 0;
+							if(errorIndex == 0) {
+								for (FoodItem food: meal.getFoods()) {
+									if (itemName.equals(food.getName())) {
+										newWeight += newValue;
+									}
+									else {
+										newWeight += food.getWeight();
+									}
+
 									if (newWeight > maxPayload) {
 										invalidInput.setTitle("Invalid Input");
 										invalidInput.setHeaderText("Error: Invalid Input");
@@ -733,10 +737,9 @@ public class MainClass extends Application {
 												"exceed the drone's maximum payload weight.");
 										errorIndex = 1;
 									}
-								}
-							}//foods for loop
+								}//foods for loop
+							} //checking meals if statement
 						}//meals for loop
-					} //checking meals if statement
 				} //else statement if newValue <= maxPayload
 			} //else statement if maxPayload is a number
 
@@ -746,7 +749,7 @@ public class MainClass extends Application {
 						setWeight(event.getNewValue());
 			}
 			else {
-				//put old value as
+				//put old value back
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
 						setWeight(oldValue);
 				invalidInput.showAndWait();
@@ -764,18 +767,49 @@ public class MainClass extends Application {
 
 		//arranges table on screen
 		StackPane tableLayout = new StackPane();
-		tableLayout.setAlignment(Pos.TOP_RIGHT);
+		tableLayout.setAlignment(Pos.CENTER_RIGHT);
 		tableLayout.setMaxSize(202, 300);
 		tableLayout.getChildren().add(foodTable);
+
+		Text newFoodNameLabel = new Text("Food name: ");
+		newFoodNameLabel.setFont(Font.font("Serif", 15));
+		newFoodNameLabel.setTextAlignment(TextAlignment.CENTER);
+
+		TextField newFoodName = new TextField();
+		newFoodName.setMaxWidth(80);
+
+		Text newFoodWeightLabel = new Text("Weight: ");
+		newFoodWeightLabel.setFont(Font.font("Serif", 15));
+		newFoodWeightLabel.setTextAlignment(TextAlignment.CENTER);
+
+		TextField newFoodWeight = new TextField();
+		newFoodWeight.setMaxWidth(80);
+
+		HBox newNameField = new HBox();
+		newNameField.getChildren().addAll(newFoodNameLabel, newFoodName);
+
+		HBox newWeightField = new HBox();
+		newWeightField.getChildren().addAll(newFoodWeightLabel, newFoodWeight);
+
+		HBox newFoodFields = new HBox(7);
+		newFoodFields.getChildren().addAll(newNameField, newWeightField);
+		newFoodFields.setAlignment(Pos.CENTER);
+		newFoodFields.setPadding(new Insets(0, 20, 0, 0));
+
+		VBox tableFoodLayout = new VBox(10);
+		tableFoodLayout.getChildren().addAll(tableLayout, newFoodFields);
+		tableFoodLayout.setAlignment(Pos.CENTER);
+
+		VBox centerLayout = new VBox();
+		centerLayout.setSpacing(90);
+		centerLayout.setAlignment(Pos.TOP_CENTER);
+		centerLayout.setPadding(new Insets(20,0,0,0));
+		centerLayout.getChildren().addAll(titleLayout, tableFoodLayout);
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
 		addButton.setStyle(primaryButtonStyle());
-
-		Text newFoodNameLabel = new Text("Food name: ");
-		TextField newFoodName = new TextField();
-		Text newFoodWeightLabel = new Text("Weight: ");
-		TextField newFoodWeight = new TextField();
+		addButton.setMinWidth(60);
 
 		addButton.setOnAction(event -> {
 			Alert errorAlert = new Alert(Alert.AlertType.ERROR);
@@ -811,6 +845,7 @@ public class MainClass extends Application {
 
 		Button deleteButton = new Button("Delete");
 		deleteButton.setStyle(primaryButtonStyle());
+		deleteButton.setMinWidth(60);
 		deleteButton.setOnAction(event -> {
 			int deletedRow = foodTable.getSelectionModel().getSelectedIndex();
 			if(deletedRow < 0) {
@@ -826,31 +861,20 @@ public class MainClass extends Application {
 				currentSimulation.removeFoodItem(deletedFood);
 				foodTable.refresh();
 			}
-		});
+		}); //end of event
 
 		//arranges add and delete buttons relative to each other
-		HBox editButtons = new HBox(10);
-		editButtons.getChildren().addAll(addButton, deleteButton);
-		editButtons.setPadding(new Insets(0, 0, 0, 60));
+		HBox rightLayout = new HBox(10);
+		rightLayout.getChildren().addAll(addButton, deleteButton);
+		rightLayout.setAlignment(Pos.BOTTOM_RIGHT);
+		rightLayout.setPadding(new Insets(0, 50, 122, 0));
 
-		HBox addDeleteFields = new HBox(10);
-		addDeleteFields.getChildren().addAll(newFoodNameLabel, newFoodName, newFoodWeightLabel,
-				newFoodWeight, editButtons);
-		addDeleteFields.setPadding(new Insets(0, 0,0,60));
-
-		VBox tableButtonLayout = new VBox(10);
-		tableButtonLayout.getChildren().addAll(tableLayout, addDeleteFields);
-		tableButtonLayout.setPadding(new Insets(0,0,0,100));
-
-		VBox centerLayout = new VBox();
-		centerLayout.setSpacing(90);
-		centerLayout.setAlignment(Pos.TOP_CENTER);
-		centerLayout.setPadding(new Insets(20,0,0,0));
-		centerLayout.getChildren().addAll(titleLayout, tableButtonLayout);
+		HBox mainLayout = new HBox(20);
+		mainLayout.getChildren().addAll(centerLayout, rightLayout);
 
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
-		settingLayout.getChildren().addAll(leftLayout, centerLayout);
+		settingLayout.getChildren().addAll(leftLayout, mainLayout);
 		settingLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
 		root = new StackPane();
@@ -863,7 +887,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * TESTED!!!!
+	 * COMPLETED AND TESTED!!!!
 	 * Creates GUI page for meal settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -998,10 +1022,14 @@ public class MainClass extends Application {
 
 		});
 
-		VBox rightLayout = new VBox();
-		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
-		rightLayout.setPadding(new Insets(0, 0, 70, 50));
-		rightLayout.getChildren().addAll(probabilityLayout, saveProbabilityButton);
+		HBox saveLayout = new HBox();
+		saveLayout.getChildren().add(saveProbabilityButton);
+		saveLayout.setAlignment(Pos.CENTER);
+
+		VBox rightLayout = new VBox(5);
+		rightLayout.setAlignment(Pos.CENTER_RIGHT);
+		rightLayout.setPadding(new Insets(10, 0, 0, 0));
+		rightLayout.getChildren().addAll(probabilityLayout, saveLayout);
 
 		//arranges all meals together
 		VBox mealsBox = new VBox(10);
@@ -1162,7 +1190,7 @@ public class MainClass extends Application {
 
 			//creates button for deleting meals
 			Button deleteButton = new Button("X");
-			deleteButton.setStyle(BOLD_FONT_STYLE + "-fx-background-color: #e0e0e0; -fx-font-size: 15; " +
+			deleteButton.setStyle(BOLD_FONT_STYLE + "-fx-background-color: #e0e0e0; -fx-font-size: 20; " +
 					"fx-font-family: Serif; -fx-border-style: hidden; -fx-border-color: #e0e0e0; -fx-border-width: 1");
 
 			deleteButton.setOnAction(event -> {
@@ -1196,9 +1224,13 @@ public class MainClass extends Application {
 
 			});
 
+			HBox deleteLayout = new HBox();
+			deleteLayout.getChildren().add(deleteButton);
+			deleteLayout.setAlignment(Pos.CENTER);
+
 			//formats delete button with meal heading
 			HBox topFormat = new HBox();
-			topFormat.getChildren().addAll(titleFormat, deleteButton);
+			topFormat.getChildren().addAll(titleFormat, deleteLayout);
 
 			//formats meal components
 			singleMealLayout.setSpacing(5);
@@ -1207,12 +1239,12 @@ public class MainClass extends Application {
 
 			//adds meal to layout of all meals
 			mealsBox.getChildren().add(singleMealLayout);
-		}
+		} //end of for loop for creating layouts of each meal
 
 		//allows for user to scroll through meals
 		ScrollPane mealLayout = new ScrollPane();
 		mealLayout.setContent(mealsBox);
-		mealLayout.setMaxSize(260, 400);
+		mealLayout.setMaxSize(260, 320);
 		mealLayout.setStyle("-fx-background: #e0e0e0; -fx-border-style: solid; " +
 				"-fx-border-width: 1; -fx-border-color: black");
 
@@ -1222,11 +1254,15 @@ public class MainClass extends Application {
 			addMealPage();	//needs fixing
 		});
 
+		VBox tableAddLayout = new VBox(5);
+		tableAddLayout.getChildren().addAll(mealLayout, addButton);
+		tableAddLayout.setAlignment(Pos.CENTER);
+
 		//formats display of menu column and full meal display
 		VBox centerLayout = new VBox(80);
 		centerLayout.setAlignment(Pos.TOP_CENTER);
 		centerLayout.setPadding(new Insets(20,0,0,0));
-		centerLayout.getChildren().addAll(titleLayout, mealLayout, addButton);
+		centerLayout.getChildren().addAll(titleLayout, tableAddLayout);
 
 		HBox mainLayout = new HBox();
 		mainLayout.getChildren().addAll(centerLayout, rightLayout);
@@ -1246,7 +1282,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * TESTED!!!!
+	 * COMPLETED AND TESTED!!!!
 	 * Creates page for adding a meal
 	 * @author Rachel Franklin
 	 */
@@ -1262,7 +1298,9 @@ public class MainClass extends Application {
 
 		//user should name the food item
 		Text nameText = new Text("Food name: ");
+		nameText.setFont(Font.font("Serif", 15));
 		TextField nameField = new TextField();
+		nameField.setMaxWidth(80);
 
 		HBox nameLayout = new HBox();
 		nameLayout.getChildren().addAll(nameText, nameField);
@@ -1278,7 +1316,8 @@ public class MainClass extends Application {
 		TableView<HashMap.Entry<FoodItem, Integer>> foodTable = new TableView<>(foodInMeal);
 		foodTable.setMaxSize(205, 300);
 		foodTable.setEditable(true);
-		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0");
+		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
+				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
 		TableColumn<HashMap.Entry<FoodItem, Integer>, String> foodColumn = new TableColumn<>("Food Item");
 		foodColumn.setCellValueFactory(
@@ -1371,6 +1410,11 @@ public class MainClass extends Application {
 		foodTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 				CornerRadii.EMPTY, new BorderWidths(1))));
 
+		StackPane tableLayout = new StackPane();
+		tableLayout.setAlignment(Pos.TOP_RIGHT);
+		tableLayout.setMaxSize(202, 300);
+		tableLayout.getChildren().add(foodTable);
+
 		Button save = new Button ("OK");
 		save.setStyle(primaryButtonStyle());
 		save.setOnAction(event ->{
@@ -1422,19 +1466,22 @@ public class MainClass extends Application {
 			else{
 				invalidInput.showAndWait();
 			}
-        });
+		});
 
-		StackPane tableLayout = new StackPane();
-		tableLayout.setAlignment(Pos.TOP_RIGHT);
-		tableLayout.setMaxSize(202, 300);
-		tableLayout.getChildren().add(foodTable);
+		VBox tableSaveLayout = new VBox(10);
+		tableSaveLayout.getChildren().addAll(tableLayout, save);
+		tableSaveLayout.setAlignment(Pos.CENTER);
+
+		VBox mainLayout = new VBox(20);
+		mainLayout.getChildren().addAll(nameLayout, tableSaveLayout);
+		mainLayout.setAlignment(Pos.CENTER);
 
 		VBox centerLayout = new VBox(80);
 		centerLayout.setAlignment(Pos.TOP_CENTER);
 		centerLayout.setPadding(new Insets(20,0,0,0));
-		centerLayout.getChildren().addAll(titleLayout, nameLayout, tableLayout, save);
+		centerLayout.getChildren().addAll(titleLayout, mainLayout);
 
-		settingLayout = new HBox(130);
+		settingLayout = new HBox();
 		settingLayout.getChildren().addAll(centerLayout);
 		settingLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
