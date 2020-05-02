@@ -733,7 +733,6 @@ public class MainClass extends Application {
 			}
 
 			event.getTableView().refresh();
-
 		});//event end
 
 		//adds columns to table
@@ -775,13 +774,18 @@ public class MainClass extends Application {
 					errorAlert.setContentText("Food must have a name.");
 					errorAlert.showAndWait();
 				}
-
-				currentSimulation.addFoodItem(new FoodItem(newFoodName.getText(), newWeight));
-				foodTable.refresh();
+				else{
+					currentSimulation.addFoodItem(new FoodItem(newFoodName.getText(), newWeight));
+					foodTable.setItems(currentSimulation.getFoodItems());
+					foodTable.refresh();
+					newFoodName.setText("");
+					newFoodWeight.setText("");
+				}
 			}
 			catch(NumberFormatException illegalFormat) {
 				errorAlert.setContentText("Number format required");
 				errorAlert.showAndWait();
+				foodTable.refresh();
 			}
 		});
 
@@ -792,6 +796,7 @@ public class MainClass extends Application {
 			FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
 			foodItems.remove(deletedRow);
 			currentSimulation.removeFoodItem(deletedFood);
+			foodTable.refresh();
 		});
 
 		//arranges add and delete buttons relative to each other
