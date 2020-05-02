@@ -91,10 +91,10 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!!
 	 * Runs the simulation asynchronously so as not to block the UI thread.
 	 * Once the simulation finishes, the result is retrieved and the results
 	 * page is navigated to.
-	 *
 	 * @author Christian Burns
 	 * @throws NullPointerException if no simulation configuration exists
 	 */
@@ -118,6 +118,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!
 	 * Cancels the simulation currently running.
 	 * @author Christian Burns
 	 */
@@ -131,25 +132,27 @@ public class MainClass extends Application {
 	 * @throws IOException
 	 */
 	private void saveSimulation() throws IOException {
-		Configuration cfg = Configuration.getInstance();
-		File cfgFile = cfg.getLastConfigFile();
+		Configuration configuration = Configuration.getInstance();
+		File configurationFile = configuration.getLastConfigFile();
 
-		if (cfgFile == null) {
+		if (configurationFile == null) {
 			//saves settings in XML file to local machine
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Save Settings");
 			fileChooser.getExtensionFilters().add(
 					new FileChooser.ExtensionFilter("XML", "*.xml")
 			);
-			cfgFile = fileChooser.showSaveDialog(window);
+			configurationFile = fileChooser.showSaveDialog(window);
 		}
 
-		if (cfgFile != null) {
-			cfg.saveConfigs(cfgFile);
+		if (configurationFile != null) {
+			configuration.saveConfigs(configurationFile);
 		}
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!!
+	 * Main screen page where the user can decide what to do (i.e. run simulation, go to settings, etc.)
 	 * @author Izzy Patnode
 	 */
 	@Override
@@ -193,7 +196,7 @@ public class MainClass extends Application {
 		//button for starting the simulation
 		Button buttonStart = new Button("Start Simulation");
 		buttonStart.setMinWidth(buttons.getPrefWidth());
-		buttonStart.setStyle(mainButtonStyle());
+		buttonStart.setStyle(primaryButtonStyle());
 
 		//takes user to intermediate page when pressed/starts simulation
 		buttonStart.setOnAction(event-> startSimulation());
@@ -201,14 +204,14 @@ public class MainClass extends Application {
 		//button for editing the simulation
 		Button buttonEdit = new Button("Settings");
 		buttonEdit.setMinWidth(buttons.getPrefWidth());
-		buttonEdit.setStyle(mainButtonStyle());
+		buttonEdit.setStyle(primaryButtonStyle());
 		//takes user to general settings page when clicked
 		buttonEdit.setOnAction(event -> generalEditPage());
 
 		//button for exiting the gui
 		Button buttonExit = new Button("Exit Simulation");
 		buttonExit.setMinWidth(buttons.getPrefWidth());
-		buttonExit.setStyle(mainButtonStyle());
+		buttonExit.setStyle(primaryButtonStyle());
 		//exits the screen (gui) when clicked
 		buttonExit.setOnAction(event-> System.exit(0));
 
@@ -243,6 +246,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!!
 	 * Called when the program is told to shutdown.
 	 * Shuts down the executor service.
 	 * @author Christian Burns
@@ -255,7 +259,8 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * Method for running the simulation
+	 * COMPLETED AND TESTED!!!
+	 * An intermediate page that is displayed while the simulation is running so that the user knows it is running
 	 * @author Izzy Patnode
 	 */
 	public void startSimulation() {
@@ -321,22 +326,30 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!
 	 * Allows for not writing out the style of each button each time we create a button
 	 * @return a string with the style in css of each button
 	 * @author Izzy Patnode
 	 */
-	public String mainButtonStyle() {
+	public String primaryButtonStyle() {
 		 return PRIMARY_BACKGROUND_COLOR +
 		"-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
+	/**
+	 * COMPLETED AND TESTED!!!
+	 * Allows for not writing out the secondary style of a button each time we create one
+	 * @return a string with the secondary style for a button in css
+	 * @author Izzy Patnode
+	 */
 	public String secondaryButtonStyle() {
 		return SECONDARY_BACKGROUND_COLOR + "-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!
 	 * Creates title (Simulation Settings) for settings pages
 	 * @author Izzy Patnode
 	 */
@@ -352,6 +365,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!!!
 	 * Creates home button icon
 	 * @author Izzy Patnode
 	 */
@@ -372,6 +386,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!!!
 	 * Creates menu buttons for settings pages
 	 * @author Izzy Patnode
 	 */
@@ -417,6 +432,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETE!!! TESTED???
 	 * Decreases redundancy of code used for importing and exporting settings
 	 * @return Vbox containing buttons for importing and exporting buttons
 	 * @author Izzy Patnode
@@ -477,6 +493,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED AND TESTED!!!!
 	 * Creates GUI page for general settings (i.e. stochastic flow)
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -557,7 +574,7 @@ public class MainClass extends Application {
 		centerLayout.getChildren().addAll(titleLayout, gridLayout);
 
 		Button editButton = new Button("Save Changes");
-		editButton.setStyle(mainButtonStyle());
+		editButton.setStyle(primaryButtonStyle());
 
 		//sets current stochastic flow to edited stochastic flow
 		editButton.setOnAction(event -> {
@@ -750,7 +767,7 @@ public class MainClass extends Application {
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
-		addButton.setStyle(mainButtonStyle());
+		addButton.setStyle(primaryButtonStyle());
 
 		Text newFoodNameLabel = new Text("Food name: ");
 		TextField newFoodName = new TextField();
@@ -790,7 +807,7 @@ public class MainClass extends Application {
 		});
 
 		Button deleteButton = new Button("Delete");
-		deleteButton.setStyle(mainButtonStyle());
+		deleteButton.setStyle(primaryButtonStyle());
 		deleteButton.setOnAction(event -> {
 			int deletedRow = foodTable.getSelectionModel().getSelectedIndex();
 			FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
@@ -931,7 +948,7 @@ public class MainClass extends Application {
 		probabilityLayout.getChildren().add(probabilityTable);
 
 		Button saveProbabilityButton = new Button("Save Changes");
-		saveProbabilityButton.setStyle(mainButtonStyle());
+		saveProbabilityButton.setStyle(primaryButtonStyle());
 		saveProbabilityButton.setOnAction(event -> {
 			BigDecimal totalProbability = BigDecimal.ZERO;
 
@@ -1188,7 +1205,7 @@ public class MainClass extends Application {
 				CornerRadii.EMPTY, new BorderWidths(1))));
 
 		Button addButton = new Button("Add Meal");
-		addButton.setStyle(mainButtonStyle());
+		addButton.setStyle(primaryButtonStyle());
 		addButton.setOnAction(event ->{	//doesn't return to this page
 			addMealPage();	//needs fixing
 		});
@@ -1342,7 +1359,7 @@ public class MainClass extends Application {
 				CornerRadii.EMPTY, new BorderWidths(1))));
 
 		Button save = new Button ("OK");
-		save.setStyle(mainButtonStyle());
+		save.setStyle(primaryButtonStyle());
 		save.setOnAction(event ->{
 			int errorIndex = 0;
 			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
@@ -1501,7 +1518,7 @@ public class MainClass extends Application {
 		centerLayout.getChildren().addAll(titleLayout, droneSettings);
 
 		Button editButton = new Button("Save Changes");
-		editButton.setStyle(mainButtonStyle());
+		editButton.setStyle(primaryButtonStyle());
 
 		//sets current drone settings to edited drone settings
 		editButton.setOnAction(event -> {
@@ -1562,6 +1579,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETE!!!! TESTED??????
 	 * Creates GUI page for map settings
 	 * @author Izzy Patnode
 	 */
@@ -1745,11 +1763,6 @@ public class MainClass extends Application {
 			event.getTableView().refresh();
 		});
 
-		upperXBound =  (int) xAxis.getUpperBound() - 100;
-		lowerXBound = (int) xAxis.getLowerBound() + 100;
-		upperYBound = (int) yAxis.getUpperBound() - 100;
-		lowerYBound = (int) yAxis.getLowerBound() + 100;
-
 		//adds column headings to table
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
 		mapTable.setPrefWidth(275);
@@ -1765,7 +1778,7 @@ public class MainClass extends Application {
 
 		//buttons for adding and deleting table rows
 		Button addButton = new Button("Add");
-		addButton.setStyle(mainButtonStyle());
+		addButton.setStyle(primaryButtonStyle());
 
 		addButton.setOnAction(event -> {
 			Stage addDialog = new Stage();
@@ -1807,15 +1820,15 @@ public class MainClass extends Application {
 						mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
 
 						int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
-						int cuurentLowerXBound = (int) xAxis.getLowerBound() + 100;
+						int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
 
 						if(newXValue > currentUpperXBound) {
 							currentUpperXBound = newXValue;
 							xAxis.setUpperBound(currentUpperXBound + 100);
 						}
-						if(newXValue <= cuurentLowerXBound) {
-							cuurentLowerXBound = newXValue;
-							xAxis.setLowerBound(cuurentLowerXBound - 100);
+						if(newXValue <= currentLowerXBound) {
+							currentLowerXBound = newXValue;
+							xAxis.setLowerBound(currentLowerXBound - 100);
 						}
 
 						int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
@@ -1875,13 +1888,39 @@ public class MainClass extends Application {
 		});
 
 		Button deleteButton = new Button("Delete");
-		deleteButton.setStyle(mainButtonStyle());
+		deleteButton.setStyle(primaryButtonStyle());
 		deleteButton.setOnAction(event -> {
 			int deletedRow = mapTable.getSelectionModel().getSelectedIndex();
 			Point deletedPoint = mapTable.getSelectionModel().getSelectedItem();
 
 			if(deletedPoint.getX() != 0 || deletedPoint.getY() != 0) {
 				mapValues.getData().remove(deletedRow);
+
+				int newUpperXBound = mapPoints.get(0).getX();
+				int newUpperYBound = mapPoints.get(0).getY();
+				int newLowerXBound = mapPoints.get(0).getX();
+				int newLowerYBound = mapPoints.get(0).getY();
+
+				for(Point point: mapPoints) {
+					if(point.getX() >= newUpperXBound) {
+						newUpperXBound = point.getX();
+					}
+					if(point.getX() <= newLowerXBound) {
+						newLowerXBound = point.getX();
+					}
+					if(point.getY() >= newUpperYBound) {
+						newUpperYBound = point.getY();
+					}
+					if(point.getY() <= newLowerYBound) {
+						newLowerYBound = point.getY();
+					}
+
+					xAxis.setUpperBound(newUpperXBound + 100);
+					xAxis.setLowerBound(newLowerXBound - 100);
+
+					yAxis.setUpperBound(newUpperYBound + 100);
+					yAxis.setLowerBound(newLowerYBound - 100);
+				}
 
 				mapPoints.remove(deletedRow);
 				currentSimulation.getDeliveryPoints().removePoint(deletedPoint);
@@ -1918,7 +1957,7 @@ public class MainClass extends Application {
 
 		//creates button for loading map
 		Button loadButton = new Button("Load Map");
-		loadButton.setStyle(mainButtonStyle());
+		loadButton.setStyle(primaryButtonStyle());
 		//TODO: LOAD IN MAP
 
 		HBox loadDisplay = new HBox();
@@ -2136,7 +2175,7 @@ public class MainClass extends Application {
 
 		//save results button
 		Button saveButton = new Button("Save Results");
-		saveButton.setStyle(mainButtonStyle());
+		saveButton.setStyle(primaryButtonStyle());
 
 		saveButton.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
