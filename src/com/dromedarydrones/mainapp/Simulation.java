@@ -379,7 +379,11 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
      * @see Simulation#getFoodItem(String name)
      */
     public boolean removeFoodItem(FoodItem food) {
-        mealTypes.forEach(m -> m.removeItem(food));
+        for(Meal meal: mealTypes) {
+            while(meal.getFoods().contains(food)) {
+                meal.removeItem(food);
+            }
+        }
         return foodItems.remove(food);
     }
 

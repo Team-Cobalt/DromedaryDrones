@@ -631,6 +631,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * TESTED!!!
 	 * Creates GUI page for food items settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -810,10 +811,19 @@ public class MainClass extends Application {
 		deleteButton.setStyle(primaryButtonStyle());
 		deleteButton.setOnAction(event -> {
 			int deletedRow = foodTable.getSelectionModel().getSelectedIndex();
-			FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
-			foodItems.remove(deletedRow);
-			currentSimulation.removeFoodItem(deletedFood);
-			foodTable.refresh();
+			if(deletedRow < 0) {
+				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+				errorAlert.setTitle("Invalid Deletion");
+				errorAlert.setHeaderText("Error: Invalid Deletion");
+				errorAlert.setContentText("Food not selected.");
+				errorAlert.showAndWait();
+			}
+			else {
+				FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
+				foodItems.remove(deletedRow);
+				currentSimulation.removeFoodItem(deletedFood);
+				foodTable.refresh();
+			}
 		});
 
 		//arranges add and delete buttons relative to each other
@@ -851,6 +861,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * TESTED!!!!
 	 * Creates GUI page for meal settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -1234,6 +1245,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * TESTED!!!!
 	 * Creates page for adding a meal
 	 * @author Rachel Franklin
 	 */
@@ -1433,6 +1445,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETE AND TESTED!!!!!
 	 * Creates GUI page for drone settings
 	 * @author Izzy Patnode
 	 */
@@ -1450,7 +1463,6 @@ public class MainClass extends Application {
 
 		settingTitle();
 
-		Drone currentDrone = currentSimulation.getDroneSettings();
 		Font font = Font.font("Serif", 15);
 
 		//creates gridpane containing the current stochastic flow values
@@ -1469,23 +1481,24 @@ public class MainClass extends Application {
 		Text unloadTime = new Text("Unloading Delay (seconds): ");
 		unloadTime.setFont(font);
 
-		double currentPayload = currentDrone.getMaxPayloadWeight() / OUNCES_PER_POUND;
+		double currentPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight() / OUNCES_PER_POUND;
 		TextField dronePayload = new TextField(String.format("%.2f", currentPayload));
 		dronePayload.setMaxWidth(80);
 
-		double currentSpeed = (currentDrone.getCruisingSpeed() * SECONDS_PER_HOUR) / FEET_PER_MILE;
+		double currentSpeed = (currentSimulation.getDroneSettings().getCruisingSpeed() * SECONDS_PER_HOUR)
+				/ FEET_PER_MILE;
 		TextField droneSpeed = new TextField(String.format("%.2f", currentSpeed));
 		droneSpeed.setMaxWidth(80);
 
-		double currentFlightTime = currentDrone.getFlightTime() / SECONDS_PER_MINUTE;
+		double currentFlightTime = currentSimulation.getDroneSettings().getFlightTime() / SECONDS_PER_MINUTE;
 		TextField droneFlight = new TextField(String.format("%.2f", currentFlightTime));
 		droneFlight.setMaxWidth(80);
 
-		double currentTurnAround = currentDrone.getTurnAroundTime() / SECONDS_PER_MINUTE;
+		double currentTurnAround = currentSimulation.getDroneSettings().getTurnAroundTime() / SECONDS_PER_MINUTE;
 		TextField droneTurnAround = new TextField(String.format("%.2f", currentTurnAround));
 		droneTurnAround.setMaxWidth(80);
 
-		double currentDelivery = currentDrone.getDeliveryTime();
+		double currentDelivery = currentSimulation.getDroneSettings().getDeliveryTime();
 		TextField droneUnload = new TextField(String.format("%.2f", currentDelivery));
 		droneUnload.setMaxWidth(80);
 
@@ -1523,11 +1536,15 @@ public class MainClass extends Application {
 		//sets current drone settings to edited drone settings
 		editButton.setOnAction(event -> {
 			try {
-				currentDrone.setMaxPayloadWeight((Double.parseDouble(dronePayload.getText()) * OUNCES_PER_POUND));
-				currentDrone.setCruisingSpeed((Double.parseDouble(droneSpeed.getText()) * FEET_PER_MILE) / SECONDS_PER_HOUR);
-				currentDrone.setFlightTime(Double.parseDouble(droneFlight.getText()) * SECONDS_PER_MINUTE);
-				currentDrone.setTurnAroundTime(Double.parseDouble(droneFlight.getText()) * SECONDS_PER_MINUTE);
-				currentDrone.setDeliveryTime(Double.parseDouble(droneUnload.getText()));
+				currentSimulation.getDroneSettings().setMaxPayloadWeight((Double.parseDouble(dronePayload.getText())
+						* OUNCES_PER_POUND));
+				currentSimulation.getDroneSettings().setCruisingSpeed((Double.parseDouble(droneSpeed.getText())
+						* FEET_PER_MILE) / SECONDS_PER_HOUR);
+				currentSimulation.getDroneSettings().setFlightTime(Double.parseDouble(droneFlight.getText())
+						* SECONDS_PER_MINUTE);
+				currentSimulation.getDroneSettings().setTurnAroundTime(Double.parseDouble(droneFlight.getText())
+						* SECONDS_PER_MINUTE);
+				currentSimulation.getDroneSettings().setDeliveryTime(Double.parseDouble(droneUnload.getText()));
 
 				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
 				saveAlert.setTitle("Confirm Changes");
@@ -1540,11 +1557,11 @@ public class MainClass extends Application {
 				errorAlert.setHeaderText("Invalid Input!");
 
 				//resets drone settings to what they were before editing
-				currentDrone.setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
-				currentDrone.setCruisingSpeed((currentSpeed * FEET_PER_MILE) / SECONDS_PER_HOUR);
-				currentDrone.setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
-				currentDrone.setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
-				currentDrone.setDeliveryTime(currentDelivery);
+				currentSimulation.getDroneSettings().setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
+				currentSimulation.getDroneSettings().setCruisingSpeed((currentSpeed * FEET_PER_MILE) / SECONDS_PER_HOUR);
+				currentSimulation.getDroneSettings().setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
+				currentSimulation.getDroneSettings().setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
+				currentSimulation.getDroneSettings().setDeliveryTime(currentDelivery);
 
 				dronePayload.setText(String.format("%.2f", currentPayload));
 				droneSpeed.setText(String.format("%.2f", currentSpeed));
@@ -1579,7 +1596,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETE!!!! TESTED??????
+	 * COMPLETE AND TESTED!!!!!
 	 * Creates GUI page for map settings
 	 * @author Izzy Patnode
 	 */
@@ -1867,6 +1884,7 @@ public class MainClass extends Application {
 					invalidInput.setHeaderText("Error: Invalid Coordinates");
 					invalidInput.setContentText("Input must be a (x,y) integer pair");
 					currentSimulation.getDeliveryPoints().removePoint(newPoint);
+
 					invalidInput.showAndWait();
 				}
 			});
@@ -1891,46 +1909,54 @@ public class MainClass extends Application {
 		deleteButton.setStyle(primaryButtonStyle());
 		deleteButton.setOnAction(event -> {
 			int deletedRow = mapTable.getSelectionModel().getSelectedIndex();
-			Point deletedPoint = mapTable.getSelectionModel().getSelectedItem();
-
-			if(deletedPoint.getX() != 0 || deletedPoint.getY() != 0) {
-				mapValues.getData().remove(deletedRow);
-
-				int newUpperXBound = mapPoints.get(0).getX();
-				int newUpperYBound = mapPoints.get(0).getY();
-				int newLowerXBound = mapPoints.get(0).getX();
-				int newLowerYBound = mapPoints.get(0).getY();
-
-				for(Point point: mapPoints) {
-					if(point.getX() >= newUpperXBound) {
-						newUpperXBound = point.getX();
-					}
-					if(point.getX() <= newLowerXBound) {
-						newLowerXBound = point.getX();
-					}
-					if(point.getY() >= newUpperYBound) {
-						newUpperYBound = point.getY();
-					}
-					if(point.getY() <= newLowerYBound) {
-						newLowerYBound = point.getY();
-					}
-
-					xAxis.setUpperBound(newUpperXBound + 100);
-					xAxis.setLowerBound(newLowerXBound - 100);
-
-					yAxis.setUpperBound(newUpperYBound + 100);
-					yAxis.setLowerBound(newLowerYBound - 100);
-				}
-
-				mapPoints.remove(deletedRow);
-				currentSimulation.getDeliveryPoints().removePoint(deletedPoint);
+			if(deletedRow < 0) {
+				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+				errorAlert.setTitle("Invalid Deletion");
+				errorAlert.setHeaderText("Error: Invalid Deletion");
+				errorAlert.setContentText("Map point not selected.");
+				errorAlert.showAndWait();
 			}
 			else {
-				Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
-				blockOrigin.setTitle("Origin Deletion Attempted");
-				blockOrigin.setHeaderText("Error: Origin Deletion Attempted");
-				blockOrigin.setContentText("Cannot delete origin");
-				blockOrigin.showAndWait();
+				Point deletedPoint = mapTable.getSelectionModel().getSelectedItem();
+
+				if (deletedPoint.getX() != 0 || deletedPoint.getY() != 0) {
+					mapValues.getData().remove(deletedRow);
+
+					int newUpperXBound = mapPoints.get(0).getX();
+					int newUpperYBound = mapPoints.get(0).getY();
+					int newLowerXBound = mapPoints.get(0).getX();
+					int newLowerYBound = mapPoints.get(0).getY();
+
+					for (Point point : mapPoints) {
+						if (point.getX() >= newUpperXBound) {
+							newUpperXBound = point.getX();
+						}
+						if (point.getX() <= newLowerXBound) {
+							newLowerXBound = point.getX();
+						}
+						if (point.getY() >= newUpperYBound) {
+							newUpperYBound = point.getY();
+						}
+						if (point.getY() <= newLowerYBound) {
+							newLowerYBound = point.getY();
+						}
+
+						xAxis.setUpperBound(newUpperXBound + 100);
+						xAxis.setLowerBound(newLowerXBound - 100);
+
+						yAxis.setUpperBound(newUpperYBound + 100);
+						yAxis.setLowerBound(newLowerYBound - 100);
+					}
+
+					mapPoints.remove(deletedRow);
+					currentSimulation.getDeliveryPoints().removePoint(deletedPoint);
+				} else {
+					Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
+					blockOrigin.setTitle("Origin Deletion Attempted");
+					blockOrigin.setHeaderText("Error: Origin Deletion Attempted");
+					blockOrigin.setContentText("Cannot delete origin");
+					blockOrigin.showAndWait();
+				}
 			}
 		});
 
@@ -1983,6 +2009,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETE AND TESTED!!!!!
 	 * Displays results from simulation
 	 * @author Rachel Franklin
 	 */
