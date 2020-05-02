@@ -2044,7 +2044,7 @@ public class MainClass extends Application {
 		CategoryAxis xAxis = new CategoryAxis();
 		NumberAxis yAxis = new NumberAxis();
 		BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-		barChart.setCategoryGap(0.4);
+		barChart.setCategoryGap(1.5);
 		barChart.setBarGap(0.4);
 		xAxis.setLabel("Delivery Time (in minutes)");
 		yAxis.setLabel("Number of Orders");
