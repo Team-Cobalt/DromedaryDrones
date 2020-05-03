@@ -426,7 +426,7 @@ public class MainClass extends Application {
 	 */
 	public VBox importExportSettings() {
 		VBox saveLoadButtons = new VBox(5);
-		saveLoadButtons.setPrefWidth(100);
+		saveLoadButtons.setPrefWidth(110);
 
 		//adds buttons for loading and saving model
 		Button saveButton = new Button("Export Settings");
@@ -471,7 +471,13 @@ public class MainClass extends Application {
 			}
 		}); //end of loading settings event
 
-		saveLoadButtons.getChildren().addAll(saveButton, loadButton);
+		Button defaultButton = new Button("Default Settings");
+		defaultButton.setMinWidth(saveLoadButtons.getPrefWidth());
+		defaultButton.setStyle(secondaryButtonStyle());
+		//default.setOnAction();
+
+
+		saveLoadButtons.getChildren().addAll(saveButton, loadButton, defaultButton);
 
 		saveLoadButtons.setAlignment(Pos.BOTTOM_LEFT);
 		saveLoadButtons.setPadding(new Insets(0, 0, 0, 10));
@@ -984,7 +990,6 @@ public class MainClass extends Application {
 					errorIndex = 1;
 				}
 			}
-			//TODO: DO THE STUFF SAVE CHANGES DOES
 
 			//resets given meal's probability if the new value does not meet the necessary criteria
 			if (errorIndex == 1){
