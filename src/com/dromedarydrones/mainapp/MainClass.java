@@ -66,7 +66,7 @@ public class MainClass extends Application {
 	private VBox buttonLayout; //layout of setting's menu buttons
 	private HBox settingLayout; //layout of all icons in setting pages
 	private Simulation currentSimulation; //current simulation being run
-	private SimulationResults results;
+	private SimulationResults results;	//results of simulation
 	private final int SECONDS_PER_HOUR = 3600;
 	private final int FEET_PER_MILE = 5280;
 	private final int OUNCES_PER_POUND = 16;
@@ -74,6 +74,8 @@ public class MainClass extends Application {
 	private static final String PRIMARY_BACKGROUND_COLOR = "-fx-background-color: #e0e0e0;";
 	private static final String SECONDARY_BACKGROUND_COLOR = "-fx-background-color: #bdbdbd;";
 	private static final String BOLD_FONT_STYLE = "-fx-font-weight: bold;";
+
+	//css string regarding style of line separating sidebar from main page
 	private static final String SIDEBAR_STYLE = "-fx-border-style: hidden solid hidden hidden;" +
 			"-fx-border-width: 1.25; -fx-border-color: black; -fx-padding: 0 5 7 0";
 
@@ -82,16 +84,14 @@ public class MainClass extends Application {
 
 	public static void main(String[] args) {
 
-		//loads specified configuration settings
+		//configuration are the settings which are loaded in
 		Configuration configuration = Configuration.getInstance();
 		configuration.initialize();
 
-		//launches GUI and simulation
 		launch(args);
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!
 	 * Runs the simulation asynchronously so as not to block the UI thread.
 	 * Once the simulation finishes, the result is retrieved and the results
 	 * page is navigated to.
@@ -100,7 +100,7 @@ public class MainClass extends Application {
 	 */
 	private void runSimulation() {
 
-		// fetch the simulation to be run and submit it to the executor
+		//simulation to be run is submitted to the executor so it can be run asynchronously with the UI thread
 		Simulation activeSimulation = Configuration.getInstance().getCurrentSimulation();
 		futureResults = executor.submit(activeSimulation);
 
@@ -111,14 +111,13 @@ public class MainClass extends Application {
 				Platform.runLater(this::resultsPage);	// calls resultsPage() via the UI thread
 			} catch (CancellationException ignore) {
 				// this will occur when cancelling a running simulation
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
+			} catch (InterruptedException | ExecutionException exception) {
+				exception.printStackTrace();
 			}
 		}).start();
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!
 	 * Cancels the simulation currently running.
 	 * @author Christian Burns
 	 */
@@ -151,7 +150,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!
 	 * Main screen page where the user can decide what to do (i.e. run simulation, go to settings, etc.)
 	 * @author Izzy Patnode
 	 */
@@ -159,10 +157,10 @@ public class MainClass extends Application {
 	public void start(Stage primaryStage) {
 		window = primaryStage;
 
-		//grabs current simulation for accessing necessary values
+		//need to grab the current simulation so we can access the necessary settings values
 		currentSimulation = Configuration.getInstance().getCurrentSimulation();
 
-		//adds camel image to main menu
+		//allows us to access camel png and add it to the page
 		Image image = new Image("file:resources/CuteCamel.png");
 
 		ImageView imageView = new ImageView(image);
@@ -179,7 +177,7 @@ public class MainClass extends Application {
 		picture.getChildren().add(imageView);
 		picture.setAlignment(Pos.TOP_CENTER);
 
-		//adds opening heading to main menu
+		//front page title is created to welcome users
 		title = new Text("Welcome to Dromedary Drones!");
 		title.setStyle("-fx-font-family: Serif; -fx-font-size: 50; -fx-fill: #0047ab");
 		title.setWrappingWidth(450);
@@ -189,11 +187,11 @@ public class MainClass extends Application {
 		titleLayout.getChildren().add(title);
 		titleLayout.setAlignment(Pos.BASELINE_CENTER);
 
-		//adds buttons to main menu
+		//buttons for user to user the simulation are placed into VBox for a readable layout
 		VBox buttons = new VBox(10);
 		buttons.setPrefWidth(100);
 
-		//button for starting the simulation
+		//allows user to run the simulation
 		Button buttonStart = new Button("Start Simulation");
 		buttonStart.setMinWidth(buttons.getPrefWidth());
 		buttonStart.setStyle(primaryButtonStyle());
@@ -201,24 +199,23 @@ public class MainClass extends Application {
 		//takes user to intermediate page when pressed/starts simulation
 		buttonStart.setOnAction(event-> startSimulation());
 
-		//button for editing the simulation
+		//allows user to access settings for viewing and editing
 		Button buttonEdit = new Button("Settings");
 		buttonEdit.setMinWidth(buttons.getPrefWidth());
 		buttonEdit.setStyle(primaryButtonStyle());
-		//takes user to general settings page when clicked
+		//user is taken to the first setting page (general settings)
 		buttonEdit.setOnAction(event -> generalEditPage());
 
-		//button for exiting the gui
+		//allows user to exit simulation from main page
 		Button buttonExit = new Button("Exit Simulation");
 		buttonExit.setMinWidth(buttons.getPrefWidth());
 		buttonExit.setStyle(primaryButtonStyle());
-		//exits the screen (gui) when clicked
 		buttonExit.setOnAction(event-> System.exit(0));
 
 		buttons.getChildren().addAll(buttonStart, buttonEdit, buttonExit);
 		buttons.setAlignment(Pos.BOTTOM_CENTER);
 
-		//arranges title and buttons on the screen
+		//gives title and button a good layout with respect to each other
 		VBox firstLayout = new VBox(30);
 		firstLayout.getChildren().addAll(titleLayout, buttons);
 		firstLayout.setAlignment(Pos.CENTER);
@@ -236,7 +233,7 @@ public class MainClass extends Application {
 
 		mainMenu = new Scene(root, 900, 600);
 
-		//sets starting window to the main menu
+		//necessary to set window and create all the window specifics in the default javafx start method
 		window.setScene(mainMenu);
 		window.sizeToScene();
 		window.centerOnScreen();
@@ -246,7 +243,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!
 	 * Called when the program is told to shutdown.
 	 * Shuts down the executor service.
 	 * @author Christian Burns
@@ -259,12 +255,10 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!
 	 * An intermediate page that is displayed while the simulation is running so that the user knows it is running
 	 * @author Izzy Patnode
 	 */
 	public void startSimulation() {
-
 		title = new Text("Simulation is Running...");
 		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
 		title.setWrappingWidth(400);
@@ -274,7 +268,7 @@ public class MainClass extends Application {
 		titleLayout.getChildren().add(title);
 		titleLayout.setAlignment(Pos.TOP_CENTER);
 
-		//adds camel image to display
+		//allows us to add camel png to display
 		Image simulationImage = new Image("file:resources/CuteCamel.png");
 
 		ImageView picture = new ImageView(simulationImage);
@@ -303,7 +297,7 @@ public class MainClass extends Application {
 			window.setScene(mainMenu);
 		});
 
-		//adds button to the display
+		//need to put button in its own display so the layout of the page stays nice
 		HBox simulationButton = new HBox(20);
 		simulationButton.getChildren().add(cancelButton);
 		simulationButton.setAlignment(Pos.BOTTOM_CENTER);
@@ -326,7 +320,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!
 	 * Allows for not writing out the style of each button each time we create a button
 	 * @return a string with the style in css of each button
 	 * @author Izzy Patnode
@@ -338,7 +331,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!
 	 * Allows for not writing out the secondary style of a button each time we create one
 	 * @return a string with the secondary style for a button in css
 	 * @author Izzy Patnode
@@ -349,8 +341,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!
-	 * Creates title (Simulation Settings) for settings pages
+	 * Allows for not having to recreate the title (Simulation Settings) for every settings page
 	 * @author Izzy Patnode
 	 */
 	public void settingTitle() {
@@ -365,8 +356,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!!
-	 * Creates home button icon
+	 * Allows for not having to recreate the home button for every settings page
 	 * @author Izzy Patnode
 	 */
 	public void homeButton() {
@@ -386,8 +376,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!!
-	 * Creates menu buttons for settings pages
+	 * Allows for not having to recreate the menu buttons for every settings page
 	 * @author Izzy Patnode
 	 */
 	public void menuButtons() {
@@ -398,41 +387,39 @@ public class MainClass extends Application {
 		Button generalButton = new Button("General Settings");
 		generalButton.setMinWidth(buttonLayout.getPrefWidth());
 		generalButton.setStyle(secondaryButtonStyle());
-		generalButton.setOnAction(e -> generalEditPage());
+		generalButton.setOnAction(event -> generalEditPage());
 
 		Button foodButton = new Button("Food Settings");
 		foodButton.setMinWidth(buttonLayout.getPrefWidth());
 		foodButton.setStyle(secondaryButtonStyle());
-		foodButton.setOnAction(e -> editFoodPage());
+		foodButton.setOnAction(event -> editFoodPage());
 
 		Button mealButton = new Button("Meal Settings");
 		mealButton.setMinWidth(buttonLayout.getPrefWidth());
 		mealButton.setStyle(secondaryButtonStyle());
-		mealButton.setOnAction(e -> editMealsPage());
+		mealButton.setOnAction(event -> editMealsPage());
 
 		Button droneButton = new Button("Drone Settings");
 		droneButton.setMinWidth(buttonLayout.getPrefWidth());
 		droneButton.setStyle(secondaryButtonStyle());
-		droneButton.setOnAction(e -> editDronePage());
+		droneButton.setOnAction(event -> editDronePage());
 
 		Button mapButton = new Button("Map Settings");
 		mapButton.setMinWidth(buttonLayout.getPrefWidth());
 		mapButton.setStyle(secondaryButtonStyle());
-		mapButton.setOnAction(e -> editMapPage());
+		mapButton.setOnAction(event -> editMapPage());
 
 		Button startButton = new Button("Start Simulation");
 		startButton.setMinWidth(buttonLayout.getPrefWidth());
 		startButton.setStyle(secondaryButtonStyle());
-		startButton.setOnAction(e -> startSimulation());
+		startButton.setOnAction(event -> startSimulation());
 
 		buttonLayout.getChildren().addAll(generalButton, foodButton, mealButton, droneButton, mapButton, startButton);
 		buttonLayout.setAlignment(Pos.CENTER_LEFT);
 		buttonLayout.setPadding(new Insets(0, 0, 0, 5));
-
 	}
 
 	/**
-	 * COMPLETE!!! TESTED???
 	 * Decreases redundancy of code used for importing and exporting settings
 	 * @return Vbox containing buttons for importing and exporting buttons
 	 * @author Izzy Patnode
@@ -477,8 +464,8 @@ public class MainClass extends Application {
 				Configuration.getInstance().initialize(file);
 				try {
 					Configuration.getInstance().setLastConfigFile(file);
-				} catch (IOException e) {
-					e.printStackTrace();
+				} catch (IOException exception) {
+					exception.printStackTrace();
 				}
 				currentSimulation = Configuration.getInstance().getCurrentSimulation();
 			}
@@ -493,7 +480,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!
 	 * Creates GUI page for general settings (i.e. stochastic flow)
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -512,7 +498,7 @@ public class MainClass extends Application {
 
 		settingTitle();
 
-		//creates table heading for model
+		//table heading (outside of gridpane) for user to understand what is on the page
 		Text gridHeading = new Text("Order Volume per Hour");
 		gridHeading.setFont(Font.font("Serif", 15));
 		gridHeading.setFill(Color.BLACK);
@@ -521,16 +507,24 @@ public class MainClass extends Application {
 		gridHeading.setStyle(BOLD_FONT_STYLE);
 
 		//creates gridpane containing the current stochastic flow values
+		GridPane generalSettings = new GridPane();
+		generalSettings.setAlignment(Pos.CENTER);
+		generalSettings.setVgap(10);
+		generalSettings.setMaxSize(300, 300);
+
 		Text hourOne = new Text("Hour 1: ");
 		hourOne.setFont(Font.font("Serif", 15));
+
 		Text hourTwo = new Text("Hour 2: ");
 		hourTwo.setFont(Font.font("Serif", 15));
+
 		Text hourThree = new Text("Hour 3: ");
 		hourThree.setFont(Font.font("Serif", 15));
+
 		Text hourFour = new Text("Hour 4: ");
 		hourFour.setFont(Font.font("Serif", 15));
 
-		//adds current simulation's stochastic flow values to the gridpane
+		//grabs current stochastic flow so that it can be added to the grid pane
 		ArrayList<Integer> currentModel = new ArrayList<>(currentSimulation.getStochasticFlow());
 
 		int currentHourOne = currentModel.get(0);
@@ -546,13 +540,7 @@ public class MainClass extends Application {
 		TextField hourFourMeals = new TextField(currentHourFour + "");
 		hourFourMeals.setMaxWidth(80);
 
-		//creates gridpane for stochastic flow values
-		GridPane generalSettings = new GridPane();
-		generalSettings.setAlignment(Pos.CENTER);
-		generalSettings.setVgap(10);
-		generalSettings.setMaxSize(300, 300);
-
-		//adds cells to gridpane
+		//cells are added to the gridpane which allows for a simple and readable format
 		generalSettings.add(hourOne, 0, 0);
 		generalSettings.add(hourOneMeals, 1, 0);
 		generalSettings.add(hourTwo, 0, 1);
@@ -567,16 +555,17 @@ public class MainClass extends Application {
 		gridLayout.setAlignment(Pos.CENTER);
 		gridLayout.getChildren().addAll(gridHeading, generalSettings);
 
+		//arranges the title and grid with respect to each other so they are centered on the page
 		VBox centerLayout = new VBox();
 		centerLayout.setSpacing(140);
 		centerLayout.setAlignment(Pos.TOP_CENTER);
 		centerLayout.setPadding(new Insets(20,0,0,0));
 		centerLayout.getChildren().addAll(titleLayout, gridLayout);
 
+		//allows user to edit the current stochastic model
 		Button editButton = new Button("Save Changes");
 		editButton.setStyle(primaryButtonStyle());
 
-		//sets current stochastic flow to edited stochastic flow
 		editButton.setOnAction(event -> {
 			ArrayList<Integer> stochasticModel = new ArrayList<>();
 			try {
@@ -587,17 +576,22 @@ public class MainClass extends Application {
 
 				currentSimulation.addStochasticFlow(stochasticModel);
 
+				/* alerts the user that their edit to the stochastic model has been successful
+				** so they know that the values have been updated */
 				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
 				saveAlert.setTitle("Confirm Changes");
 				saveAlert.setHeaderText("Changes Saved!");
 				saveAlert.showAndWait();
 			} //end of try block
 			catch(NumberFormatException illegalFormat) {
+				/* alerts the user that they have put in an incorrect value so the user knows why their
+				** values aren't saving */
 				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 				errorAlert.setTitle("Invalid Input");
 				errorAlert.setHeaderText("Error: Invalid Input");
 				errorAlert.setContentText("Integer format required");
 
+				//resets the gridpane values and stochastic model so that incorrect values are not used
 				stochasticModel.addAll(List.of(currentHourOne, currentHourTwo, currentHourThree, currentHourFour));
 
 				hourOneMeals.setText(currentHourOne + "");
@@ -607,7 +601,7 @@ public class MainClass extends Application {
 
 				errorAlert.showAndWait();
 			} //end of catch block
-		}); //end of event handler
+		}); //end of editing stochastic flow event
 
 		VBox rightLayout = new VBox();
 		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
@@ -631,7 +625,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!
 	 * Creates GUI page for food items settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -650,7 +643,7 @@ public class MainClass extends Application {
 
 		settingTitle();
 
-		//create table of food items in simulation
+		//arranges food items in a table format for a simple and readable layout
 		TableView<FoodItem> foodTable = new TableView<>();
 		ObservableList<FoodItem> foodItems = currentSimulation.getFoodItems();
 		foodTable.setItems(foodItems);
@@ -658,7 +651,7 @@ public class MainClass extends Application {
 		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0; " +
 				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
-		//Create table headings
+		//Creates table headings for the table so the user understands what each column represents
 		TableColumn<FoodItem, String> itemHeading = new TableColumn<>("Food Item");
 		itemHeading.setCellValueFactory(new PropertyValueFactory<>("name"));
 		itemHeading.setPrefWidth(100);
@@ -691,7 +684,7 @@ public class MainClass extends Application {
 			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
 			double oldValue = event.getOldValue();
 
-			//user must input a double
+			//notifies the user if the value they entered is not a numerical value (integer or decimal)
 			if (event.getNewValue().isNaN()){
 				invalidInput.setTitle("Invalid Input");
 				invalidInput.setHeaderText("Error: Invalid Input");
@@ -702,75 +695,83 @@ public class MainClass extends Application {
 				double newValue = event.getNewValue();
 				double maxPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight();
 
-				//drone capacity cannot exceed 12 lbs, so item weight cannot exceed 12 lbs
+				/* notifies the user if the new weight of the selected food item exceeds
+				** the maximum payload of the drone */
 				if (newValue > maxPayload) {
 					invalidInput.setTitle("Invalid Input");
 					invalidInput.setHeaderText("Error: Invalid Input");
 					invalidInput.setContentText("Food item weight cannot exceed " + maxPayload + " oz.");
 					errorIndex = 1;
 				}
+				/* notifies the user if the new weight of the selected food item is less than or equal to zero
+				** (cannot have an item that weighs a negative value or does not weight anything at all */
 				else if (newValue <= 0) {
 					invalidInput.setTitle("Invalid Input");
 					invalidInput.setHeaderText("Error: Invalid Input");
 					invalidInput.setContentText("Food item weight must weigh something.");
 					errorIndex = 1;
 				}
+				/* since the drone capacity cannot exceed a given number of pounds, the weight of each order cannot
+				** exceed that given number. So we must check to make sure meals with the the specified food and
+				** new weight do not exceed the maximum payload */
 				else {
-					//drone capacity cannot exceed 12 lbs, so any meal cannot exceed 12 lbs
 					ArrayList<Meal> mealTypes = currentSimulation.getMealTypes();
 					String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getName();
-						for (Meal meal : mealTypes) {
-							double newWeight = 0;
-							if(errorIndex == 0) {
-								for (FoodItem food: meal.getFoods()) {
-									if (itemName.equals(food.getName())) {
-										newWeight += newValue;
-									}
-									else {
-										newWeight += food.getWeight();
-									}
+					for (Meal meal : mealTypes) {
+						double newWeight = 0;
+						if(errorIndex == 0) {
+							/* need to add up the weights of the given meal's food items to check that the
+							** meal's weight is less than the maximum payload */
+							for (FoodItem food: meal.getFoods()) {
+								if (itemName.equals(food.getName())) {
+									newWeight += newValue;
+								}
+								else {
+									newWeight += food.getWeight();
+								}
 
-									if (newWeight > maxPayload) {
-										invalidInput.setTitle("Invalid Input");
-										invalidInput.setHeaderText("Error: Invalid Input");
-										invalidInput.setContentText("Input food item weight causes a meal weight to " +
-												"exceed the drone's maximum payload weight.");
-										errorIndex = 1;
-									}
-								}//foods for loop
-							} //checking meals if statement
-						}//meals for loop
-				} //else statement if newValue <= maxPayload
-			} //else statement if maxPayload is a number
+								/* alerts user if the new weight for the given food item causes a meal
+								** to exceed the drone's maximum payload */
+								if (newWeight > maxPayload) {
+									invalidInput.setTitle("Invalid Input");
+									invalidInput.setHeaderText("Error: Invalid Input");
+									invalidInput.setContentText("Input food item weight causes a meal weight to " +
+											"exceed the drone's maximum payload weight.");
+									errorIndex = 1;
+								}
+							}//end of for loop for adding meal's food's weights together
+						} //end of if statement for when meals (so far) do not exceed the drone's maximum payload
+					}//end of for loop for checking all meals
+				} //end of else statement for when new weight is greater than zero and less than maximum drone payload
+			} //end of else statement for if the new weight is a number
 
+			//finally sets the new food weight if the weight meets the necessary criteria
 			if(errorIndex == 0) {
-				//user input valid weight
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
 						setWeight(event.getNewValue());
 			}
+			//resets the weight of the food item if the new weight does not meet the necessary criteria
 			else {
-				//put old value back
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
 						setWeight(oldValue);
 				invalidInput.showAndWait();
 			}
 
 			event.getTableView().refresh();
-		});//event end
+		});//end of editing food item weight event
 
 		//adds columns to table
 		foodTable.getColumns().setAll(itemHeading, weightHeading);
 		foodTable.setPrefWidth(200);
 		foodTable.setPrefHeight(300);
-		foodTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
 
-		//arranges table on screen
+		//allows table to be easily arranged on the screen
 		StackPane tableLayout = new StackPane();
 		tableLayout.setAlignment(Pos.CENTER_RIGHT);
 		tableLayout.setMaxSize(202, 300);
 		tableLayout.getChildren().add(foodTable);
 
+		//necessary elements that allow the user to add a food item to the current list of food items
 		Text newFoodNameLabel = new Text("Food name: ");
 		newFoodNameLabel.setFont(Font.font("Serif", 15));
 		newFoodNameLabel.setTextAlignment(TextAlignment.CENTER);
@@ -796,6 +797,7 @@ public class MainClass extends Application {
 		newFoodFields.setAlignment(Pos.CENTER);
 		newFoodFields.setPadding(new Insets(0, 20, 0, 0));
 
+		//arranges table and fields for creating new food items together to make the page easily readable
 		VBox tableFoodLayout = new VBox(10);
 		tableFoodLayout.getChildren().addAll(tableLayout, newFoodFields);
 		tableFoodLayout.setAlignment(Pos.CENTER);
@@ -806,28 +808,37 @@ public class MainClass extends Application {
 		centerLayout.setPadding(new Insets(20,0,0,0));
 		centerLayout.getChildren().addAll(titleLayout, tableFoodLayout);
 
-		//buttons for adding and deleting table rows
+		//allows user to add a food item to the current simulation
 		Button addButton = new Button("Add");
 		addButton.setStyle(primaryButtonStyle());
 		addButton.setMinWidth(60);
 
 		addButton.setOnAction(event -> {
+			//decreases redundancy in create alert messages during this event method
 			Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 			errorAlert.setTitle("Invalid Input");
 			errorAlert.setHeaderText("Error: Invalid Input");
 
+			//attempts to create food item with given user input
 			try {
 				double newWeight = Double.parseDouble(newFoodWeight.getText());
-				if (newWeight > currentSimulation.getDroneSettings().getMaxPayloadWeight()){
+
+				//alerts user if the new food's weight is greater than drone's maximum payload
+				if (newWeight > currentSimulation.getDroneSettings().getMaxPayloadWeight()) {
 					errorAlert.setContentText("Food weight cannot exceed drone's maximum payload.");
 					errorAlert.showAndWait();
-				} else if (newWeight <= 0.0){
+				}
+				//alerts user if the new food's weight is less than or equal to zero
+				else if (newWeight <= 0.0) {
 					errorAlert.setContentText("Food must weigh something.");
 					errorAlert.showAndWait();
-				} else if (newFoodName.getText().equals("")){
+				}
+				//alerts the user if the new food does not have a name
+				else if (newFoodName.getText().equals("")) {
 					errorAlert.setContentText("Food must have a name.");
 					errorAlert.showAndWait();
 				}
+				//adds new food item to current simulation if it meets all of the necessary criteria
 				else{
 					currentSimulation.addFoodItem(new FoodItem(newFoodName.getText(), newWeight));
 					foodTable.setItems(currentSimulation.getFoodItems());
@@ -836,18 +847,21 @@ public class MainClass extends Application {
 					newFoodWeight.setText("");
 				}
 			}
+			//alerts user if the value inputted is not a number (for weight)
 			catch(NumberFormatException illegalFormat) {
 				errorAlert.setContentText("Number format required");
 				errorAlert.showAndWait();
 				foodTable.refresh();
 			}
-		});
+		}); //end of add food item event
 
+		//allows the user to delete a food item from the current simulation
 		Button deleteButton = new Button("Delete");
 		deleteButton.setStyle(primaryButtonStyle());
 		deleteButton.setMinWidth(60);
 		deleteButton.setOnAction(event -> {
 			int deletedRow = foodTable.getSelectionModel().getSelectedIndex();
+			//alerts user if they attempt to delete a food item without selecting the food item first
 			if(deletedRow < 0) {
 				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 				errorAlert.setTitle("Invalid Deletion");
@@ -855,13 +869,14 @@ public class MainClass extends Application {
 				errorAlert.setContentText("Food not selected.");
 				errorAlert.showAndWait();
 			}
+			//deletes food items from current simulation (and all meals where the food item exists)
 			else {
 				FoodItem deletedFood = foodTable.getSelectionModel().getSelectedItem();
 				foodItems.remove(deletedRow);
 				currentSimulation.removeFoodItem(deletedFood);
 				foodTable.refresh();
 			}
-		}); //end of event
+		}); //end of delete food item event
 
 		//arranges add and delete buttons relative to each other
 		HBox rightLayout = new HBox(10);
@@ -887,7 +902,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!
 	 * Creates GUI page for meal settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -908,11 +922,13 @@ public class MainClass extends Application {
 
 		//formats display of meal probabilities
 		HashMap<String, Double> probabilities = new HashMap<>();
+
 		for (Meal item : currentSimulation.getMealTypes()){
 			probabilities.put(item.getName(), item.getProbability());
 		}
 		ObservableList<HashMap.Entry<String, Double>> mealProbabilities = FXCollections
 				.observableArrayList(probabilities.entrySet());
+
 		//probabilities shown separate from meal contents due to nuances with editing
 		TableView<HashMap.Entry<String, Double>> probabilityTable = new TableView<>(mealProbabilities);
 		probabilityTable.setMaxSize(205, 300);
@@ -951,12 +967,14 @@ public class MainClass extends Application {
 			double oldValue = event.getOldValue();
 			double newValue;
 
+			//alerts user if inputted value is not a decimal
 			if (event.getNewValue().isNaN()){
 				invalidInput.setTitle("Invalid Input");
 				invalidInput.setHeaderText("Error: Invalid Input");
 				invalidInput.setContentText("Input must be a decimal.");
 				errorIndex = 1;
 			}
+			//alerts user if new value (when added to all the other probabilities) does not equal 1
 			else{
 				newValue = event.getNewValue();
 				if (newValue > 1.0){
@@ -967,16 +985,17 @@ public class MainClass extends Application {
 				}
 			}
 
+			//resets given meal's probability if the new value does not meet the necessary criteria
 			if (errorIndex == 1){
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(oldValue);
 				invalidInput.showAndWait();
 			}
+			//sets given meal's probability to new value if the new value meets the necessary criteria
 			else{
 				newValue = event.getNewValue();
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(newValue);
 			}
-
-		});
+		}); //end of event where user edits probabilities
 
 		probabilityTable.getColumns().setAll(itemColumn, probabilityColumn);
 
@@ -1004,7 +1023,7 @@ public class MainClass extends Application {
 					}
 				}
 			}
-
+			//alerts user if the new probability does not equal 1
 			else{
 				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
 				invalidInput.setTitle("Invalid Input");
@@ -1012,7 +1031,7 @@ public class MainClass extends Application {
 				invalidInput.setContentText("Total probability of meals should equal 1.");
 				invalidInput.showAndWait();
 
-				//reset table with old values
+				//reset table with old values if new values do not eqaul 1
 				mealProbabilities.clear();
 				for (Meal item : currentSimulation.getMealTypes()){
 					probabilities.put(item.getName(), item.getProbability());
@@ -1020,7 +1039,7 @@ public class MainClass extends Application {
 				mealProbabilities.addAll(probabilities.entrySet());
 			}
 
-		});
+		}); //end of event
 
 		HBox saveLayout = new HBox();
 		saveLayout.getChildren().add(saveProbabilityButton);
@@ -1036,6 +1055,7 @@ public class MainClass extends Application {
 
 		//creates a gridpane for each meal in the simulation
 		for(Meal meal : currentSimulation.getMealTypes()) {
+			//allows for each meal to be arranged with respect to its own elements
 			VBox singleMealLayout = new VBox();
 
 			TextField mealName = new TextField(meal.getName());
@@ -1070,17 +1090,18 @@ public class MainClass extends Application {
 				numberPerFood.put(name, numberPerFood.getOrDefault(name, 0));
 			}
 
-			//Map must be an observable to be used in a table
+			//map must be an observable to be used in a table
 			ObservableList<HashMap.Entry<String, Integer>> itemCounts = FXCollections.
 					observableArrayList(numberPerFood.entrySet());
+
 			TableView<HashMap.Entry<String, Integer>> mealTable = new TableView<>(itemCounts);
-			//When maxwidth = prefwidth, horizontal scroll bar shows up -- make maxWidth > prefWidth
+			//when maxwidth = prefwidth, horizontal scroll bar shows up -- make maxWidth > prefWidth
 			mealTable.setMaxSize(205, 300);
 			mealTable.setEditable(true);
 			mealTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
 					"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
-			//Table holds food items and counts for each meal
+			//table holds food items and counts for each meal
 			TableColumn<HashMap.Entry<String, Integer>, String> foodColumn = new TableColumn<>("Food Item");
 			foodColumn.setCellValueFactory(
 					(TableColumn.CellDataFeatures<HashMap.Entry<String, Integer>, String> item) ->
@@ -1183,7 +1204,7 @@ public class MainClass extends Application {
 				}
 			});
 
-
+			//adds necessary columns to meal's table
 			mealTable.getColumns().setAll(foodColumn, countColumn);
 			mealTable.setPrefWidth(200);
 			mealTable.setPrefHeight(250);
@@ -1196,6 +1217,8 @@ public class MainClass extends Application {
 			deleteButton.setOnAction(event -> {
 				//total probability of meals after meal deletion should equal 1.0
 				BigDecimal mealProbability = new BigDecimal(meal.getProbability());
+				/* alerts user that they must set the probability of the deleted meal to zero and refactor the
+				** other meal's probabilities to equal 1 */
 				if (mealProbability.compareTo(BigDecimal.valueOf(0.0)) != 0){
 					Alert probabilityAlert = new Alert(Alert.AlertType.ERROR);
 					probabilityAlert.setTitle("Error");
@@ -1204,7 +1227,6 @@ public class MainClass extends Application {
 							"the rest are equivalent to 1.0.");
 					probabilityAlert.showAndWait();
 				}
-
 				else{
 					String nameToDelete = meal.getName();
 					HashMap.Entry<String, Double> mealToDelete = mealProbabilities.get(0);
@@ -1214,15 +1236,13 @@ public class MainClass extends Application {
 							break;
 						}
 					}
-
 					mealsBox.getChildren().remove(singleMealLayout);
 					mealProbabilities.remove(mealToDelete);	//this isn't right - turn to entry <>
 					probabilities.remove(mealToDelete);
 					probabilityTable.refresh();
 					currentSimulation.removeMeal(meal);
-				}
-
-			});
+				} //end of else statement (when user has set up probabilities for meal to be deleted)
+			}); //end of deleting meal event
 
 			HBox deleteLayout = new HBox();
 			deleteLayout.getChildren().add(deleteButton);
@@ -1248,10 +1268,11 @@ public class MainClass extends Application {
 		mealLayout.setStyle("-fx-background: #e0e0e0; -fx-border-style: solid; " +
 				"-fx-border-width: 1; -fx-border-color: black");
 
+		//allows user to add a meal to the current simulation's list of meals
 		Button addButton = new Button("Add Meal");
 		addButton.setStyle(primaryButtonStyle());
-		addButton.setOnAction(event ->{	//doesn't return to this page
-			addMealPage();	//needs fixing
+		addButton.setOnAction(event ->{
+			addMealPage();
 		});
 
 		VBox tableAddLayout = new VBox(5);
@@ -1282,7 +1303,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!
 	 * Creates page for adding a meal
 	 * @author Rachel Franklin
 	 */
@@ -1308,11 +1328,14 @@ public class MainClass extends Application {
 
 		//formats display of meal counts
 		HashMap<FoodItem, Integer> foodItems = new HashMap<>();
-		for (FoodItem item : currentSimulation.getFoodItems()){
+
+		for (FoodItem item : currentSimulation.getFoodItems()) {
 			foodItems.put(item, 0);
 		}
+
 		ObservableList<HashMap.Entry<FoodItem, Integer>> foodInMeal = FXCollections
 				.observableArrayList(foodItems.entrySet());
+
 		TableView<HashMap.Entry<FoodItem, Integer>> foodTable = new TableView<>(foodInMeal);
 		foodTable.setMaxSize(205, 300);
 		foodTable.setEditable(true);
@@ -1344,12 +1367,11 @@ public class MainClass extends Application {
 			}
 		}));
 		countColumn.setOnEditCommit(event -> {
-
 			int errorIndex = 0;
 			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
 			int oldValue = event.getOldValue();
 
-			//user must input an integer
+			//alerts user if they do not put input an integer
 			if (event.getNewValue() == null){
 				invalidInput.setTitle("Invalid Input");
 				invalidInput.setHeaderText("Error: Invalid Input");
@@ -1374,13 +1396,14 @@ public class MainClass extends Application {
 					}
 				}
 
-				//drone capacity cannot exceed 12 lbs, so items combined weight cannot exceed 12 lbs
+				//alerts user if current meal's weight exceeds drone's maximum capacity
 				if (mealWeight > maxPayload) {
 					invalidInput.setTitle("Invalid Input");
 					invalidInput.setHeaderText("Error: Invalid Input");
 					invalidInput.setContentText("Meal weight cannot exceed " + maxPayload + " oz.");
 					errorIndex = 1;
 				}
+				//alerts user if the number of the specified food item is a negative number
 				else if (newValue <= 0) {
 					invalidInput.setTitle("Invalid Input");
 					invalidInput.setHeaderText("Error: Invalid Input");
@@ -1389,26 +1412,24 @@ public class MainClass extends Application {
 				}
 			}
 
+			//sets number of specified food item if the inputted value passes the necessary criteria
 			if(errorIndex == 0) {
-				//user input valid weight
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
 						setValue(event.getNewValue());
 			}
+			//reset table if new value does not meet the necessary criteria
 			else {
-				//put old value as
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
 						setValue(oldValue);
 				foodTable.refresh();
 				invalidInput.showAndWait();
 			}
 
-		});//event end
+		});//end of event for adding number of food items to meal
 
 		foodTable.getColumns().setAll(foodColumn, countColumn);
 		foodTable.setPrefWidth(200);
 		foodTable.setPrefHeight(300);
-		foodTable.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-				CornerRadii.EMPTY, new BorderWidths(1))));
 
 		StackPane tableLayout = new StackPane();
 		tableLayout.setAlignment(Pos.TOP_RIGHT);
@@ -1429,19 +1450,19 @@ public class MainClass extends Application {
 				mealWeight += currentItem.getValue() * (currentItem.getKey().getWeight());
 			}
 
-			//meal must have a name
+			//alerts user if meal does not have a name
 			if (nameField.getText().equals("")){
 				errorIndex = 1;
 				invalidInput.setContentText("Meal must be given a name.");
 			}
-			//meal must have food items
+			//alerts user if meal does not contain any food items
 			else if(mealWeight <= 0){
 				errorIndex = 1;
 				invalidInput.setContentText("Meal must have food items.");
 			}
 
 			if (errorIndex == 0){
-				//food items to put in meal
+				//adds specified number of food items to meal
 				ArrayList <FoodItem> foodToAdd = new ArrayList<>();
 				for (int index = 0; index < currentSimulation.getFoodItems().size(); index++){
 					int countFood = foodInMeal.get(index).getValue();
@@ -1452,6 +1473,8 @@ public class MainClass extends Application {
 
 				//add new meal to simulation
 				currentSimulation.addMealType(new Meal(foodToAdd, nameField.getText(), 0));
+
+				//alerts user that probability of new meal is zero
 				Alert probabilityNotice = new Alert(Alert.AlertType.INFORMATION);
 				probabilityNotice.setTitle("Meal Created with Probability of 0");
 				probabilityNotice.setHeaderText(null);
@@ -1462,11 +1485,11 @@ public class MainClass extends Application {
 
 				editMealsPage();
 				return;
-			}
+			} //end of if statement for when meal values are acceptable
 			else{
 				invalidInput.showAndWait();
 			}
-		});
+		}); //end of event for adding meal to table
 
 		VBox tableSaveLayout = new VBox(10);
 		tableSaveLayout.getChildren().addAll(tableLayout, save);
@@ -1493,7 +1516,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!!
 	 * Creates GUI page for drone settings
 	 * @author Izzy Patnode
 	 */
@@ -1513,7 +1535,7 @@ public class MainClass extends Application {
 
 		Font font = Font.font("Serif", 15);
 
-		//creates gridpane containing the current stochastic flow values
+		//creates gridpane containing the current drone settings
 		Text maxPayload = new Text("Max Cargo Weight (lbs): ");
 		maxPayload.setFont(font);
 
@@ -1578,11 +1600,12 @@ public class MainClass extends Application {
 		centerLayout.setPadding(new Insets(20,0,0,0));
 		centerLayout.getChildren().addAll(titleLayout, droneSettings);
 
+		//allows user to edit current drone settings
 		Button editButton = new Button("Save Changes");
 		editButton.setStyle(primaryButtonStyle());
 
-		//sets current drone settings to edited drone settings
 		editButton.setOnAction(event -> {
+			//attempts to change current drone settings to new drone settings
 			try {
 				currentSimulation.getDroneSettings().setMaxPayloadWeight((Double.parseDouble(dronePayload.getText())
 						* OUNCES_PER_POUND));
@@ -1594,12 +1617,14 @@ public class MainClass extends Application {
 						* SECONDS_PER_MINUTE);
 				currentSimulation.getDroneSettings().setDeliveryTime(Double.parseDouble(droneUnload.getText()));
 
+				//gives the user confirmation that their changes have been applied to the drone settings
 				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
 				saveAlert.setTitle("Confirm Changes");
 				saveAlert.setHeaderText("Changes Saved!");
 				saveAlert.showAndWait();
 			} //end of try block
 			catch(NumberFormatException illegalFormat) {
+				//alerts user if the changed value(s) are not acceptable
 				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 				errorAlert.setTitle("Invalid Input");
 				errorAlert.setHeaderText("Invalid Input!");
@@ -1619,7 +1644,7 @@ public class MainClass extends Application {
 
 				errorAlert.showAndWait();
 			} //end of catch block
-		}); //end of event handler
+		}); //end of event for editing drone settings
 
 		VBox rightLayout = new VBox();
 		rightLayout.setAlignment(Pos.BOTTOM_LEFT);
@@ -1644,7 +1669,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED!!!!!
 	 * Creates GUI page for map settings
 	 * @author Izzy Patnode
 	 */
@@ -1666,7 +1690,7 @@ public class MainClass extends Application {
 		//gets list of current map destinations
 		ObservableList<Point> mapPoints = currentSimulation.getDeliveryPoints().getPoints();
 
-		//finds maximum and minimum destinations points (in coordinates)
+		//finds maximum and minimum x and y values to make axes of map have a good range
 		int upperYBound = mapPoints.get(0).getY();
 		int upperXBound = mapPoints.get(0).getX();
 		int lowerYBound = mapPoints.get(0).getY();
@@ -1690,7 +1714,7 @@ public class MainClass extends Application {
 			}
 		}
 
-		//creates the axes for the map scatter plot
+		//creates the axes for the map scatter plot using the
 		NumberAxis xAxis = new NumberAxis(lowerXBound - 100, upperXBound + 100, 100);
 		xAxis.setLabel("");
 		xAxis.setTickMarkVisible(false);
@@ -1754,10 +1778,12 @@ public class MainClass extends Application {
 			int selectedRow = event.getTablePosition().getRow();
 			String oldCoordinates = event.getOldValue();
 
+			//attempts to update specified point's coordinates to given values
 			try {
 				int oldXValue = event.getTableView().getItems().get(selectedRow).getX();
 				int oldYValue = event.getTableView().getItems().get(selectedRow).getY();
 
+				//checks that the point does not reside at the origin (0,0) since the origin must exist at all times
 				if((oldXValue != 0 || oldYValue != 0)) {
 					Drone currentDrone = currentSimulation.getDroneSettings();
 					double maxDistanceAllowed = (currentDrone.getFlightTime() * currentDrone.getCruisingSpeed()) / 2;
@@ -1766,14 +1792,17 @@ public class MainClass extends Application {
 
 					Point newPoint = event.getTableView().getSelectionModel().getSelectedItem();
 
+					//checks that the new coordinates are in range of the drone (the drone can fly that distance)
 					if(newPoint.distanceFromPoint(newPoint.getOrigin()) <= maxDistanceAllowed) {
 						int newXValue = newPoint.getX();
 						int newYValue = newPoint.getY();
 
+						//updates map so the point is now located at its new coordinates
 						XYChart.Data<Number, Number> selectedPoint = mapValues.getData().get(selectedRow);
 						selectedPoint.setXValue(newXValue);
 						selectedPoint.setYValue(newYValue);
 
+						//changes bounds of map if the coordinate resides outside of the map's current scope
 						int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
 						int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
 
@@ -1796,8 +1825,9 @@ public class MainClass extends Application {
 						if(newYValue < currentLowerYBound) {
 							yAxis.setLowerBound(currentLowerYBound - 100);
 						}
-					}
+					} //end of if statement where new coordinates are legal
 					else {
+						//alerts user that the new coordinates are not in range of the drone
 						Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
 						blockOrigin.setTitle("Maximum Distance Exceeded");
 						blockOrigin.setHeaderText("Error: Maximum Distance Exceeded");
@@ -1806,8 +1836,9 @@ public class MainClass extends Application {
 						blockOrigin.showAndWait();
 					}
 
-				}
+				} //end of if statement where coordinates being changed are not the origin
 				else {
+					//alerts user that they are attempting to change the coordinates of the origin (not allowed)
 					Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
 					blockOrigin.setTitle("Origin Change Attempted");
 					blockOrigin.setHeaderText("Error: Origin Change Attempted");
@@ -1816,18 +1847,19 @@ public class MainClass extends Application {
 					blockOrigin.showAndWait();
 				}
 
-			}
+			} //end of try block
 			catch(IllegalArgumentException illegalArgument) {
+				//alerts the user that the new coordinates are not valid (incorrect syntax, not integers, etc.)
 				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
 				invalidInput.setTitle("Invalid Coordinates");
 				invalidInput.setHeaderText("Error: Invalid Coordinates");
 				invalidInput.setContentText("Input must be a (x,y) integer pair");
 				event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
 				invalidInput.showAndWait();
-			}
+			} //end of catch block
 
 			event.getTableView().refresh();
-		});
+		}); //end of event for editing point coordinates
 
 		//adds column headings to table
 		mapTable.getColumns().setAll(pointHeading, xyHeading);
@@ -1840,17 +1872,19 @@ public class MainClass extends Application {
 		tableLayout.setAlignment(Pos.CENTER);
 		tableLayout.getChildren().add(mapTable);
 
-		//buttons for adding and deleting table rows
+		//allows user to add new points
 		Button addButton = new Button("Add");
 		addButton.setStyle(primaryButtonStyle());
 
 		addButton.setOnAction(event -> {
+			//creates a popup window so that the current map page does not become overcrowded
 			Stage addDialog = new Stage();
 			addDialog.setTitle("New Point");
 			addDialog.initOwner(window);
 			addDialog.initModality(Modality.WINDOW_MODAL);
 			addDialog.initStyle(StageStyle.UTILITY);
 
+			//arranges textfields and labels for point information in a gridpane for simple layout
 			GridPane newPointGrid = new GridPane();
 			newPointGrid.setHgap(10);
 			newPointGrid.setVgap(10);
@@ -1866,21 +1900,26 @@ public class MainClass extends Application {
 			newPointGrid.add(coordinateTitle, 0, 1);
 			newPointGrid.add(coordinates, 1, 1);
 
+			//adds new point to simulation
 			Button confirmButton = new Button("Finish");
 			confirmButton.setOnAction(event1 -> {
+				//creates a new point with name and empty coordinates (since we have to parse the coordinate string)
 				Point newPoint = currentSimulation.getDeliveryPoints().
 						addPoint(pointName.getText(), Double.NaN, Double.NaN);
 
+				//attempts to set new point's coordinates
 				try {
 					newPoint.setCoordinates(coordinates.getText());
 
 					Drone currentDrone = currentSimulation.getDroneSettings();
 					double maxDistanceAllowed = (currentDrone.getFlightTime() * currentDrone.getCruisingSpeed()) / 2;
 
+					//checks that the distance to the point from the origin is within the drone's range
 					if(newPoint.distanceFromPoint(newPoint.getOrigin()) <= maxDistanceAllowed) {
 						int newXValue = newPoint.getX();
 						int newYValue = newPoint.getY();
 
+						//adds new point to the map so the new point is visible
 						mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
 
 						int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
@@ -1906,6 +1945,7 @@ public class MainClass extends Application {
 							yAxis.setLowerBound(currentLowerYBound - 100);
 						}
 
+						//resets table of points to include the new point
 						ObservableList<Point> newMapPoints = currentSimulation.getDeliveryPoints().getPoints();
 
 						mapTable.setItems(newMapPoints);
@@ -1914,9 +1954,11 @@ public class MainClass extends Application {
 							mapPoint.setStyle("-fx-background-color: #0047ab");
 						}
 
+						//closes dialog and takes user back to map settings page
 						addDialog.close();
-					}
+					} //end of if statement where inputted coordinates are valid and can be added to the simulation
 					else {
+						//alerts user that the inputted coordinates exceed the distance the drone can travel
 						Alert invalidCoordinates = new Alert(Alert.AlertType.ERROR);
 						invalidCoordinates.setTitle("Maximum Distance Exceeded");
 						invalidCoordinates.setHeaderText("Error: Maximum Distance Exceeded");
@@ -1924,8 +1966,9 @@ public class MainClass extends Application {
 						currentSimulation.getDeliveryPoints().removePoint(newPoint);
 						invalidCoordinates.showAndWait();
 					}
-				}
+				} //end of try block
 				catch(IllegalArgumentException illegalArgument) {
+					//alerts user that the inputted coordinates are invalid (illegal syntax, not integers, etc.)
 					Alert invalidInput = new Alert(Alert.AlertType.ERROR);
 					invalidInput.setTitle("Invalid Coordinates");
 					invalidInput.setHeaderText("Error: Invalid Coordinates");
@@ -1933,9 +1976,10 @@ public class MainClass extends Application {
 					currentSimulation.getDeliveryPoints().removePoint(newPoint);
 
 					invalidInput.showAndWait();
-				}
-			});
+				} //end of cancel block
+			}); //end of confirmation button event (adding new point to current simulation)
 
+			//allows user to cancel (exit the popup) if they no longer want to add a new point
 			Button cancelButton = new Button("Cancel");
 			cancelButton.setCancelButton(true);
 			cancelButton.setOnAction(event12 -> addDialog.close());
@@ -1950,12 +1994,14 @@ public class MainClass extends Application {
 			Scene dialogScene = new Scene(dialogLayout);
 			addDialog.setScene(dialogScene);
 			addDialog.show();
-		});
+		}); //end of event for adding delivery points to the current simulation (creating popup window)
 
+		//allows user to delete delivery points from the current simulation
 		Button deleteButton = new Button("Delete");
 		deleteButton.setStyle(primaryButtonStyle());
 		deleteButton.setOnAction(event -> {
 			int deletedRow = mapTable.getSelectionModel().getSelectedIndex();
+			//alerts user if they attempt to delete a point without selecting the point first
 			if(deletedRow < 0) {
 				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 				errorAlert.setTitle("Invalid Deletion");
@@ -1966,14 +2012,18 @@ public class MainClass extends Application {
 			else {
 				Point deletedPoint = mapTable.getSelectionModel().getSelectedItem();
 
+				//checks to see if the point the user wants to delete is the origin (not allowed)
 				if (deletedPoint.getX() != 0 || deletedPoint.getY() != 0) {
+					//removes point from map
 					mapValues.getData().remove(deletedRow);
 
+					//changes scope of map if necessary
 					int newUpperXBound = mapPoints.get(0).getX();
 					int newUpperYBound = mapPoints.get(0).getY();
 					int newLowerXBound = mapPoints.get(0).getX();
 					int newLowerYBound = mapPoints.get(0).getY();
 
+					//calculates new lower and upper bounds for map's axes
 					for (Point point : mapPoints) {
 						if (point.getX() >= newUpperXBound) {
 							newUpperXBound = point.getX();
@@ -1993,19 +2043,22 @@ public class MainClass extends Application {
 
 						yAxis.setUpperBound(newUpperYBound + 100);
 						yAxis.setLowerBound(newLowerYBound - 100);
-					}
+					} //end of for loop
 
+					//removes point from table and current simulation
 					mapPoints.remove(deletedRow);
 					currentSimulation.getDeliveryPoints().removePoint(deletedPoint);
-				} else {
+				}
+				else {
+					//alerts user if they attempt to delete the origin
 					Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
 					blockOrigin.setTitle("Origin Deletion Attempted");
 					blockOrigin.setHeaderText("Error: Origin Deletion Attempted");
 					blockOrigin.setContentText("Cannot delete origin");
 					blockOrigin.showAndWait();
 				}
-			}
-		});
+			} //end of else statement where user selects a valid row
+		}); //end of event for deleting delivery points
 
 		HBox addDeleteButtons = new HBox(10);
 		addDeleteButtons.setAlignment(Pos.CENTER_RIGHT);
@@ -2028,7 +2081,7 @@ public class MainClass extends Application {
 		centerLayout.setPadding(new Insets(20,0,0,0));
 		centerLayout.getChildren().addAll(titleLayout, mapDisplay);
 
-		//creates button for loading map
+		//allows user to load in a map of their choice
 		Button loadButton = new Button("Load Map");
 		loadButton.setStyle(primaryButtonStyle());
 		//TODO: LOAD IN MAP
@@ -2056,7 +2109,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETE AND TESTED!!!!!
 	 * Displays results from simulation
 	 * @author Rachel Franklin
 	 */
@@ -2072,7 +2124,7 @@ public class MainClass extends Application {
 		titleLayout.getChildren().add(title);
 		titleLayout.setAlignment(Pos.CENTER);
 
-		//icon created by Google
+		//icon created by Google, allows us to display the icon png on the page
 		Image homeIcon = new Image("file:resources/home-button.png");
 		ImageView homeView = new ImageView(homeIcon);
 
@@ -2092,7 +2144,7 @@ public class MainClass extends Application {
 		topLayout.setAlignment(Pos.TOP_LEFT);
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
-		//fifo stats
+		//sets up statistics for FIFO
 		Text fifoTitle = new Text("FIFO Delivery");
 		fifoTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
 		fifoTitle.setWrappingWidth(300);
@@ -2115,8 +2167,8 @@ public class MainClass extends Application {
 		fifoWorst.setTextAlignment(TextAlignment.CENTER);
 
 		double fifoExpiredPercent = results.getPercentFifoExpired();
-		DecimalFormat df = new DecimalFormat("##.####");
-		df.format(fifoExpiredPercent);
+		DecimalFormat decimalFormat = new DecimalFormat("##.####");
+		decimalFormat.format(fifoExpiredPercent);
 
 		Text fifoExpired = new Text(String.format("Average Expired Orders: %.2f%%",
 				(fifoExpiredPercent*100)));
@@ -2129,7 +2181,7 @@ public class MainClass extends Application {
 		fifoLayout.setAlignment(Pos.TOP_CENTER);
 		fifoLayout.getChildren().addAll(fifoTitle, fifoAverage, fifoWorst, fifoExpired);
 
-		//knapsack stats
+		//sets up statistics for knapsack packing
 		Text knapsackTitle = new Text("Knapsack Packing Delivery");
 		knapsackTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
 		knapsackTitle.setWrappingWidth(300);
@@ -2152,7 +2204,7 @@ public class MainClass extends Application {
 		knapsackWorst.setTextAlignment(TextAlignment.CENTER);
 
 		double knapsackExpiredPercent = results.getPercentKnapsackExpired();
-		df.format(knapsackExpiredPercent);	//Decimal format initialized earlier
+		decimalFormat.format(knapsackExpiredPercent);	//Decimal format initialized earlier
 
 		Text knapsackExpired = new Text(String.format("Average Expired Orders: %.2f%%",
 				(knapsackExpiredPercent*100)));
@@ -2165,7 +2217,7 @@ public class MainClass extends Application {
 		knapsackLayout.setAlignment(Pos.TOP_CENTER);
 		knapsackLayout.getChildren().addAll(knapsackTitle, knapsackAverage, knapsackWorst, knapsackExpired);
 
-		//set up stats layout
+		//sets up layout of statistics
 		HBox statsLayout = new HBox();
 		statsLayout.setAlignment(Pos.CENTER);
 		statsLayout.getChildren().addAll(fifoLayout, knapsackLayout);
@@ -2196,7 +2248,7 @@ public class MainClass extends Application {
 			if (minDuration > duration) minDuration = duration;
 		}
 
-		// increment the array values to reflect the distribution
+		//increment the array values to reflect the distribution
 		for (var fifoTime : results.getFifoTimes()) {
 			int duration = (int)(Math.floor(fifoTime) / SECONDS_PER_MINUTE);
 			int index = (duration - minDuration);
@@ -2214,7 +2266,7 @@ public class MainClass extends Application {
 				"FIFO", FXCollections.observableArrayList());
 		var fifoSeriesData = fifoSeries.getData();
 
-		// add the data values for fifo into the chart
+		//adds the data values for fifo into the chart
 		for (int index = 0; index < columns; index++) {
 			int start = minDuration + index;
 			int end = start + 1;
@@ -2227,7 +2279,7 @@ public class MainClass extends Application {
 				"Knapsack Packing", FXCollections.observableArrayList());
 		var knapsackSeriesData = knapsackSeries.getData();
 
-		// add the values for knapsack into the chart
+		//adds the values for knapsack into the chart
 		for (int index = 0; index < columns; index++) {
 			int start = minDuration + index;
 			int end = start + 1;
@@ -2239,7 +2291,7 @@ public class MainClass extends Application {
 		barChart.getData().add(fifoSeries);
 		barChart.getData().add(knapsackSeries);
 
-		// color the data columns
+		//colors the data columns
 		for (var data : fifoSeries.getData())
 			data.getNode().setStyle("-fx-bar-fill: #ae000b;");
 		for (var data : knapsackSeries.getData())
@@ -2247,7 +2299,7 @@ public class MainClass extends Application {
 
 		barChart.setStyle("-fx-background: #e0e0e0");
 
-		//save results button
+		//allows user to save the full results
 		Button saveButton = new Button("Save Results");
 		saveButton.setStyle(primaryButtonStyle());
 
@@ -2260,16 +2312,15 @@ public class MainClass extends Application {
 			File file = fileChooser.showSaveDialog(window);
 			if (file != null)
 			    Configuration.getInstance().saveResults(results, file);
-		});
+		}); //end of save results event
 
 		HBox buttonBox = new HBox();
 		buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
 		buttonBox.setPadding(new Insets(0,50, 30, 0));
 		buttonBox.getChildren().add(saveButton);
 
-		//combine boxes
+		//combine separate layouts into one
 		VBox finalLayout = new VBox();
-		//top layout, stats, barChart, save button
 		finalLayout.getChildren().addAll(topLayout, statsLayout, barChart, buttonBox);
 		finalLayout.setStyle(PRIMARY_BACKGROUND_COLOR);
 
