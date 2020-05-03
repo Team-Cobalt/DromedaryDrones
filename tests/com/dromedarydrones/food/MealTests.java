@@ -53,4 +53,9 @@ public class MealTests {
         meal.setName(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullAddFood(){
+        meal.getFoods().add(null);
+    }
+
 }
