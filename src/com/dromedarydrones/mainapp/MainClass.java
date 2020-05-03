@@ -1617,7 +1617,7 @@ public class MainClass extends Application {
 						* FEET_PER_MILE) / SECONDS_PER_HOUR);
 				currentSimulation.getDroneSettings().setFlightTime(Double.parseDouble(droneFlight.getText())
 						* SECONDS_PER_MINUTE);
-				currentSimulation.getDroneSettings().setTurnAroundTime(Double.parseDouble(droneFlight.getText())
+				currentSimulation.getDroneSettings().setTurnAroundTime(Double.parseDouble(droneTurnAround.getText())
 						* SECONDS_PER_MINUTE);
 				currentSimulation.getDroneSettings().setDeliveryTime(Double.parseDouble(droneUnload.getText()));
 
