@@ -20,7 +20,7 @@ import java.util.concurrent.*;
 /**
  * A standalone configuration of a simulation containing
  * meals, food items, delivery points, and drone settings.
- * @author  Christian Burns and Isabella Patnode
+ * @author  Christian Burns and Izzy Patnode
  */
 public class Simulation implements XmlSerializable, Callable<SimulationResults> {
 
@@ -48,42 +48,6 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     /**
-     * Copy constructor to duplicate an existing simulation. All data
-     * is deep copied so modifying this new configuration will not
-     * change the data within the copied configuration.
-     * @author Christian Burns
-     * @param other  existing configuration to clone
-     */
-    public Simulation(Simulation other) {
-        this.simulationName = other.simulationName;
-
-        //copies stochastic flow of existing simulation
-        this.stochasticFlow = new ArrayList<>();
-        this.stochasticFlow.addAll(other.stochasticFlow);
-
-        //copies known foods from existing simulation
-        this.foodItems = new ArrayList<>();
-        for (FoodItem food : other.foodItems) {
-            this.foodItems.add(new FoodItem(food));
-        }
-
-        //copies known meals from existing simulation
-        this.mealTypes = new ArrayList<>();
-        for (Meal meal : other.mealTypes) {
-            ArrayList<FoodItem> foods = new ArrayList<>();
-            for (FoodItem food : meal.getFoods()) {
-                foods.add(getFoodItem(food.getName()));
-            }
-
-            Meal newType = new Meal(foods, meal.getName(), meal.getProbability());
-            mealTypes.add(newType);
-        }
-
-        this.deliveryPoints = new DeliveryPoints(other.deliveryPoints);
-        this.droneSettings = new Drone(other.droneSettings);
-    }
-
-    /**
      * Load Simulation from an XML object.
      * @author  Christian Burns
      * @param root  element containing simulation data
@@ -93,6 +57,7 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
         foodItems = new ArrayList<>();
         mealTypes = new ArrayList<>();
         stochasticFlow = new ArrayList<>();
+        int index; //loop variable
 
         NodeList stochasticNodeList = root.getElementsByTagName("stochastic");
         NodeList foodItemNodeList = root.getElementsByTagName("fooditems");
@@ -110,7 +75,8 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
                 stochasticFlow.add(Integer.parseInt(stochasticHour.getAttribute("orders")));
                 stochasticHourNodes = stochasticRoot.getElementsByTagName(String.format("hour%d", ++hourIndex));
             }
-        } else {
+        }
+        else {
             System.err.println(String.format("simulation \"%s\" missing the \"stochastic\" element", simulationName));
         }
 
@@ -118,7 +84,8 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
         if (droneSettingsNodeList.getLength() > 0) {
             Element droneSettingsRoot = (Element) droneSettingsNodeList.item(0);
             droneSettings = new Drone(droneSettingsRoot);
-        } else {
+        }
+        else {
             droneSettings = new Drone();
             System.err.println(String.format("simulation \"%s\" missing the \"drone\" element", simulationName));
         }
@@ -127,9 +94,10 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
         if (foodItemNodeList.getLength() > 0) {
             Element foodItemRoot = (Element) foodItemNodeList.item(0);
             NodeList foodChildren = foodItemRoot.getElementsByTagName("fooditem");
-            for (int index = 0; index < foodChildren.getLength(); index++)
+            for (index = 0; index < foodChildren.getLength(); index++)
                 foodItems.add(new FoodItem((Element) foodChildren.item(index)));
-        } else {
+        }
+        else {
             System.err.println(String.format("simulation \"%s\" missing the \"fooditems\" element", simulationName));
         }
 
@@ -137,7 +105,7 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
         if (mealTypeNodeList.getLength() > 0) {
             Element mealTypeRoot = (Element) mealTypeNodeList.item(0);
             NodeList mealChildren = mealTypeRoot.getElementsByTagName("meal");
-            for (int index = 0; index < mealChildren.getLength(); index++) {
+            for (index = 0; index < mealChildren.getLength(); index++) {
                 Element mealChild = (Element) mealChildren.item(index);
                 String mealName = mealChild.getAttribute("name");
                 double mealProb = Double.parseDouble(mealChild.getAttribute("probability"));
@@ -161,7 +129,8 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
                 }
                 mealTypes.add(new Meal(mealFoodItems, mealName, mealProb));
             }
-        } else {
+        }
+        else {
             System.err.println(String.format("simulation \"%s\" missing the \"mealtypes\" element", simulationName));
         }
 
@@ -169,9 +138,11 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
         if (deliveryPointNodeList.getLength() > 0) {
             Element deliveryPointRoot = (Element) deliveryPointNodeList.item(0);
             deliveryPoints = new DeliveryPoints(deliveryPointRoot);
-        } else {
+        }
+        else {
             deliveryPoints = new DeliveryPoints();
-            System.err.println(String.format("simulation \"%s\" missing the \"deliverypoints\" element", simulationName));
+            System.err.println(String.format("simulation \"%s\" missing the " +
+                    "\"deliverypoints\" element", simulationName));
         }
     }
 
@@ -195,12 +166,15 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
             for (Future<TrialResults> result : futures) {
                 try {
                     results.add(result.get());
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                }
+                catch (ExecutionException exception) {
+                    exception.printStackTrace();
                 }
             }
-        } catch (CancellationException | InterruptedException ignore) {
-        } finally {
+        }
+        catch (CancellationException | InterruptedException ignore) {
+        }
+        finally {
             service.shutdown();
         }
 
@@ -228,34 +202,20 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
             for (Future<TrialResults> result : futures) {
                 try {
                     results.add(result.get());
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                }
+                catch (ExecutionException exception) {
+                    exception.printStackTrace();
                 }
             }
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        } finally {
+        }
+        catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+        finally {
             service.shutdown();
         }
 
         return new SimulationResults(results);
-    }
-
-    /**
-     * Returns the name of the simulation state.
-     * @author Christian Burns
-     */
-    public String getName() {
-        return simulationName;
-    }
-
-    /**
-     * Changes the name of the simulation state to the one specified.
-     * @author  Christian Burns
-     * @param name  new name to use
-     */
-    public void setName(String name) {
-        simulationName = name;
     }
 
     /**
@@ -314,7 +274,7 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
 
     /**
      * Makes specified stochastic flow the model for current simulation
-     * @author Isabella Patnode
+     * @author Izzy Patnode
      * @param numberMeals the number of meals per hour for each hour
      * @throws IllegalArgumentException  if number of hours per shift is not 4
      */
@@ -330,7 +290,7 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
 
     /**
      * Method to get the simulation's stochastic flow
-     * @author Isabella Patnode
+     * @author Izzy Patnode
      * @return the simulation's stochastic flow model
      */
     public ArrayList<Integer> getStochasticFlow() {
@@ -339,7 +299,7 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
 
 
     /**Method to get list of simulation's delivery points
-     * @author Isabella Patnode
+     * @author Izzy Patnode
      * @return the simulation's list of delivery points
      */
     public DeliveryPoints getDeliveryPoints() {
@@ -363,6 +323,7 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     /**
+     * DO WE NEED THIS????
      * Creates a brand new food item with the specified name and weight.
      * @author Christian Burns
      * @param name    name of the new food
@@ -379,6 +340,7 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
       }
 
     /**
+     * DO WE NEED THIS RETURN????
      * Removes the specified food item from the simulation.
      * @author Christian Burns
      * @param food  food item to be removed
@@ -406,6 +368,7 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     /**
+     * DO WE NEED THIS????
      * Creates a brand new meal type with the specified probability.
      * @author Christian Burns
      * @param probability  probability of occurrence
@@ -465,10 +428,10 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Simulation that = (Simulation) o;
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        Simulation that = (Simulation) other;
         return simulationName.equals(that.simulationName);
     }
 

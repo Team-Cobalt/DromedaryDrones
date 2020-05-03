@@ -100,7 +100,7 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
 
     /**
      * Makes the current simulation's list of delivery points into a list for javafx
-     * @author Isabella Patnode
+     * @author Izzy Patnode
      * @return a list of points for javafx
      */
     public ObservableList<Point> getPoints() {
@@ -109,7 +109,6 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
 
     /**
      * Returns an iterator over elements of type {@code Point}.
-     *
      * @return an Iterator.
      */
     @Override
@@ -143,9 +142,9 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
     }
 
     @Override
-    public Element toXml(Document doc) {
-        Element root = doc.createElement("deliverypoints");
-        for (Point point : points) root.appendChild(point.toXml(doc));
+    public Element toXml(Document document) {
+        Element root = document.createElement("deliverypoints");
+        for (Point point : points) root.appendChild(point.toXml(document));
         return root;
     }
 }

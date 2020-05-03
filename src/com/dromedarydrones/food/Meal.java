@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * Class pertaining to the creation of meals
- * @author Isabella Patnode
+ * @author Izzy Patnode
  *
  */
 public class Meal implements XmlSerializable {
@@ -63,14 +63,14 @@ public class Meal implements XmlSerializable {
 	
 	/**
 	 * Method that updates the probability of the meal
-	 * @param prob new probability of the meal
+	 * @param probability new probability of the meal
 	 * @throws IllegalArgumentException if probability is less than zero
 	 */
-	public void setProbability(double prob) throws IllegalArgumentException {
-		if(prob < 0)
+	public void setProbability(double probability) throws IllegalArgumentException {
+		if(probability < 0)
 			throw new IllegalArgumentException("Invalid probability.");
 
-		this.probability = prob;
+		this.probability = probability;
 	}
 	
 	/**
@@ -129,8 +129,8 @@ public class Meal implements XmlSerializable {
 	}
 
 	@Override
-	public Element toXml(Document doc) {
-		Element root = doc.createElement("meal");
+	public Element toXml(Document document) {
+		Element root = document.createElement("meal");
 		root.setAttribute("name", name);
 		root.setAttribute("probability", String.valueOf(probability));
 		HashMap<FoodItem, Integer> foodQuantities = new HashMap<>();
@@ -139,8 +139,8 @@ public class Meal implements XmlSerializable {
 			foodQuantities.put(food, foodQuantities.get(food) + 1);
 		}
 		for (Map.Entry<FoodItem, Integer> entry : foodQuantities.entrySet()) {
-			Element foodElem = doc.createElement(XmlFactory.toXmlTag(entry.getKey().getName()));
-			foodElem.appendChild(doc.createTextNode(entry.getValue().toString()));
+			Element foodElem = document.createElement(XmlFactory.toXmlTag(entry.getKey().getName()));
+			foodElem.appendChild(document.createTextNode(entry.getValue().toString()));
 			root.appendChild(foodElem);
 		}
 		return root;

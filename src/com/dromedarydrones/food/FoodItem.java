@@ -94,8 +94,8 @@ public class FoodItem implements XmlSerializable {
 	}
 
 	@Override
-	public Element toXml(Document doc) {
-		Element root = doc.createElement("fooditem");
+	public Element toXml(Document document) {
+		Element root = document.createElement("fooditem");
 		root.setAttribute("name", name);
 		root.setAttribute("weight", String.valueOf(weight));
 		return root;
@@ -107,10 +107,10 @@ public class FoodItem implements XmlSerializable {
 	}
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FoodItem foodItem = (FoodItem) o;
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        FoodItem foodItem = (FoodItem) other;
         return name.equals(foodItem.name);
     }
 

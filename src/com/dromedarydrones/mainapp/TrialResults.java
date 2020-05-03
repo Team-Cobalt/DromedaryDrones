@@ -84,7 +84,7 @@ public class TrialResults {
      */
     public int numExpiredFifoOrders() {
         return (int) fifoDeliveries.stream()
-                .filter(d -> d.getWaitTime() > TWO_HOURS).count();
+                .filter(delivery -> delivery.getWaitTime() > TWO_HOURS).count();
     }
 
     /**
@@ -115,6 +115,6 @@ public class TrialResults {
      */
     public int numExpiredKnapsackOrders() {
         return (int) knapsackDeliveries.stream()
-                .filter(d -> d.getWaitTime() > TWO_HOURS).count();
+                .filter(delivery -> delivery.getWaitTime() > TWO_HOURS).count();
     }
 }

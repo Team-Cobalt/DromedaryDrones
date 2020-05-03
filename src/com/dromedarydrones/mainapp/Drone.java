@@ -100,7 +100,6 @@ public class Drone implements XmlSerializable {
      *                           if the flight time exceeded the set limit
      */
     public double deliver(List<Order> orders, double currentTime) {
-
         // ensure the drone can take off
         if (!isSafePayloadCapacity(orders))
             throw new RuntimeException(
@@ -152,7 +151,6 @@ public class Drone implements XmlSerializable {
      * @return       {@code true} if an acceptable flight time
      */
     public boolean isSafeFlightTime(Route route) {
-
         LinkedList<Point> flightPlan = route.getRoute();
         double distance, seconds;
         double duration = 0;
@@ -183,7 +181,6 @@ public class Drone implements XmlSerializable {
      * @return        {@code true} if safe
      */
     public boolean isEstimatedSafeFlightTime(List<Order> orders) {
-
         // filter out duplicate points
         ArrayList<Point> unique = new ArrayList<>();
         for (Order order : orders)
@@ -331,12 +328,12 @@ public class Drone implements XmlSerializable {
 
     /**
      * Builds the XML element representing this drone instance.
-     * @param doc  XML document
+     * @param document  XML document
      * @return  XML element
      */
     @Override
-    public Element toXml(Document doc) {
-        Element root = doc.createElement("drone");
+    public Element toXml(Document document) {
+        Element root = document.createElement("drone");
         root.setAttribute("takeoff_capacity", String.valueOf(maxPayloadWeight));
         root.setAttribute("cruising_speed", String.valueOf(cruisingSpeed));
         root.setAttribute("flight_time", String.valueOf(flightTime));

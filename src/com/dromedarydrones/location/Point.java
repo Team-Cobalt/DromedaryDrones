@@ -67,6 +67,7 @@ public class Point implements XmlSerializable {
     }
 
     /**
+     * DO WE NEED THIS????
      * Sets the latitudinal offset from origin in feet
      * @param x  offset in feet
      */
@@ -82,6 +83,7 @@ public class Point implements XmlSerializable {
     }
 
     /**
+     * DO WE NEED THIS???
      * Sets the longitudinal offset from origin in feet
      * @param y  offset in feet
      */
@@ -92,7 +94,7 @@ public class Point implements XmlSerializable {
     /**
      * Method for editing the coordinates of a point
      * @param coordinates the x, y values to which the point is set
-     * @author Isabella Patnode, Christian Burns
+     * @author Izzy Patnode, Christian Burns
      */
     public void setCoordinates(String coordinates) throws IllegalArgumentException {
         String cleaned = coordinates.replaceAll("[( )]", "");
@@ -102,14 +104,15 @@ public class Point implements XmlSerializable {
             int yValue = Integer.parseInt(values[1]);
             x = xValue; // set the new x value now that we know both x and y exist
             y = yValue; // set the new y value now that we know both x and y exist
-        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+        } catch (NumberFormatException | IndexOutOfBoundsException exception) {
             throw new IllegalArgumentException(
                     String.format("Invalid coordinates: expected \"int,int\", found \"%s\".", coordinates));
         }
     }
 
     /**
-     * @author Isabella Patnode
+     * DO WE NEED THIS???
+     * @author Izzy Patnode
      * @return the x,y coordinates formatted as a string
      */
     public String getCoordinates() {
@@ -129,8 +132,8 @@ public class Point implements XmlSerializable {
     }
 
     @Override
-    public Element toXml(Document doc) {
-        Element root = doc.createElement("point");
+    public Element toXml(Document document) {
+        Element root = document.createElement("point");
         root.setAttribute("name", name);
         root.setAttribute("x", String.valueOf(x));
         root.setAttribute("y", String.valueOf(y));
@@ -143,10 +146,10 @@ public class Point implements XmlSerializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Point point = (Point) o;
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        Point point = (Point) other;
         return point.x == x &&
                 point.y == y &&
                 Objects.equals(name, point.name);

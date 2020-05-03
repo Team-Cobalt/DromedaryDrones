@@ -25,7 +25,6 @@ import java.util.Scanner;
  */
 public class Configuration implements XmlSerializable {
 
-    // TODO this will need to be switched to an external directory if this project becomes a jar
     /** location of the file that tracks the location of the last used safe file */
     public static final String LOCATIONS_PATH = "locations.txt";
 
@@ -45,7 +44,7 @@ public class Configuration implements XmlSerializable {
 	}
 
     public void initialize() {
-        initialize(getLastConfigFile());
+        initialize(getLastConfigurationFile());
     }
 
     /**
@@ -55,9 +54,9 @@ public class Configuration implements XmlSerializable {
      * @author      Christian Burns
      */
     public void initialize(File file) {
-        currentSimulation = getConfigFromFile(file);
+        currentSimulation = getConfigurationFromFile(file);
         if (currentSimulation == null)
-            currentSimulation = getDefaultConfig();
+            currentSimulation = getDefaultConfiguration();
     }
 
     /** returns the simulation configuration currently loaded. */
@@ -72,32 +71,32 @@ public class Configuration implements XmlSerializable {
      * @return      new instance of the configuration or null
      * @author      Christian Burns
      */
-    public static Simulation getConfigFromFile(File file) {
+    public static Simulation getConfigurationFromFile(File file) {
         if (file != null && file.exists()) {
             try {
                 // read all XML out of the save file
-                StringBuilder sb = new StringBuilder();
+                StringBuilder stringBuilder = new StringBuilder();
                 try (Scanner scanner = new Scanner(file)) {
                     while (scanner.hasNextLine())
-                        sb.append(scanner.nextLine().trim());
-                } catch (FileNotFoundException fnfe) {
-                    fnfe.printStackTrace(); // this should never occur
+                        stringBuilder.append(scanner.nextLine().trim());
+                } catch (FileNotFoundException fileException) {
+                    fileException.printStackTrace(); // this should never occur
                     return null;
                 }
 
                 // convert the text into an XML Document and
                 // build the sim instance from the root element
-                Document doc = XmlFactory.fromXmlString(sb.toString());
-                return new Simulation(doc.getDocumentElement());
-            } catch (XmlSerializationException xmle) {
-                xmle.printStackTrace();
+                Document document = XmlFactory.fromXmlString(stringBuilder.toString());
+                return new Simulation(document.getDocumentElement());
+            } catch (XmlSerializationException xmlException) {
+                xmlException.printStackTrace();
             }
         }
         return null;
     }
 
     /** Returns the default simulation configuration of Grove City College */
-    public static Simulation getDefaultConfig() {
+    public static Simulation getDefaultConfiguration() {
         //creates default simulation with all default food items and meal types
         Simulation simulation = new Simulation("Grove City College");
 
@@ -142,7 +141,7 @@ public class Configuration implements XmlSerializable {
      * Returns the File object of the last used configuration.
      * @author Christian Burns
      */
-    public File getLastConfigFile() {
+    public File getLastConfigurationFile() {
         File locationFile = new File(LOCATIONS_PATH);
         File configurationFile;
         String path = "";
@@ -156,7 +155,7 @@ public class Configuration implements XmlSerializable {
                         path = reader.nextLine().strip();
                 }
             }
-        } catch (IOException ioe) {
+        } catch (IOException ioException) {
             return null;
         }
         // return the file if it exists otherwise return null
@@ -171,11 +170,11 @@ public class Configuration implements XmlSerializable {
      * the next time the program starts.
      * @author Christian Burns
      */
-    public void setLastConfigFile(File configFile) throws IOException {
+    public void setLastConfigurationFile(File configurationFile) throws IOException {
         File locationFile = new File(LOCATIONS_PATH);
         if (locationFile.exists() || locationFile.createNewFile()) {
             try (PrintWriter writer = new PrintWriter(locationFile)) {
-                writer.println(configFile.getCanonicalPath());
+                writer.println(configurationFile.getCanonicalPath());
             }
         }
     }
@@ -296,18 +295,18 @@ public class Configuration implements XmlSerializable {
      * @param saveFile  save file to save the data to
      * @throws FileNotFoundException  if the save file did not exist
      */
-	public void saveConfigs(File saveFile) throws IOException {
-        try (PrintWriter pw = new PrintWriter(saveFile)) {
+	public void saveConfigurations(File saveFile) throws IOException {
+        try (PrintWriter printWriter = new PrintWriter(saveFile)) {
             String xmlSaveData = XmlFactory.toXmlString(this);
-            pw.println(xmlSaveData);
-            setLastConfigFile(saveFile);
+            printWriter.println(xmlSaveData);
+            setLastConfigurationFile(saveFile);
         } catch (XmlSerializationException xmlException) {
             xmlException.printStackTrace();
         }
     }
 
     @Override
-    public Element toXml(Document doc) {
-        return currentSimulation.toXml(doc);
+    public Element toXml(Document document) {
+        return currentSimulation.toXml(document);
     }
 }

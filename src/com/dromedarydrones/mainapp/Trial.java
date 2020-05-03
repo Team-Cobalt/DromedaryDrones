@@ -7,8 +7,7 @@ import com.dromedarydrones.location.DeliveryPoints;
 import java.util.*;
 
 /**
- * @author  Isabella Patnode, Christian Burns,
- *          Brendan Ortmann, and Rachel Franklin
+ * @author  Izzy Patnode, Christian Burns, Brendan Ortmann, and Rachel Franklin
  */
 public class Trial {
 
@@ -18,16 +17,16 @@ public class Trial {
     private final ArrayList<Integer> ordersPerHour; // number of orders to deliver each hour
 
     private final Queue<Order> fifoOrderQueue;      // fifo order queue
-    private final Queue<Order> knapOrderQueue;      // knapsack order queue
+    private final Queue<Order> knapsackOrderQueue;      // knapsack order queue
     private final List<Order> fifoResults;          // order queue for the fifo algorithm
-    private final List<Order> knapResults;          // order queue for the knapsack algorithm
+    private final List<Order> knapsackResults;          // order queue for the knapsack algorithm
     private final Random random;                    // random number generator
 
     private static final int SECONDS_PER_HOUR = 3600;   // 60 seconds * 60 minutes
 
     /**
      * Constructor for creating a single four-hour shift
-     * @author Isabella Patnode, Christian Burns
+     * @author Izzy Patnode, Christian Burns
      * @param simulationConfiguration  simulation configuration to use
      */
     public Trial(Simulation simulationConfiguration) {
@@ -38,15 +37,15 @@ public class Trial {
         deliveryPoints = new DeliveryPoints(simulationConfiguration.getDeliveryPoints());
 
         fifoOrderQueue = new LinkedList<>();
-        knapOrderQueue = new LinkedList<>();
+        knapsackOrderQueue = new LinkedList<>();
         fifoResults = new ArrayList<>();
-        knapResults = new ArrayList<>();
+        knapsackResults = new ArrayList<>();
         random = new Random();
 
         // clone the orders into the order queues
         for (Order order : generateOrders()) {
             fifoOrderQueue.add(new Order(order));
-            knapOrderQueue.add(new Order(order));
+            knapsackOrderQueue.add(new Order(order));
         }
     }
 
@@ -57,7 +56,7 @@ public class Trial {
     public TrialResults run() {
         runFifoDeliveries();
         runKnapsackDeliveries();
-        return new TrialResults(fifoResults, knapResults);
+        return new TrialResults(fifoResults, knapsackResults);
     }
 
     /**
@@ -77,13 +76,13 @@ public class Trial {
         List<Order> skippedOrders = new ArrayList<>();
 
         // loop while orders are still being placed or there's a backlog of orders to be delivered
-        while(!knapOrderQueue.isEmpty() || !skippedOrders.isEmpty()){
+        while(!knapsackOrderQueue.isEmpty() || !skippedOrders.isEmpty()) {
 
             // obtain all the newly available orders
             while (true) {
-                Order nextOrder = knapOrderQueue.peek();
+                Order nextOrder = knapsackOrderQueue.peek();
                 if (nextOrder == null || nextOrder.getTimeOrdered() > simulationTime) break;
-                availableOrders.add(knapOrderQueue.remove());
+                availableOrders.add(knapsackOrderQueue.remove());
             }
 
             // sort available orders by weight in descending order
@@ -128,10 +127,11 @@ public class Trial {
             if (!dronePayload.isEmpty()) {
                 simulationTime += drone.getTurnAroundTime();
                 simulationTime += drone.deliver(dronePayload, simulationTime);
-                knapResults.addAll(dronePayload);
+                knapsackResults.addAll(dronePayload);
                 dronePayload.clear();
                 cargoWeight = 0;
-            } else {
+            }
+            else {
                 simulationTime++;
             }
         }
@@ -139,7 +139,7 @@ public class Trial {
 
     /**
      * Method that generates delivery times based on a first-in-first-out packing algorithm.
-     * @author Isabella Patnode and Christian Burns
+     * @author Izzy Patnode and Christian Burns
      */
     public void runFifoDeliveries() {
 
@@ -174,7 +174,8 @@ public class Trial {
                 fifoResults.addAll(dronePayload);
                 dronePayload.clear();
                 cargoWeight = 0;
-            } else {
+            }
+            else {
                 simulationTime++;
             }
         }
@@ -188,7 +189,7 @@ public class Trial {
 
     /**
      * Generates a list of random orders to be used for this trial.
-     * @author  Isabella Patnode and Christian Burns
+     * @author  Izzy Patnode and Christian Burns
      * @return  list of orders with their creation times relative
      *          to the start of the simulation in seconds.
      */

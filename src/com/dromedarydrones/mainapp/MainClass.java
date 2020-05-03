@@ -21,7 +21,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -441,7 +440,7 @@ public class MainClass extends Application {
 			);
 			File file = fileChooser.showSaveDialog(window);
 			if (file != null) {
-				try { Configuration.getInstance().saveConfigs(file);
+				try { Configuration.getInstance().saveConfigurations(file);
 				} catch (IOException exception) { exception.printStackTrace(); }
 			}
 		}); //end of saving settings event
@@ -461,11 +460,15 @@ public class MainClass extends Application {
 			if (file != null) {
 				Configuration.getInstance().initialize(file);
 				try {
-					Configuration.getInstance().setLastConfigFile(file);
+					Configuration.getInstance().setLastConfigurationFile(file);
 				} catch (IOException exception) {
 					exception.printStackTrace();
 				}
 				currentSimulation = Configuration.getInstance().getCurrentSimulation();
+
+				Alert alert = new Alert(Alert.AlertType.INFORMATION);
+				alert.setHeaderText("The settings have been imported.");
+				alert.showAndWait();
 
 				switch(sceneName) {
 					case "General":
@@ -498,8 +501,9 @@ public class MainClass extends Application {
 			var configuration = Configuration.getInstance();
 			configuration.initialize(null);
 			currentSimulation = configuration.getCurrentSimulation();
+
 			Alert alert = new Alert(Alert.AlertType.INFORMATION);
-			alert.setHeaderText("The default settings have now been loaded in.");
+			alert.setHeaderText("The default settings have been loaded in.");
 			alert.showAndWait();
 
 			switch(sceneName) {
@@ -2287,7 +2291,7 @@ public class MainClass extends Application {
 
 			// confirm that the user wishes to overwrite the current point settings
 			if (file != null) {
-				var newSim = Configuration.getConfigFromFile(file);
+				var newSim = Configuration.getConfigurationFromFile(file);
 				if (newSim != null) {
 					var points = newSim.getDeliveryPoints();
 
