@@ -3,6 +3,7 @@ package com.dromedarydrones.mainapp;
 import com.dromedarydrones.food.FoodItem;
 import com.dromedarydrones.food.Meal;
 import com.dromedarydrones.location.Point;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -28,16 +29,21 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
+
+import java.io.File;
+import java.io.IOException;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+
 
 /**
  * Class that runs the simulation
@@ -324,6 +330,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not writing out the style of a table for each table
 	 * @return a string with the style of a table in css
 	 * @author Izzy Patnode
@@ -361,7 +368,7 @@ public class MainClass extends Application {
 
 		Button homeButton = new Button("", homeView);
 		homeButton.setStyle(SECONDARY_BACKGROUND_COLOR);
-		homeButton.setOnAction(e-> window.setScene(mainMenu));
+		homeButton.setOnAction(event -> window.setScene(mainMenu));
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
@@ -416,7 +423,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED AND TESTED
+	 * COMPLETED, REFACTORED AND TESTED
 	 * Decreases redundancy of code used for importing and exporting settings
 	 * @return Vbox containing buttons for importing and exporting buttons
 	 * @author Izzy Patnode
@@ -1838,6 +1845,32 @@ public class MainClass extends Application {
 		window.setScene(droneEditPage);
 	}
 
+	public void setNewBounds(int newXValue, int newYValue, NumberAxis xAxis, NumberAxis yAxis) {
+		//changes bounds of map if the coordinate resides outside of the map's current scope
+		int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
+		int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
+
+		if(newXValue >= currentUpperXBound) {
+			currentUpperXBound = newXValue;
+			xAxis.setUpperBound(currentUpperXBound + 100);
+		}
+		if(newXValue <= currentLowerXBound) {
+			currentLowerXBound = newXValue;
+			xAxis.setLowerBound(currentLowerXBound - 100);
+		}
+
+		int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
+		int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
+
+		if(newYValue >= currentUpperYBound) {
+			currentUpperYBound = newYValue;
+			yAxis.setUpperBound(currentUpperYBound + 100);
+		}
+		if(newYValue <= currentLowerYBound) {
+			yAxis.setLowerBound(currentLowerYBound - 100);
+		}
+	}
+
 	/**
 	 * Creates GUI page for map settings
 	 * @author Izzy Patnode
@@ -1915,8 +1948,7 @@ public class MainClass extends Application {
 		//adds cell values to table
 		mapTable.setItems(mapPoints);
 		mapTable.setEditable(true);
-		mapTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
-				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
+		mapTable.setStyle(tableStyle());
 
 		//creates columns for table
 		TableColumn<Point, String> pointHeading = new TableColumn<>("Drop-Off Point");
@@ -1930,11 +1962,9 @@ public class MainClass extends Application {
 			String newName = event.getNewValue();
 
 			if(newName.equals("")) {
-				Alert invalidName = new Alert(Alert.AlertType.ERROR);
-				invalidName.setTitle("Invalid Name");
-				invalidName.setHeaderText("Error: Invalid name");
-				invalidName.setContentText("Point name cannot be null");
+				Alert invalidName = setErrorAlert("Invalid Name", "Point name cannot be null.");
 				event.getTableView().getItems().get(selectedRow).setName(oldName);
+				invalidName.showAndWait();
 			}
 			else {
 				event.getTableView().getItems().get(selectedRow).setName(newName);
@@ -1952,6 +1982,10 @@ public class MainClass extends Application {
 			int selectedRow = event.getTablePosition().getRow();
 			String oldCoordinates = event.getOldValue();
 
+			Alert invalidInput;
+			String alertTitle;
+			String alertMessage;
+
 			//attempts to update specified point's coordinates to given values
 			try {
 				int oldXValue = event.getTableView().getItems().get(selectedRow).getX();
@@ -1967,6 +2001,8 @@ public class MainClass extends Application {
 
 					Point newPoint = event.getTableView().getSelectionModel().getSelectedItem();
 
+					//TODO: MAKE SURE POINT DOESN"T ALREADY EXIST!!!!
+
 					//checks that the new coordinates are in range of the drone (the drone can fly that distance)
 					if(newPoint.distanceFromPoint(null) <= maxDistanceAllowed) {
 						int newXValue = newPoint.getX();
@@ -1978,62 +2014,41 @@ public class MainClass extends Application {
 						selectedPoint.setYValue(newYValue);
 
 						//changes bounds of map if the coordinate resides outside of the map's current scope
-						int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
-						int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
-
-						if(newXValue > currentUpperXBound) {
-							currentUpperXBound = newXValue;
-							xAxis.setUpperBound(currentUpperXBound + 100);
-						}
-						if(newXValue <= currentLowerXBound) {
-							currentLowerXBound = newXValue;
-							xAxis.setLowerBound(currentLowerXBound - 100);
-						}
-
-						int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
-						int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
-
-						if(newYValue > currentUpperYBound) {
-							currentUpperYBound = newYValue;
-							yAxis.setUpperBound(currentUpperYBound + 100);
-						}
-						if(newYValue < currentLowerYBound) {
-							yAxis.setLowerBound(currentLowerYBound - 100);
-						}
+						setNewBounds(newXValue, newYValue, xAxis, yAxis);
 					} //end of if statement where new coordinates are legal
 					else {
 						//alerts user that the new coordinates are not in range of the drone
-						Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
-						blockOrigin.setTitle("Maximum Distance Exceeded");
-						blockOrigin.setHeaderText("Error: Maximum Distance Exceeded");
-						blockOrigin.setContentText("Coordinates are outside of drone range");
+						alertTitle = "Maximum Distance Exceeded";
+						alertMessage = "Coordinates are outside the maximum distance the drone can fly";
+
+						invalidInput = setErrorAlert(alertTitle, alertMessage);
+
 						event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
-						blockOrigin.showAndWait();
+						invalidInput.showAndWait();
 					}
 
 				} //end of if statement where coordinates being changed are not the origin
 				else {
 					//alerts user that they are attempting to change the coordinates of the origin (not allowed)
-					Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
-					blockOrigin.setTitle("Origin Change Attempted");
-					blockOrigin.setHeaderText("Error: Origin Change Attempted");
-					blockOrigin.setContentText("Origin must be at (0,0)");
+					alertTitle = "Origin Change Attempted";
+					alertMessage = "Origin must be at (0,0) and cannot be changed";
+					invalidInput = setErrorAlert(alertTitle, alertMessage);
 					event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
-					blockOrigin.showAndWait();
+					invalidInput.showAndWait();
 				}
 
 			} //end of try block
 			catch(IllegalArgumentException illegalArgument) {
 				//alerts the user that the new coordinates are not valid (incorrect syntax, not integers, etc.)
-				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-				invalidInput.setTitle("Invalid Coordinates");
-				invalidInput.setHeaderText("Error: Invalid Coordinates");
-				invalidInput.setContentText("Input must be a (x,y) integer pair");
+				alertTitle = "Invalid Coordinates";
+				alertMessage = "Input must be a (x,y) integer pair";
+				invalidInput = setErrorAlert(alertTitle, alertMessage);
 				event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
 				invalidInput.showAndWait();
 			} //end of catch block
 
 			event.getTableView().refresh();
+
 		}); //end of event for editing point coordinates
 
 		//adds column headings to table
@@ -2080,16 +2095,21 @@ public class MainClass extends Application {
 			//adds new point to simulation
 			Button confirmButton = new Button("Finish");
 			confirmButton.setOnAction(event1 -> {
+				Alert errorAlert;
+				String alertTitle;
+				String alertMessage;
 				if(pointName.getText().equals("")) {
-					Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-					errorAlert.setTitle("Unspecified Point Name");
-					errorAlert.setHeaderText("Error: Unspecified point name");
-					errorAlert.setContentText("Point name cannot be null");
+					alertTitle = "Unspecified Point Name";
+					alertMessage = "Point name cannot be null.";
+					errorAlert = setErrorAlert(alertTitle, alertMessage);
+					errorAlert.showAndWait();
 				}
 				else {
 					//creates a new point with name and empty coordinates (since we have to parse coordinate string)
 					Point newPoint = currentSimulation.getDeliveryPoints().
 							addPoint(pointName.getText(), 0, 0);
+
+					//TODO: MAKE SURE POINT DOESN"T ALREADY EXIST!!!!
 
 					//attempts to set new point's coordinates
 					try {
@@ -2097,12 +2117,13 @@ public class MainClass extends Application {
 
 						if (newPoint.getX() == 0 && newPoint.getY() == 0) {
 							//alerts user that the inputted coordinates exceed the distance the drone can travel
-							Alert invalidCoordinates = new Alert(Alert.AlertType.ERROR);
-							invalidCoordinates.setTitle("Illegal coordinates");
-							invalidCoordinates.setHeaderText("Error: Illegal coordinates");
-							invalidCoordinates.setContentText("Attempting set new point at origin (0,0)");
+							alertTitle = "Illegal Coordinates";
+							alertMessage = "Attempting to set new point at origin (0,0) which already exists";
+
+							errorAlert = setErrorAlert(alertTitle, alertMessage);
+
 							currentSimulation.getDeliveryPoints().removePoint(newPoint);
-							invalidCoordinates.showAndWait();
+							errorAlert.showAndWait();
 						} //end of if statement where user attempt to put a point at (0,0)
 						else {
 							Drone currentDrone = currentSimulation.getDroneSettings();
@@ -2117,28 +2138,7 @@ public class MainClass extends Application {
 								//adds new point to the map so the new point is visible
 								mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
 
-								int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
-								int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
-
-								if (newXValue > currentUpperXBound) {
-									currentUpperXBound = newXValue;
-									xAxis.setUpperBound(currentUpperXBound + 100);
-								}
-								if (newXValue <= currentLowerXBound) {
-									currentLowerXBound = newXValue;
-									xAxis.setLowerBound(currentLowerXBound - 100);
-								}
-
-								int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
-								int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
-
-								if (newYValue > currentUpperYBound) {
-									currentUpperYBound = newYValue;
-									yAxis.setUpperBound(currentUpperYBound + 100);
-								}
-								if (newYValue < currentLowerYBound) {
-									yAxis.setLowerBound(currentLowerYBound - 100);
-								}
+								setNewBounds(newXValue, newYValue, xAxis, yAxis);
 
 								//resets table of points to include the new point
 								ObservableList<Point> newMapPoints = currentSimulation.getDeliveryPoints().getPoints();
@@ -2154,23 +2154,21 @@ public class MainClass extends Application {
 							} //end of statement where inputted coordinates are valid and can be added to simulation
 							else {
 								//alerts user that the inputted coordinates exceed the distance the drone can travel
-								Alert invalidCoordinates = new Alert(Alert.AlertType.ERROR);
-								invalidCoordinates.setTitle("Maximum Distance Exceeded");
-								invalidCoordinates.setHeaderText("Error: Maximum Distance Exceeded");
-								invalidCoordinates.setContentText("Coordinates are outside of drone range");
+								alertTitle = "Maximum Distance Exceeded";
+								alertMessage = "Coordinates are outside the range of the drone";
+								errorAlert = setErrorAlert(alertTitle, alertMessage);
 								currentSimulation.getDeliveryPoints().removePoint(newPoint);
-								invalidCoordinates.showAndWait();
+								errorAlert.showAndWait();
 							}
 						} //end of else statement where point being added is not at (0,0)
 					} //end of try block
 					catch (IllegalArgumentException illegalArgument) {
 						//alerts user that the inputted coordinates are invalid (illegal syntax, not integers, etc.)
-						Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-						invalidInput.setTitle("Invalid Coordinates");
-						invalidInput.setHeaderText("Error: Invalid Coordinates");
-						invalidInput.setContentText("Input must be a (x,y) integer pair");
+						alertTitle = "Invalid Coordinates";
+						alertMessage = "Input must be a (x,y) integer pair.";
+						errorAlert = setErrorAlert(alertTitle, alertMessage);
 						currentSimulation.getDeliveryPoints().removePoint(newPoint);
-						invalidInput.showAndWait();
+						errorAlert.showAndWait();
 					} //end of cancel block
 				}//end of else statement where point name is valid
 			}); //end of confirmation button event (adding new point to current simulation)
@@ -2197,12 +2195,16 @@ public class MainClass extends Application {
 		deleteButton.setStyle(primaryButtonStyle());
 		deleteButton.setOnAction(event -> {
 			int deletedRow = mapTable.getSelectionModel().getSelectedIndex();
+
+			Alert errorAlert;
+			String alertTitle;
+			String alertMessage;
+
 			//alerts user if they attempt to delete a point without selecting the point first
 			if(deletedRow < 0) {
-				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-				errorAlert.setTitle("Invalid Deletion");
-				errorAlert.setHeaderText("Error: Invalid Deletion");
-				errorAlert.setContentText("Map point not selected.");
+				alertTitle = "Invalid Deletion";
+				alertMessage = "Map point not selected";
+				errorAlert = setErrorAlert(alertTitle, alertMessage);
 				errorAlert.showAndWait();
 			}
 			else {
@@ -2219,6 +2221,7 @@ public class MainClass extends Application {
 					int newLowerXBound = mapPoints.get(0).getX();
 					int newLowerYBound = mapPoints.get(0).getY();
 
+					//TODO: PUT THIS IN A DIFFERENT METHOD!!!!
 					//calculates new lower and upper bounds for map's axes
 					for (Point point : mapPoints) {
 						if (point.getX() >= newUpperXBound) {
@@ -2247,11 +2250,10 @@ public class MainClass extends Application {
 				}
 				else {
 					//alerts user if they attempt to delete the origin
-					Alert blockOrigin = new Alert(Alert.AlertType.ERROR);
-					blockOrigin.setTitle("Origin Deletion Attempted");
-					blockOrigin.setHeaderText("Error: Origin Deletion Attempted");
-					blockOrigin.setContentText("Cannot delete origin");
-					blockOrigin.showAndWait();
+					alertTitle = "Origin Deletion Attempted";
+					alertMessage = "Origin point cannot be deleted.";
+					errorAlert = setErrorAlert(alertTitle, alertMessage);
+					errorAlert.showAndWait();
 				}
 			} //end of else statement where user selects a valid row
 		}); //end of event for deleting delivery points
@@ -2281,7 +2283,6 @@ public class MainClass extends Application {
 		Button loadButton = new Button("Load Map");
 		loadButton.setStyle(primaryButtonStyle());
 		loadButton.setOnAction(click -> {
-
 			// try and fetch the configuration file from the user
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Import Settings");
@@ -2291,35 +2292,32 @@ public class MainClass extends Application {
 
 			// confirm that the user wishes to overwrite the current point settings
 			if (file != null) {
-				var newSim = Configuration.getConfigurationFromFile(file);
-				if (newSim != null) {
-					var points = newSim.getDeliveryPoints();
+				var newSimulation = Configuration.getConfigurationFromFile(file);
+				if (newSimulation != null) {
+					var points = newSimulation.getDeliveryPoints();
 
 					// alert box to ask for confirmation before overwriting all delivery points
 					Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
 					confirmation.setTitle("Import Confirmation");
-					confirmation.setHeaderText(
-							"The following delivery points will overwrite the existing ones.\n" +
+					confirmation.setHeaderText("The following delivery points will overwrite the existing ones.\n" +
 							"Are you sure you wish to proceed?");
 
 					// create a formatted table to display new delivery points
 					var importPointTable = new TableView<Point>();
 					importPointTable.setItems(points.getPoints());
-					importPointTable.setStyle(
-							"-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
-							"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
+					importPointTable.setStyle(tableStyle());
 
 					// table column to list the names of the delivery locations
 					var importPointName = new TableColumn<Point, String>("Drop-Off Point");
 					importPointName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
 					// table column to list the coordinates of the locations
-					var importPointCoords = new TableColumn<Point, String>("(X,Y) Coordinates");
-					importPointCoords.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
+					var importPointCoordinates = new TableColumn<Point, String>("(X,Y) Coordinates");
+					importPointCoordinates.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
 
 					// add the columns to the table and the table to the alert box
 					importPointTable.getColumns().add(importPointName);
-					importPointTable.getColumns().add(importPointCoords);
+					importPointTable.getColumns().add(importPointCoordinates);
 					confirmation.getDialogPane().setContent(importPointTable);
 
 					var answer = confirmation.showAndWait();
@@ -2330,9 +2328,8 @@ public class MainClass extends Application {
 					}
 				} else {
 					// inform that something failed when trying to parse the save file
-					Alert corruptFile = new Alert(Alert.AlertType.ERROR);
-					corruptFile.setTitle("Invalid Save File");
-					corruptFile.setContentText("No simulation settings were found in " + file.getName());
+					Alert corruptFile = setErrorAlert("Invalid Save File",
+							"No simulation settings were found in" + file.getName());
 					corruptFile.showAndWait();
 				}
 			}
