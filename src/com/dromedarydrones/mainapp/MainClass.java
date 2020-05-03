@@ -2084,7 +2084,58 @@ public class MainClass extends Application {
 		//allows user to load in a map of their choice
 		Button loadButton = new Button("Load Map");
 		loadButton.setStyle(primaryButtonStyle());
-		//TODO: LOAD IN MAP
+
+		loadButton.setOnAction(click -> {
+
+			// try and fetch the configuration file from the user
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Import Settings");
+			fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter("XML", "*.xml"));
+			File file = fileChooser.showOpenDialog(window);
+
+			// confirm that the user wishes to overwrite the current point settings
+			if (file != null) {
+				var newSim = Configuration.getConfigFromFile(file);
+				if (newSim != null) {
+					var points = newSim.getDeliveryPoints();
+					Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+					confirmation.setTitle("Import Confirmation");
+					confirmation.setHeaderText(
+							"The following delivery points will overwrite the existing ones.\n" +
+							"Are you sure you wish to proceed?");
+
+					// create a formatted table to display new delivery points
+					var importPointTable = new TableView<Point>();
+					importPointTable.setItems(points.getPoints());
+					importPointTable.setStyle(
+							"-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
+							"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
+
+					var importPointName = new TableColumn<Point, String>("Drop-Off Point");
+					importPointName.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+					var importPointCoords = new TableColumn<Point, String>("(X,Y) Coordinates");
+					importPointCoords.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
+
+					importPointTable.getColumns().add(importPointName);
+					importPointTable.getColumns().add(importPointCoords);
+					confirmation.getDialogPane().setContent(importPointTable);
+
+					var answer = confirmation.showAndWait();
+					if (answer.isPresent()) {
+						if (answer.get().getText().equals("OK")) {
+							currentSimulation.setDeliveryPoints(points);
+						}
+					}
+				} else {
+					Alert corruptFile = new Alert(Alert.AlertType.ERROR);
+					corruptFile.setTitle("Invalid Save File");
+					corruptFile.setContentText("No simulation settings were found in " + file.getName());
+					corruptFile.showAndWait();
+				}
+			}
+		});
 
 		HBox loadDisplay = new HBox();
 		loadDisplay.getChildren().add(loadButton);

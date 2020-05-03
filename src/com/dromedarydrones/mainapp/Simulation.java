@@ -346,6 +346,14 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
         return deliveryPoints;
     }
 
+    /**
+     * Specifies a new collection of delivery points to use.
+     * @author Christian Burns
+     */
+    public void setDeliveryPoints(DeliveryPoints other) {
+        deliveryPoints = new DeliveryPoints(other);
+    }
+
     /**Method to get list of simulation's food items
      * @author Rachel Franklin
      * @return the simulation's list of food items available for javafx
