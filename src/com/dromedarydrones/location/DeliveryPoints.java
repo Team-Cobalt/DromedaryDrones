@@ -27,7 +27,10 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
         _tmpLoadPoints();
     }
 
-    public DeliveryPoints(DeliveryPoints other) {
+    public DeliveryPoints(DeliveryPoints other) throws IllegalArgumentException {
+        if(other == null)
+            throw new IllegalArgumentException("Given DeliveryPoints object cannot be null");
+
         points = new ArrayList<>();
         random = new Random();
         for (Point point : other) points.add(new Point(point));
@@ -74,7 +77,10 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
         addPoint("MAP Residence Hall", -505, 649);
     }
 
-    public Point addPoint(String name, int xPos, int yPos) {
+    public Point addPoint(String name, int xPos, int yPos) throws IllegalArgumentException {
+        if(name == null)
+            throw new IllegalArgumentException("Point name cannot be null.");
+
         Point newPoint = new Point(name, xPos, yPos);
         points.add(newPoint);
         return newPoint;

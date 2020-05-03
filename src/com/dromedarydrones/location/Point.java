@@ -21,8 +21,12 @@ public class Point implements XmlSerializable {
      * @param name       name of the location
      * @param xPosition  latitudinal offset from origin in feet
      * @param yPosition  longitudinal offset from origin in feet
+     * @throws IllegalArgumentException if name is null
      */
-    Point(String name, int xPosition, int yPosition) {
+    public Point(String name, int xPosition, int yPosition) throws IllegalArgumentException {
+        if(name == null)
+            throw new IllegalArgumentException("Point name cannot be null.");
+
         this.name = name;
         x = xPosition;
         y = yPosition;
@@ -32,13 +36,13 @@ public class Point implements XmlSerializable {
      * Copy constructor to duplicate an existing point.
      * @param other  an existing point to copy
      */
-    Point(Point other) {
+    public Point(Point other) {
         this.name = other.name;
         this.x = other.x;
         this.y = other.y;
     }
 
-    Point(Element root) {
+    public Point(Element root) {
         name = root.getAttribute("name");
         x = Integer.parseInt(root.getAttribute("x"));
         y = Integer.parseInt(root.getAttribute("y"));
@@ -48,7 +52,10 @@ public class Point implements XmlSerializable {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name) throws IllegalArgumentException {
+        if(name == null)
+            throw new IllegalArgumentException("Point name cannot be null.");
+
         this.name = name;
     }
 
@@ -87,7 +94,7 @@ public class Point implements XmlSerializable {
      * @param coordinates the x, y values to which the point is set
      * @author Isabella Patnode, Christian Burns
      */
-    public void setCoordinates(String coordinates) {
+    public void setCoordinates(String coordinates) throws IllegalArgumentException {
         String cleaned = coordinates.replaceAll("[( )]", "");
         String[] values = cleaned.split(",", 2);
         try {
@@ -97,7 +104,7 @@ public class Point implements XmlSerializable {
             y = yValue; // set the new y value now that we know both x and y exist
         } catch (NumberFormatException | IndexOutOfBoundsException e) {
             throw new IllegalArgumentException(
-                    String.format("invalid coordinates: expected \"int,int\", found \"%s\"", coordinates));
+                    String.format("Invalid coordinates: expected \"int,int\", found \"%s\".", coordinates));
         }
     }
 

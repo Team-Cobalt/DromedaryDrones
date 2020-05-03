@@ -18,8 +18,14 @@ public class Order implements Comparable<Order> {
 	 * @param mealOrdered  meal ordered
 	 * @param timeOrdered  time in seconds relative to the start of the sim the order was placed
 	 * @param destination  drop off location where the meal was ordered
+	 * @throws IllegalArgumentException if mealOrdered or destination is null
 	 */
-	public Order(Meal mealOrdered, double timeOrdered, Point destination) {
+	public Order(Meal mealOrdered, double timeOrdered, Point destination) throws IllegalArgumentException {
+		if(mealOrdered == null)
+			throw new IllegalArgumentException("Ordered meal cannot be null.");
+		if(destination == null)
+			throw new IllegalArgumentException("Order destination cannot be null.");
+
 		this.mealOrdered = mealOrdered;
 		this.destination = destination;
 		this.timeOrdered = timeOrdered;
