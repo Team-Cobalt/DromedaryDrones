@@ -58,7 +58,10 @@ public class Order implements Comparable<Order> {
 	 * of the simulation of when the order was delivered.
 	 * @param time  time in seconds relative to start of sim
 	 */
-	public void setTimeDelivered(double time) {
+	public void setTimeDelivered(double time) throws IllegalArgumentException {
+		if(time < 0)
+			throw new IllegalArgumentException("Delivery time cannot be negative.");
+
 		timeDelivered = time;
 	}
 
