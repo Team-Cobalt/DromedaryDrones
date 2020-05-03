@@ -1620,6 +1620,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Creates GUI page for drone settings
 	 * @author Izzy Patnode
 	 */
@@ -1705,17 +1706,17 @@ public class MainClass extends Application {
 		editButton.setStyle(primaryButtonStyle());
 
 		editButton.setOnAction(event -> {
-			Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-			errorAlert.setTitle("Invalid Input");
-			errorAlert.setHeaderText("Invalid Input!");
+			Alert errorAlert;
+			String errorTitle = "Invalid Input";
+			String errorMessage = "";
 
 			//attempts to change current drone settings to new drone settings
 			Drone drone = currentSimulation.getDroneSettings();
 			try {
-				double newDronePayload = Double.parseDouble(dronePayload.getText());
-				double newCruisingSpeed = Double.parseDouble(droneSpeed.getText());
-				double newFlightTime = Double.parseDouble(droneFlight.getText());
-				double newTurnAround = Double.parseDouble(droneTurnAround.getText());
+				double newDronePayload = Double.parseDouble(dronePayload.getText())  * OUNCES_PER_POUND;
+				double newCruisingSpeed = (Double.parseDouble(droneSpeed.getText()) * FEET_PER_MILE) / SECONDS_PER_HOUR;
+				double newFlightTime = Double.parseDouble(droneFlight.getText())  * SECONDS_PER_MINUTE;
+				double newTurnAround = Double.parseDouble(droneTurnAround.getText())  * SECONDS_PER_MINUTE;
 				double newDeliveryTime = Double.parseDouble(droneUnload.getText());
 
 				int errorIndex = 0;
@@ -1723,28 +1724,24 @@ public class MainClass extends Application {
 				if(newDronePayload <= 0 || newCruisingSpeed <= 0 || newFlightTime <= 0 ||
 						newTurnAround <= 0 || newDeliveryTime <= 0) {
 					errorIndex = 1;
-					errorAlert.setContentText("Input must be greater than zero");
-
+					errorMessage = "Input must be greater than zero.";
 				} //end of if statement where input is less than or equal to zero
 				else {
-					currentSimulation.getDroneSettings().setTurnAroundTime(newTurnAround
-							* SECONDS_PER_MINUTE);
+					drone.setTurnAroundTime(newTurnAround);
 
-					double maxAllowedDistance = ((newFlightTime - newDeliveryTime) / 2) * 0.95 * newCruisingSpeed;
+					double maxAllowedDistance = ((newFlightTime - newDeliveryTime) / 2)  * 0.95 * newCruisingSpeed;
 
 					for(Point point: currentSimulation.getDeliveryPoints().getPoints()) {
 						if(maxAllowedDistance < point.distanceFromPoint(null)) {
-							errorAlert.setContentText("New drone settings do not allow for all points to be reached");
+							errorMessage = "New drone settings do not allow for all points to be reached.";
 							errorIndex = 1;
 						}
 					}
 
 					if(errorIndex == 0) {
-						currentSimulation.getDroneSettings().setDeliveryTime(newDeliveryTime);
-						currentSimulation.getDroneSettings().setCruisingSpeed((newCruisingSpeed
-								* FEET_PER_MILE) / SECONDS_PER_HOUR);
-						currentSimulation.getDroneSettings().setFlightTime(newFlightTime
-								* SECONDS_PER_MINUTE);
+						drone.setDeliveryTime(newDeliveryTime);
+						drone.setCruisingSpeed(newCruisingSpeed);
+						drone.setFlightTime(newFlightTime);
 
 						for(Meal meal: currentSimulation.getMealTypes()) {
 							if(errorIndex == 0) {
@@ -1756,26 +1753,25 @@ public class MainClass extends Application {
 
 								if (mealWeight > newDronePayload) {
 									errorIndex = 1;
-									errorAlert.setContentText("Existing meal weights exceed new drone payload");
+									errorMessage = "Existing meal weights exceed new drone payload.";
 								}
 							}
-						}
+						} //end of if statement where all but the new drone payload meet respective criteria
 					} //end of if statement where drone can reach all points
 
 					if(errorIndex == 0) {
-						currentSimulation.getDroneSettings().setMaxPayloadWeight(newDronePayload * OUNCES_PER_POUND);
+						drone.setMaxPayloadWeight(newDronePayload);
 					}
 
 				} //end of else statement where inputs are valid numbers
 
 				if(errorIndex == 1) {
 					//resets drone settings to what they were before editing
-					currentSimulation.getDroneSettings().setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
-					currentSimulation.getDroneSettings().setCruisingSpeed((currentSpeed * FEET_PER_MILE)
-							/ SECONDS_PER_HOUR);
-					currentSimulation.getDroneSettings().setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
-					currentSimulation.getDroneSettings().setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
-					currentSimulation.getDroneSettings().setDeliveryTime(currentDelivery);
+					drone.setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
+					drone.setCruisingSpeed((currentSpeed * FEET_PER_MILE) / SECONDS_PER_HOUR);
+					drone.setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
+					drone.setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
+					drone.setDeliveryTime(currentDelivery);
 
 					dronePayload.setText(String.format("%.2f", currentPayload));
 					droneSpeed.setText(String.format("%.2f", currentSpeed));
@@ -1783,18 +1779,21 @@ public class MainClass extends Application {
 					droneTurnAround.setText(String.format("%.2f", currentTurnAround));
 					droneUnload.setText(String.format("%.2f", currentDelivery));
 
+					errorAlert = setErrorAlert(errorTitle, errorMessage);
 					errorAlert.showAndWait();
+				} //end of if statement where one or more inputs do not meet respective requirements
+				else {
+					//gives the user confirmation that their changes have been applied to the drone settings
+					Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
+					saveAlert.setTitle("Confirm Changes");
+					saveAlert.setHeaderText("Changes Saved!");
+					saveAlert.showAndWait();
 				}
-
-				//gives the user confirmation that their changes have been applied to the drone settings
-				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
-				saveAlert.setTitle("Confirm Changes");
-				saveAlert.setHeaderText("Changes Saved!");
-				saveAlert.showAndWait();
 			} //end of try block
 			catch(NumberFormatException illegalFormat) {
 				//alerts user if the changed value(s) are not acceptable
-				errorAlert.setContentText("Input must be integers or decimals");
+				errorMessage = "Input must be integers or decimals.";
+				errorAlert = setErrorAlert(errorTitle, errorMessage);
 
 				//resets drone settings to what they were before editing
 				drone.setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
