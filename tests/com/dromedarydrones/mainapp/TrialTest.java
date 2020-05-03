@@ -6,7 +6,7 @@ import org.junit.Test;
 public class TrialTest {
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
     }
 
     @Test

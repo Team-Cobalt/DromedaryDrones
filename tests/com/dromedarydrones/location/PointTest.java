@@ -24,14 +24,14 @@ public class PointTest {
         point.setName(null);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testSetCoordinatesWeird(){
         point.setCoordinates("((((1     ,1((()  -909   ) ( 1000000");
         assertEquals(1, point.getX());
         assertEquals(1, point.getY());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testNullCoordinate(){
         point.setCoordinates(null);
     }

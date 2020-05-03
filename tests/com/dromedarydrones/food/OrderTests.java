@@ -32,8 +32,12 @@ public class OrderTests {
 
     @Test // Do I need to test individual member variables??
     public void testCopyConstructor(){
-        assertEquals("Copy constructor did not copy correctly.",
-                new Order(order), order);
+        Order orderCopy = new Order(order);
+
+        assertEquals(orderCopy.getMealOrdered(), order.getMealOrdered());
+        assertEquals(orderCopy.getDestination(), order.getDestination());
+        assertEquals(orderCopy.getTimeOrdered(), order.getTimeOrdered(), 0);
+        assertEquals(orderCopy.getTimeDelivered(), order.getTimeDelivered(), 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
