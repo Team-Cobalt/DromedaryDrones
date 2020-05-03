@@ -11,67 +11,38 @@ import java.util.Objects;
  */
 public class Point implements XmlSerializable {
 
-    private String name;
-    private double latitude;
-    private double longitude;
+    private String name;    // name of this delivery location
+    private int x;          // latitudinal offset from origin in feet
+    private int y;          // longitudinal offset from origin in feet
 
-    private final Point origin;
-    private int x = 0;
-    private int y = 0;
-
-    Point(String name, double latitude, double longitude, Point origin) {
+    /**
+     * Constructs a new delivery point from the given name and coordinates.
+     * @author Christian Burns
+     * @param name       name of the location
+     * @param xPosition  latitudinal offset from origin in feet
+     * @param yPosition  longitudinal offset from origin in feet
+     */
+    Point(String name, int xPosition, int yPosition) {
         this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.origin = origin;
-        refreshOrigin();
+        x = xPosition;
+        y = yPosition;
     }
 
-    Point(Point other, Point origin) {
+    /**
+     * Copy constructor to duplicate an existing point.
+     * @param other  an existing point to copy
+     */
+    Point(Point other) {
         this.name = other.name;
-        this.latitude = other.latitude;
-        this.longitude = other.longitude;
-        this.origin = origin;
         this.x = other.x;
         this.y = other.y;
     }
 
-    Point(Element root, Point origin) {
-        this.name = root.getAttribute("name");
-        this.latitude = Double.parseDouble(root.getAttribute("latitude"));
-        this.longitude = Double.parseDouble(root.getAttribute("longitude"));
-        this.origin = origin;
-        refreshOrigin();
+    Point(Element root) {
+        name = root.getAttribute("name");
+        x = Integer.parseInt(root.getAttribute("x"));
+        y = Integer.parseInt(root.getAttribute("y"));
     }
-
-    /* INTERNAL METHODS */
-
-    double getLatitude() {
-        return latitude;
-    }
-
-    void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    double getLongitude() {
-        return longitude;
-    }
-
-    void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    void refreshOrigin() {
-        if (origin == null) return;
-        int[] coords = GpsUtility.degreesToFeet(
-                new double[]{origin.latitude, origin.longitude},
-                new double[]{latitude, longitude});
-        x = coords[0];
-        y = coords[1];
-    }
-
-    /* PUBLIC METHODS */
 
     public String getName() {
         return name;
@@ -82,17 +53,33 @@ public class Point implements XmlSerializable {
     }
 
     /**
-     * Returns the X coordinate relative to the origin.
+     * Returns the latitudinal offset from origin in feet
      */
     public int getX() {
         return x;
     }
 
     /**
-     * Returns the Y coordinate relative to the origin.
+     * Sets the latitudinal offset from origin in feet
+     * @param x  offset in feet
+     */
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    /**
+     * Returns the longitudinal offset from the origin in feet
      */
     public int getY() {
         return y;
+    }
+
+    /**
+     * Sets the longitudinal offset from origin in feet
+     * @param y  offset in feet
+     */
+    public void setY(int y) {
+        this.y = y;
     }
 
     /**
@@ -122,10 +109,6 @@ public class Point implements XmlSerializable {
         return "(" + x + ", " + y + ")";
     }
 
-    public Point getOrigin() {
-        return origin;
-    }
-
     /**
      * Calculates the distance in feet between this point and another point.
      * If other is {@code null}, then the distance from the origin will be used.
@@ -133,8 +116,8 @@ public class Point implements XmlSerializable {
      * @param other  the other point or null
      */
     public double distanceFromPoint(Point other) {
-        int xDiff = other != null ? Math.abs(getX() - other.getX()) : getX();
-        int yDiff = other != null ? Math.abs(getY() - other.getY()) : getY();
+        int xDiff = other != null ? x - other.x : x;
+        int yDiff = other != null ? y - other.y : y;
         return Math.sqrt(xDiff*xDiff + yDiff*yDiff);
     }
 
@@ -142,8 +125,8 @@ public class Point implements XmlSerializable {
     public Element toXml(Document doc) {
         Element root = doc.createElement("point");
         root.setAttribute("name", name);
-        root.setAttribute("latitude", String.valueOf(latitude));
-        root.setAttribute("longitude", String.valueOf(longitude));
+        root.setAttribute("x", String.valueOf(x));
+        root.setAttribute("y", String.valueOf(y));
         return root;
     }
 
@@ -157,13 +140,13 @@ public class Point implements XmlSerializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Point point = (Point) o;
-        return Double.compare(point.latitude, latitude) == 0 &&
-                Double.compare(point.longitude, longitude) == 0 &&
+        return point.x == x &&
+                point.y == y &&
                 Objects.equals(name, point.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, latitude, longitude);
+        return Objects.hash(name, x, y);
     }
 }

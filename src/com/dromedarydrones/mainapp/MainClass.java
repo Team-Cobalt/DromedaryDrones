@@ -67,10 +67,12 @@ public class MainClass extends Application {
 	private HBox settingLayout; //layout of all icons in setting pages
 	private Simulation currentSimulation; //current simulation being run
 	private SimulationResults results;	//results of simulation
-	private final int SECONDS_PER_HOUR = 3600;
-	private final int FEET_PER_MILE = 5280;
-	private final int OUNCES_PER_POUND = 16;
-	private final int SECONDS_PER_MINUTE = 60;
+
+	private static final int SECONDS_PER_HOUR = 3600;
+	private static final int FEET_PER_MILE = 5280;
+	private static final int OUNCES_PER_POUND = 16;
+	private static final int SECONDS_PER_MINUTE = 60;
+
 	private static final String PRIMARY_BACKGROUND_COLOR = "-fx-background-color: #e0e0e0;";
 	private static final String SECONDARY_BACKGROUND_COLOR = "-fx-background-color: #bdbdbd;";
 	private static final String BOLD_FONT_STYLE = "-fx-font-weight: bold;";
@@ -128,24 +130,25 @@ public class MainClass extends Application {
 	/**
 	 * Saves the simulation configuration and handles file save dialog if needed.
 	 * @author Christian Burns
-	 * @throws IOException
 	 */
-	private void saveSimulation() throws IOException {
+	private void saveSimulation() {
+		// fetch last used config file
 		Configuration configuration = Configuration.getInstance();
 		File configurationFile = configuration.getLastConfigFile();
 
 		if (configurationFile == null) {
-			//saves settings in XML file to local machine
+			// saves settings in XML file to local machine
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Save Settings");
 			fileChooser.getExtensionFilters().add(
-					new FileChooser.ExtensionFilter("XML", "*.xml")
-			);
+					new FileChooser.ExtensionFilter("XML", "*.xml"));
 			configurationFile = fileChooser.showSaveDialog(window);
 		}
 
+		// saves the simulation to the config file if it exists
 		if (configurationFile != null) {
-			configuration.saveConfigs(configurationFile);
+			try { configuration.saveConfigs(configurationFile);
+			} catch (IOException ioe) { ioe.printStackTrace(); }
 		}
 	}
 
@@ -474,8 +477,15 @@ public class MainClass extends Application {
 		Button defaultButton = new Button("Default Settings");
 		defaultButton.setMinWidth(saveLoadButtons.getPrefWidth());
 		defaultButton.setStyle(secondaryButtonStyle());
-		//default.setOnAction();
 
+		defaultButton.setOnAction(click -> {
+			var config = Configuration.getInstance();
+			config.initialize(null);
+			currentSimulation = config.getCurrentSimulation();
+			Alert alert = new Alert(Alert.AlertType.INFORMATION);
+			alert.setHeaderText("The default settings have now been loaded in.");
+			alert.showAndWait();
+		});
 
 		saveLoadButtons.getChildren().addAll(saveButton, loadButton, defaultButton);
 
@@ -518,17 +528,18 @@ public class MainClass extends Application {
 		generalSettings.setVgap(10);
 		generalSettings.setMaxSize(300, 300);
 
+		Font helvetica = Font.font("Helvetica", 15);
 		Text hourOne = new Text("Hour 1: ");
-		hourOne.setFont(Font.font("Helvetica", 15));
+		hourOne.setFont(helvetica);
 
 		Text hourTwo = new Text("Hour 2: ");
-		hourTwo.setFont(Font.font("Helvetica", 15));
+		hourTwo.setFont(helvetica);
 
 		Text hourThree = new Text("Hour 3: ");
-		hourThree.setFont(Font.font("Helvetica", 15));
+		hourThree.setFont(helvetica);
 
 		Text hourFour = new Text("Hour 4: ");
-		hourFour.setFont(Font.font("Helvetica", 15));
+		hourFour.setFont(helvetica);
 
 		//grabs current stochastic flow so that it can be added to the grid pane
 		ArrayList<Integer> currentModel = new ArrayList<>(currentSimulation.getStochasticFlow());
@@ -942,12 +953,14 @@ public class MainClass extends Application {
 		probabilityTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
 				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
+		// creates the table column displaying meal types
 		TableColumn<HashMap.Entry<String, Double>, String> itemColumn = new TableColumn<>("Meal Type");
 		itemColumn.setCellValueFactory(
 				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, String> item) ->
 						new SimpleStringProperty(item.getValue().getKey()));
 		itemColumn.setPrefWidth(100);
 
+		// creates the table column displaying meal probabilities
 		TableColumn<HashMap.Entry<String, Double>, Double> probabilityColumn = new TableColumn<>("Probability");
 		probabilityColumn.setCellValueFactory(
 				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, Double> item) ->
@@ -1115,6 +1128,7 @@ public class MainClass extends Application {
 			foodColumn.setPrefWidth(100);
 			foodColumn.setEditable(true);
 
+			// creates the table column displaying food quantities within a meal
 			TableColumn<ObservableMap.Entry<String, Integer>, Integer> countColumn =
 					new TableColumn<>("Number in Meal");
 			countColumn.setCellValueFactory(
@@ -1222,7 +1236,7 @@ public class MainClass extends Application {
 
 			deleteButton.setOnAction(event -> {
 				//total probability of meals after meal deletion should equal 1.0
-				BigDecimal mealProbability = new BigDecimal(meal.getProbability());
+				BigDecimal mealProbability = BigDecimal.valueOf(meal.getProbability());
 				/* alerts user that they must set the probability of the deleted meal to zero and refactor the
 				** other meal's probabilities to equal 1 */
 				if (mealProbability.compareTo(BigDecimal.valueOf(0.0)) != 0){
@@ -1236,9 +1250,9 @@ public class MainClass extends Application {
 				else{
 					String nameToDelete = meal.getName();
 					HashMap.Entry<String, Double> mealToDelete = mealProbabilities.get(0);
-					for (int i = 0; i < mealProbabilities.size(); i++){
-						mealToDelete = mealProbabilities.get(i);
-						if (mealToDelete.getKey().equals(nameToDelete)){
+					for (var probability : mealProbabilities) {
+						mealToDelete = probability;
+						if (mealToDelete.getKey().equals(nameToDelete)) {
 							break;
 						}
 					}
@@ -1346,12 +1360,14 @@ public class MainClass extends Application {
 		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
 				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
+		// creates the table column showing the name of the food item
 		TableColumn<HashMap.Entry<FoodItem, Integer>, String> foodColumn = new TableColumn<>("Food Item");
 		foodColumn.setCellValueFactory(
 				(TableColumn.CellDataFeatures<HashMap.Entry<FoodItem, Integer>, String> item) ->
 						new SimpleStringProperty(item.getValue().getKey().getName()));
 		foodColumn.setPrefWidth(100);
 
+		// creates the table column showing the quantity of a food item within a meal
 		TableColumn<HashMap.Entry<FoodItem, Integer>, Integer> countColumn = new TableColumn<>("Count in Meal");
 		countColumn.setCellValueFactory(
 				(TableColumn.CellDataFeatures<HashMap.Entry<FoodItem, Integer>, Integer> item) ->
@@ -1488,7 +1504,6 @@ public class MainClass extends Application {
 				probabilityNotice.showAndWait();
 
 				editMealsPage();
-				return;
 			} //end of if statement for when meal values are acceptable
 			else{
 				invalidInput.showAndWait();
@@ -1555,23 +1570,28 @@ public class MainClass extends Application {
 		Text unloadTime = new Text("Unloading Delay (seconds): ");
 		unloadTime.setFont(font);
 
+		// fetches and formats the maximum payload capacity of the drone
 		double currentPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight() / OUNCES_PER_POUND;
 		TextField dronePayload = new TextField(String.format("%.2f", currentPayload));
 		dronePayload.setMaxWidth(80);
 
+		// fetches and formats the maximum cruising speed the drone can fly at
 		double currentSpeed = (currentSimulation.getDroneSettings().getCruisingSpeed() * SECONDS_PER_HOUR)
 				/ FEET_PER_MILE;
 		TextField droneSpeed = new TextField(String.format("%.2f", currentSpeed));
 		droneSpeed.setMaxWidth(80);
 
+		// fetches and formats the maximum duration of time the drone can fly
 		double currentFlightTime = currentSimulation.getDroneSettings().getFlightTime() / SECONDS_PER_MINUTE;
 		TextField droneFlight = new TextField(String.format("%.2f", currentFlightTime));
 		droneFlight.setMaxWidth(80);
 
+		// fetches and formats the duration of time the drone takes to recharge/reload
 		double currentTurnAround = currentSimulation.getDroneSettings().getTurnAroundTime() / SECONDS_PER_MINUTE;
 		TextField droneTurnAround = new TextField(String.format("%.2f", currentTurnAround));
 		droneTurnAround.setMaxWidth(80);
 
+		// fetches and formats the duration of time the drone takes to deliver at a destination
 		double currentDelivery = currentSimulation.getDroneSettings().getDeliveryTime();
 		TextField droneUnload = new TextField(String.format("%.2f", currentDelivery));
 		droneUnload.setMaxWidth(80);
@@ -1614,6 +1634,7 @@ public class MainClass extends Application {
 			errorAlert.setHeaderText("Invalid Input!");
 
 			//attempts to change current drone settings to new drone settings
+			Drone drone = currentSimulation.getDroneSettings();
 			try {
 				double newDronePayload = Double.parseDouble(dronePayload.getText());
 				double newCruisingSpeed = Double.parseDouble(droneSpeed.getText());
@@ -1700,12 +1721,11 @@ public class MainClass extends Application {
 				errorAlert.setContentText("Input must be integers or decimals");
 
 				//resets drone settings to what they were before editing
-				currentSimulation.getDroneSettings().setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
-				currentSimulation.getDroneSettings().setCruisingSpeed((currentSpeed * FEET_PER_MILE)
-						/ SECONDS_PER_HOUR);
-				currentSimulation.getDroneSettings().setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
-				currentSimulation.getDroneSettings().setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
-				currentSimulation.getDroneSettings().setDeliveryTime(currentDelivery);
+				drone.setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
+				drone.setCruisingSpeed(currentSpeed * FEET_PER_MILE / SECONDS_PER_HOUR);
+				drone.setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
+				drone.setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
+				drone.setDeliveryTime(currentDelivery);
 
 				dronePayload.setText(String.format("%.2f", currentPayload));
 				droneSpeed.setText(String.format("%.2f", currentSpeed));
@@ -2000,7 +2020,7 @@ public class MainClass extends Application {
 				else {
 					//creates a new point with name and empty coordinates (since we have to parse coordinate string)
 					Point newPoint = currentSimulation.getDeliveryPoints().
-							addPoint(pointName.getText(), Double.NaN, Double.NaN);
+							addPoint(pointName.getText(), 0, 0);
 
 					//attempts to set new point's coordinates
 					try {
@@ -2021,7 +2041,7 @@ public class MainClass extends Application {
 									currentDrone.getCruisingSpeed()) / 2;
 
 							//checks that the distance to the point from the origin is within the drone's range
-							if (newPoint.distanceFromPoint(newPoint.getOrigin()) <= maxDistanceAllowed) {
+							if (newPoint.distanceFromPoint(null) <= maxDistanceAllowed) {
 								int newXValue = newPoint.getX();
 								int newYValue = newPoint.getY();
 
@@ -2188,10 +2208,9 @@ public class MainClass extends Application {
 		centerLayout.setPadding(new Insets(20,0,0,0));
 		centerLayout.getChildren().addAll(titleLayout, mapDisplay);
 
-		//allows user to load in a map of their choice
+		//allows user to load in a map from an existing simulation save file
 		Button loadButton = new Button("Load Map");
 		loadButton.setStyle(primaryButtonStyle());
-
 		loadButton.setOnAction(click -> {
 
 			// try and fetch the configuration file from the user
@@ -2206,6 +2225,8 @@ public class MainClass extends Application {
 				var newSim = Configuration.getConfigFromFile(file);
 				if (newSim != null) {
 					var points = newSim.getDeliveryPoints();
+
+					// alert box to ask for confirmation before overwriting all delivery points
 					Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
 					confirmation.setTitle("Import Confirmation");
 					confirmation.setHeaderText(
@@ -2219,12 +2240,15 @@ public class MainClass extends Application {
 							"-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
 							"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
 
+					// table column to list the names of the delivery locations
 					var importPointName = new TableColumn<Point, String>("Drop-Off Point");
 					importPointName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
+					// table column to list the coordinates of the locations
 					var importPointCoords = new TableColumn<Point, String>("(X,Y) Coordinates");
 					importPointCoords.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
 
+					// add the columns to the table and the table to the alert box
 					importPointTable.getColumns().add(importPointName);
 					importPointTable.getColumns().add(importPointCoords);
 					confirmation.getDialogPane().setContent(importPointTable);
@@ -2236,6 +2260,7 @@ public class MainClass extends Application {
 						}
 					}
 				} else {
+					// inform that something failed when trying to parse the save file
 					Alert corruptFile = new Alert(Alert.AlertType.ERROR);
 					corruptFile.setTitle("Invalid Save File");
 					corruptFile.setContentText("No simulation settings were found in " + file.getName());
@@ -2389,30 +2414,34 @@ public class MainClass extends Application {
 		xAxis.setLabel("Delivery Time (in minutes)");
 		yAxis.setLabel("Number of Orders");
 
-		final int columns = 26;
+		final int columns = 26;						// number of columns to display
+		var fifoDurations = new int[columns];		// number of fifo deliveries for each of delivery time
+		var knapsackDurations = new int[columns];	// number of knapsack deliveries for each delivery time
 
-		var fifoDurations = new int[columns];
-		var knapsackDurations = new int[columns];
-
-		// determine the absolute minimum delivery time of all averages
+		// absolute shortest delivery time of all trial averages
 		int minDuration = (int) results.getWorstFifoTime();
 
+		// make minDuration reflect the smallest fifo delivery time
 		for (var fifoTime : results.getFifoTimes()) {
 			int duration = (int) (fifoTime / SECONDS_PER_MINUTE);
 			if (minDuration > duration) minDuration = duration;
 		}
+
+		// make minDuration reflect the smallest knapsack delivery time if shorter than the current value
 		for (var knapsackTime : results.getKnapsackTimes()) {
 			int duration = (int) (knapsackTime / SECONDS_PER_MINUTE);
 			if (minDuration > duration) minDuration = duration;
 		}
 
-		//increment the array values to reflect the distribution
+		// count the number of fifo occurrences for each duration of delivery time
 		for (var fifoTime : results.getFifoTimes()) {
 			int duration = (int)(Math.floor(fifoTime) / SECONDS_PER_MINUTE);
 			int index = (duration - minDuration);
 			if (index < columns) fifoDurations[index]++;
 			else fifoDurations[columns - 1]++;
 		}
+
+		// count the number of knapsack occurrences for each duration of delivery time
 		for (var knapsackTime : results.getKnapsackTimes()) {
 			int duration = (int)(Math.floor(knapsackTime) / SECONDS_PER_MINUTE);
 			int index = (duration - minDuration);
@@ -2420,11 +2449,12 @@ public class MainClass extends Application {
 			else knapsackDurations[columns - 1]++;
 		}
 
+		// create the data series for fifo durations
 		var fifoSeries = new XYChart.Series<String, Number>(
 				"FIFO", FXCollections.observableArrayList());
 		var fifoSeriesData = fifoSeries.getData();
 
-		//adds the data values for fifo into the chart
+		//adds the data values for fifo into the series
 		for (int index = 0; index < columns; index++) {
 			int start = minDuration + index;
 			int end = start + 1;
@@ -2433,11 +2463,12 @@ public class MainClass extends Application {
 			fifoSeriesData.add(data);
 		}
 
+		// create the data series for knapsack durations
 		var knapsackSeries = new XYChart.Series<String, Number>(
 				"Knapsack Packing", FXCollections.observableArrayList());
 		var knapsackSeriesData = knapsackSeries.getData();
 
-		//adds the values for knapsack into the chart
+		//adds the values for knapsack into the series
 		for (int index = 0; index < columns; index++) {
 			int start = minDuration + index;
 			int end = start + 1;
@@ -2446,10 +2477,11 @@ public class MainClass extends Application {
 			knapsackSeriesData.add(data);
 		}
 
+		// add the series to the chart
 		barChart.getData().add(fifoSeries);
 		barChart.getData().add(knapsackSeries);
 
-		//colors the data columns
+		// color the data columns to distinguish them from each other
 		for (var data : fifoSeries.getData())
 			data.getNode().setStyle("-fx-bar-fill: #ae000b;");
 		for (var data : knapsackSeries.getData())
