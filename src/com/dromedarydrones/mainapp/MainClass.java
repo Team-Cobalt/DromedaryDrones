@@ -76,6 +76,7 @@ public class MainClass extends Application {
 	private static final String PRIMARY_BACKGROUND_COLOR = "-fx-background-color: #e0e0e0;";
 	private static final String SECONDARY_BACKGROUND_COLOR = "-fx-background-color: #bdbdbd;";
 	private static final String BOLD_FONT_STYLE = "-fx-font-weight: bold;";
+	private static final String FONT_TYPE = "-fx-font-family: Helvetica;";
 
 	//css string regarding style of line separating sidebar from main page
 	private static final String SIDEBAR_STYLE = "-fx-border-style: hidden solid hidden hidden;" +
@@ -84,6 +85,7 @@ public class MainClass extends Application {
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private Future<SimulationResults> futureResults;
 
+	//COMPLETED, REFACTORED, AND TESTED
 	public static void main(String[] args) {
 
 		//configuration are the settings which are loaded in
@@ -94,6 +96,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Runs the simulation asynchronously so as not to block the UI thread.
 	 * Once the simulation finishes, the result is retrieved and the results
 	 * page is navigated to.
@@ -120,6 +123,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Cancels the simulation currently running.
 	 * @author Christian Burns
 	 */
@@ -128,31 +132,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * Saves the simulation configuration and handles file save dialog if needed.
-	 * @author Christian Burns
-	 */
-	private void saveSimulation() {
-		// fetch last used config file
-		Configuration configuration = Configuration.getInstance();
-		File configurationFile = configuration.getLastConfigFile();
-
-		if (configurationFile == null) {
-			// saves settings in XML file to local machine
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Save Settings");
-			fileChooser.getExtensionFilters().add(
-					new FileChooser.ExtensionFilter("XML", "*.xml"));
-			configurationFile = fileChooser.showSaveDialog(window);
-		}
-
-		// saves the simulation to the config file if it exists
-		if (configurationFile != null) {
-			try { configuration.saveConfigs(configurationFile);
-			} catch (IOException ioe) { ioe.printStackTrace(); }
-		}
-	}
-
-	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Main screen page where the user can decide what to do (i.e. run simulation, go to settings, etc.)
 	 * @author Izzy Patnode
 	 */
@@ -182,7 +162,7 @@ public class MainClass extends Application {
 
 		//front page title is created to welcome users
 		title = new Text("Welcome to Dromedary Drones!");
-		title.setStyle("-fx-font-family: Helvetica; -fx-font-size: 55; -fx-fill: #0047ab");
+		title.setStyle(FONT_TYPE+ "-fx-font-size: 55; -fx-fill: #0047ab");
 		title.setWrappingWidth(500);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -246,6 +226,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Called when the program is told to shutdown.
 	 * Shuts down the executor service.
 	 * @author Christian Burns
@@ -263,7 +244,7 @@ public class MainClass extends Application {
 	 */
 	public void startSimulation() {
 		title = new Text("Simulation is Running...");
-		title.setStyle("-fx-font-family: Helvetica; -fx-font-size: 35; -fx-fill: #0047ab");
+		title.setStyle(FONT_TYPE + "-fx-font-size: 35; -fx-fill: #0047ab");
 		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -289,8 +270,7 @@ public class MainClass extends Application {
 
 		//allows the user to cancel the simulation
 		Button cancelButton = new Button("Cancel Simulation");
-		String cssStyle = PRIMARY_BACKGROUND_COLOR +
-				"-fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: #0047ab;" +
+		String cssStyle = PRIMARY_BACKGROUND_COLOR + FONT_TYPE + "-fx-font-size: 14; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 		cancelButton.setStyle(cssStyle);
 
@@ -323,33 +303,45 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not writing out the style of each button each time we create a button
 	 * @return a string with the style in css of each button
 	 * @author Izzy Patnode
 	 */
 	public String primaryButtonStyle() {
-		 return PRIMARY_BACKGROUND_COLOR +
-		"-fx-font-family: Helvetica; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
+		 return PRIMARY_BACKGROUND_COLOR + FONT_TYPE + " -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not writing out the secondary style of a button each time we create one
 	 * @return a string with the secondary style for a button in css
 	 * @author Izzy Patnode
 	 */
 	public String secondaryButtonStyle() {
-		return SECONDARY_BACKGROUND_COLOR + "-fx-font-family: Helvetica; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
+		return SECONDARY_BACKGROUND_COLOR + FONT_TYPE + "-fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
 	/**
+	 * Allows for not writing out the style of a table for each table
+	 * @return a string with the style of a table in css
+	 * @author Izzy Patnode
+	 */
+	public String tableStyle() {
+		return "-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0; " +
+				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0";
+	}
+
+	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not having to recreate the title (Simulation Settings) for every settings page
 	 * @author Izzy Patnode
 	 */
 	public void settingTitle() {
 		title = new Text("Simulation Settings");
-		title.setStyle("-fx-font-family: Helvetica, sans-serif; -fx-font-size: 35; -fx-fill: #0047ab");
+		title.setStyle(FONT_TYPE + "-fx-font-size: 35; -fx-fill: #0047ab");
 		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -359,6 +351,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not having to recreate the home button for every settings page
 	 * @author Izzy Patnode
 	 */
@@ -379,6 +372,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not having to recreate the menu buttons for every settings page
 	 * @author Izzy Patnode
 	 */
@@ -423,11 +417,12 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED AND TESTED
 	 * Decreases redundancy of code used for importing and exporting settings
 	 * @return Vbox containing buttons for importing and exporting buttons
 	 * @author Izzy Patnode
 	 */
-	public VBox importExportSettings() {
+	public VBox importExportSettings(String sceneName) {
 		VBox saveLoadButtons = new VBox(5);
 		saveLoadButtons.setPrefWidth(110);
 
@@ -471,21 +466,62 @@ public class MainClass extends Application {
 					exception.printStackTrace();
 				}
 				currentSimulation = Configuration.getInstance().getCurrentSimulation();
+
+				switch(sceneName) {
+					case "General":
+						generalEditPage();
+						break;
+					case "Food":
+						editFoodPage();
+						break;
+					case "Meal":
+						editMealsPage();
+						break;
+					case "Drone":
+						editDronePage();
+						break;
+					case "Map":
+						editMapPage();
+						break;
+					default:
+						break;
+				}
 			}
 		}); //end of loading settings event
 
+		//allows user to reload in the default settings at any given time
 		Button defaultButton = new Button("Default Settings");
 		defaultButton.setMinWidth(saveLoadButtons.getPrefWidth());
 		defaultButton.setStyle(secondaryButtonStyle());
 
 		defaultButton.setOnAction(click -> {
-			var config = Configuration.getInstance();
-			config.initialize(null);
-			currentSimulation = config.getCurrentSimulation();
+			var configuration = Configuration.getInstance();
+			configuration.initialize(null);
+			currentSimulation = configuration.getCurrentSimulation();
 			Alert alert = new Alert(Alert.AlertType.INFORMATION);
 			alert.setHeaderText("The default settings have now been loaded in.");
 			alert.showAndWait();
-		});
+
+			switch(sceneName) {
+				case "General":
+					generalEditPage();
+					break;
+				case "Food":
+					editFoodPage();
+					break;
+				case "Meal":
+					editMealsPage();
+					break;
+				case "Drone":
+					editDronePage();
+					break;
+				case "Map":
+					editMapPage();
+					break;
+				default:
+					break;
+			}
+		}); //end of loading default settings event
 
 		saveLoadButtons.getChildren().addAll(saveButton, loadButton, defaultButton);
 
@@ -496,31 +532,62 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * Creates GUI page for general settings (i.e. stochastic flow)
-	 * @author Izzy Patnode and Rachel Franklin
+	 * COMPLETED, REFACTORED, AND TESTED
+	 * Reduces redundancy of creating layout for sidebar
+	 * @param currentSceneName the name of the current scene so we can refresh the page when importing settings
+	 * @return the layout of the sidebar
+	 * @author Izzy Patnode
 	 */
-	public void generalEditPage() {
-		VBox leftLayout = new VBox();
-		leftLayout.setSpacing(110);
-		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
+	private VBox sideBarLayout(String currentSceneName) {
+		VBox sideBar = new VBox();
+		sideBar.setSpacing(110);
+		sideBar.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
 
 		homeButton();
 
 		menuButtons();
 
-		VBox importExportDisplay = importExportSettings();
+		VBox importExportDisplay = importExportSettings(currentSceneName);
 
-		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+		sideBar.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+
+		return sideBar;
+	}
+
+	/**
+	 * COMPLETED, REFACTORED, AND TESTED
+	 * Reduces reduncancy in creating error alerts
+	 * @param errorName the title and header of the error alert
+	 * @param errorMessage the message for the error alert
+	 * @return an alert with the given title, header, and message
+	 * @author Izzy Patnode
+	 */
+	private Alert setErrorAlert(String errorName, String errorMessage) {
+		//alert to let users know why their values are not saving
+		Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+		errorAlert.setTitle(errorName);
+		errorAlert.setHeaderText("Error: " + errorName);
+
+		errorAlert.setContentText(errorMessage);
+
+		return errorAlert;
+	}
+
+	/**
+	 * COMPLETED, REFACTORED, AND TESTED
+	 * Creates GUI page for general settings (i.e. stochastic flow)
+	 * @author Izzy Patnode and Rachel Franklin
+	 */
+	public void generalEditPage() {
+		VBox leftLayout = sideBarLayout("General");
 
 		settingTitle();
 
 		//table heading (outside of gridpane) for user to understand what is on the page
 		Text gridHeading = new Text("Order Volume per Hour");
-		gridHeading.setFont(Font.font("Helvetica", 15));
-		gridHeading.setFill(Color.BLACK);
+		gridHeading.setStyle(BOLD_FONT_STYLE + FONT_TYPE + "-fx-font-size: 15; -fx-text-fill: black");
 		gridHeading.setWrappingWidth(200);
 		gridHeading.setTextAlignment(TextAlignment.CENTER);
-		gridHeading.setStyle(BOLD_FONT_STYLE);
 
 		//creates gridpane containing the current stochastic flow values
 		GridPane generalSettings = new GridPane();
@@ -585,28 +652,52 @@ public class MainClass extends Application {
 
 		editButton.setOnAction(event -> {
 			ArrayList<Integer> stochasticModel = new ArrayList<>();
+
+			Alert errorAlert;
+			String errorTitle = "Invalid Input";
+			String errorText;
+
 			try {
-				stochasticModel.add(Integer.parseInt(hourOneMeals.getText()));
-				stochasticModel.add(Integer.parseInt(hourTwoMeals.getText()));
-				stochasticModel.add(Integer.parseInt(hourThreeMeals.getText()));
-				stochasticModel.add(Integer.parseInt(hourFourMeals.getText()));
+				int newHourOneMeals = Integer.parseInt(hourOneMeals.getText());
+				int newHourTwoMeals = Integer.parseInt(hourTwoMeals.getText());
+				int newHourThreeMeals = Integer.parseInt(hourThreeMeals.getText());
+				int newHourFourMeals = Integer.parseInt(hourFourMeals.getText());
 
-				currentSimulation.addStochasticFlow(stochasticModel);
+				//alerts user that their inputs are not positive values or zero
+				if(newHourOneMeals < 0 || newHourTwoMeals < 0 || newHourThreeMeals < 0 || newHourFourMeals < 0) {
+					errorText = "Stochastic model cannot have negative number of meals.";
+					errorAlert = setErrorAlert(errorTitle, errorText);
 
-				/* alerts the user that their edit to the stochastic model has been successful
-				** so they know that the values have been updated */
-				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
-				saveAlert.setTitle("Confirm Changes");
-				saveAlert.setHeaderText("Changes Saved!");
-				saveAlert.showAndWait();
+					//resets the gridpane values and stochastic model so that incorrect values are not used
+					stochasticModel.addAll(List.of(currentHourOne, currentHourTwo, currentHourThree, currentHourFour));
+
+					hourOneMeals.setText(currentHourOne + "");
+					hourTwoMeals.setText(currentHourTwo + "");
+					hourThreeMeals.setText(currentHourThree + "");
+					hourFourMeals.setText(currentHourFour + "");
+
+					errorAlert.showAndWait();
+				}
+				else {
+
+					stochasticModel.addAll(List.of(newHourOneMeals, newHourTwoMeals,
+							newHourThreeMeals, newHourFourMeals));
+
+					currentSimulation.addStochasticFlow(stochasticModel);
+
+					/* alerts the user that their edit to the stochastic model has been successful
+					 ** so they know that the values have been updated */
+					Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
+					saveAlert.setTitle("Confirm Changes");
+					saveAlert.setHeaderText("Changes Saved!");
+					saveAlert.showAndWait();
+				}
+
 			} //end of try block
 			catch(NumberFormatException illegalFormat) {
-				/* alerts the user that they have put in an incorrect value so the user knows why their
-				** values aren't saving */
-				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-				errorAlert.setTitle("Invalid Input");
-				errorAlert.setHeaderText("Error: Invalid Input");
-				errorAlert.setContentText("Integer format required");
+				//alerts the user that their input is not an integer
+				errorText = "Integer format required.";
+				errorAlert = setErrorAlert(errorTitle, errorText);
 
 				//resets the gridpane values and stochastic model so that incorrect values are not used
 				stochasticModel.addAll(List.of(currentHourOne, currentHourTwo, currentHourThree, currentHourFour));
@@ -642,21 +733,12 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Creates GUI page for food items settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
 	public void editFoodPage() {
-		VBox leftLayout = new VBox();
-		leftLayout.setSpacing(110);
-		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
-
-		homeButton();
-
-		menuButtons();
-
-		VBox importExportDisplay = importExportSettings();
-
-		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+		VBox leftLayout = sideBarLayout("Food");
 
 		settingTitle();
 
@@ -665,8 +747,7 @@ public class MainClass extends Application {
 		ObservableList<FoodItem> foodItems = currentSimulation.getFoodItems();
 		foodTable.setItems(foodItems);
 		foodTable.setEditable(true);
-		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0; " +
-				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
+		foodTable.setStyle(tableStyle());
 
 		//Creates table headings for the table so the user understands what each column represents
 		TableColumn<FoodItem, String> itemHeading = new TableColumn<>("Food Item");
@@ -679,9 +760,24 @@ public class MainClass extends Application {
 
 		//allows user to edit the name of a food item already in the table
 		itemHeading.setCellFactory(TextFieldTableCell.forTableColumn());
-		itemHeading.setOnEditCommit(event ->
-				event.getTableView().getItems().get(event.getTablePosition().
-						getRow()).setName(event.getNewValue()));
+		itemHeading.setOnEditCommit(event -> {
+			String oldName = event.getOldValue();
+			String newName = event.getNewValue();
+
+			//alerts user if they put in a name that is null (not allowed)
+			if(newName.equals("")) {
+				String errorName = "Invalid Input";
+				String errorMessage = "Food name cannot be null.";
+				Alert errorAlert = setErrorAlert(errorName, errorMessage);
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).setName(oldName);
+				errorAlert.showAndWait();
+			}
+			else {
+				event.getTableView().getItems().get(event.getTablePosition().getRow()).setName(newName);
+			}
+
+			event.getTableView().refresh();
+		}); //end of editing food name event
 
 		//allows user to edit the weight of a food item already in the table
 		weightHeading.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter(){
@@ -689,23 +785,23 @@ public class MainClass extends Application {
 			public Double fromString(String value){
 				try {
 					return super.fromString(value);
-				} catch(Exception e){
+				} catch(Exception exception){
 					return Double.NaN;
 				}
 			}
 		}));
 		weightHeading.setOnEditCommit(event -> {
 			/* If there is an error make the index 1, this allows us to determine whether to set
-			** the cell vale to the new value or the old value */
+			** the cell value to the new value or the old value */
 			int errorIndex = 0;
-			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+			Alert invalidInput;
+			String errorTitle = "Invalid input";
+			String errorMessage = "";
 			double oldValue = event.getOldValue();
 
 			//notifies the user if the value they entered is not a numerical value (integer or decimal)
 			if (event.getNewValue().isNaN()){
-				invalidInput.setTitle("Invalid Input");
-				invalidInput.setHeaderText("Error: Invalid Input");
-				invalidInput.setContentText("Input must be an integer or a decimal.");
+				errorMessage = "Input must be an integer or a decimal.";
 				errorIndex = 1;
 			}
 			else {
@@ -715,17 +811,13 @@ public class MainClass extends Application {
 				/* notifies the user if the new weight of the selected food item exceeds
 				** the maximum payload of the drone */
 				if (newValue > maxPayload) {
-					invalidInput.setTitle("Invalid Input");
-					invalidInput.setHeaderText("Error: Invalid Input");
-					invalidInput.setContentText("Food item weight cannot exceed " + maxPayload + " oz.");
+					errorMessage = "Food item weight cannot exceed" + maxPayload + " oz.";
 					errorIndex = 1;
 				}
 				/* notifies the user if the new weight of the selected food item is less than or equal to zero
 				** (cannot have an item that weighs a negative value or does not weight anything at all */
 				else if (newValue <= 0) {
-					invalidInput.setTitle("Invalid Input");
-					invalidInput.setHeaderText("Error: Invalid Input");
-					invalidInput.setContentText("Food item weight must weigh something.");
+					errorMessage = "Food item weight cannot be less than or equal to zero.";
 					errorIndex = 1;
 				}
 				/* since the drone capacity cannot exceed a given number of pounds, the weight of each order cannot
@@ -750,10 +842,8 @@ public class MainClass extends Application {
 								/* alerts user if the new weight for the given food item causes a meal
 								** to exceed the drone's maximum payload */
 								if (newWeight > maxPayload) {
-									invalidInput.setTitle("Invalid Input");
-									invalidInput.setHeaderText("Error: Invalid Input");
-									invalidInput.setContentText("Input food item weight causes a meal weight to " +
-											"exceed the drone's maximum payload weight.");
+									errorMessage = "Inputted weight causes a meal to exceed the " +
+											"drone's maximum cargo capacity.";
 									errorIndex = 1;
 								}
 							}//end of for loop for adding meal's food's weights together
@@ -769,8 +859,10 @@ public class MainClass extends Application {
 			}
 			//resets the weight of the food item if the new weight does not meet the necessary criteria
 			else {
+				invalidInput = setErrorAlert(errorTitle, errorMessage);
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
 						setWeight(oldValue);
+
 				invalidInput.showAndWait();
 			}
 
@@ -788,16 +880,17 @@ public class MainClass extends Application {
 		tableLayout.setMaxSize(202, 300);
 		tableLayout.getChildren().add(foodTable);
 
+		Font textFont = new Font("Helvetica", 15);
 		//necessary elements that allow the user to add a food item to the current list of food items
 		Text newFoodNameLabel = new Text("Food name: ");
-		newFoodNameLabel.setFont(Font.font("Helvetica", 15));
+		newFoodNameLabel.setFont(textFont);
 		newFoodNameLabel.setTextAlignment(TextAlignment.CENTER);
 
 		TextField newFoodName = new TextField();
 		newFoodName.setMaxWidth(80);
 
 		Text newFoodWeightLabel = new Text("Weight: ");
-		newFoodWeightLabel.setFont(Font.font("Helvetica", 15));
+		newFoodWeightLabel.setFont(textFont);
 		newFoodWeightLabel.setTextAlignment(TextAlignment.CENTER);
 
 		TextField newFoodWeight = new TextField();
@@ -831,10 +924,9 @@ public class MainClass extends Application {
 		addButton.setMinWidth(60);
 
 		addButton.setOnAction(event -> {
-			//decreases redundancy in create alert messages during this event method
-			Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-			errorAlert.setTitle("Invalid Input");
-			errorAlert.setHeaderText("Error: Invalid Input");
+			Alert errorAlert;
+			String errorTitle = "Invalid Input";
+			String errorMessage;
 
 			//attempts to create food item with given user input
 			try {
@@ -842,17 +934,20 @@ public class MainClass extends Application {
 
 				//alerts user if the new food's weight is greater than drone's maximum payload
 				if (newWeight > currentSimulation.getDroneSettings().getMaxPayloadWeight()) {
-					errorAlert.setContentText("Food weight cannot exceed drone's maximum payload.");
+					errorMessage = "Food weight cannot exceed drone's maximum payload.";
+					errorAlert = setErrorAlert(errorTitle, errorMessage);
 					errorAlert.showAndWait();
 				}
 				//alerts user if the new food's weight is less than or equal to zero
 				else if (newWeight <= 0.0) {
-					errorAlert.setContentText("Food must weigh something.");
+					errorMessage = "Food weight cannot be less than or equal to zero.";
+					errorAlert = setErrorAlert(errorTitle, errorMessage);
 					errorAlert.showAndWait();
 				}
 				//alerts the user if the new food does not have a name
 				else if (newFoodName.getText().equals("")) {
-					errorAlert.setContentText("Food must have a name.");
+					errorMessage = "Food name cannot be null.";
+					errorAlert = setErrorAlert(errorTitle, errorMessage);
 					errorAlert.showAndWait();
 				}
 				//adds new food item to current simulation if it meets all of the necessary criteria
@@ -866,7 +961,8 @@ public class MainClass extends Application {
 			}
 			//alerts user if the value inputted is not a number (for weight)
 			catch(NumberFormatException illegalFormat) {
-				errorAlert.setContentText("Number format required");
+				errorMessage = "Number format required.";
+				errorAlert = setErrorAlert(errorTitle, errorMessage);
 				errorAlert.showAndWait();
 				foodTable.refresh();
 			}
@@ -880,10 +976,9 @@ public class MainClass extends Application {
 			int deletedRow = foodTable.getSelectionModel().getSelectedIndex();
 			//alerts user if they attempt to delete a food item without selecting the food item first
 			if(deletedRow < 0) {
-				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-				errorAlert.setTitle("Invalid Deletion");
-				errorAlert.setHeaderText("Error: Invalid Deletion");
-				errorAlert.setContentText("Food not selected.");
+				String errorTitle = "Invalid Deletion";
+				String errorMessage = "Food item not selected.";
+				Alert errorAlert = setErrorAlert(errorTitle, errorMessage);
 				errorAlert.showAndWait();
 			}
 			//deletes food items from current simulation (and all meals where the food item exists)
@@ -923,17 +1018,7 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
 	public void editMealsPage() {
-		VBox leftLayout = new VBox();
-		leftLayout.setSpacing(110);
-		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
-
-		homeButton();
-
-		menuButtons();
-
-		VBox importExportDisplay = importExportSettings();
-
-		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+		VBox leftLayout = sideBarLayout("Meal");
 
 		settingTitle();
 
@@ -1539,16 +1624,7 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode
 	 */
 	public void editDronePage() {
-		VBox leftLayout = new VBox();
-		leftLayout.setSpacing(110);
-		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
-
-		homeButton();
-		menuButtons();
-
-		VBox importExportDisplay = importExportSettings();
-
-		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+		VBox leftLayout = sideBarLayout("Drone");
 
 		settingTitle();
 
@@ -1764,17 +1840,7 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode
 	 */
 	public void editMapPage() {
-		VBox leftLayout = new VBox();
-		leftLayout.setSpacing(110);
-		leftLayout.setStyle(SECONDARY_BACKGROUND_COLOR + SIDEBAR_STYLE);
-
-		homeButton();
-
-		menuButtons();
-
-		VBox importExportDisplay = importExportSettings();
-
-		leftLayout.getChildren().addAll(iconLayout, buttonLayout, importExportDisplay);
+		VBox leftLayout = sideBarLayout("Map");
 
 		settingTitle();
 
@@ -2292,13 +2358,14 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * COMPLETED, REFACTORED, AND TESTED
 	 * Displays results from simulation
 	 * @author Rachel Franklin
 	 */
 	public void resultsPage() {
 		//creates heading of page
 		title = new Text("Simulation Results");
-		title.setStyle("-fx-font-family: Helvetica; -fx-font-size: 35; -fx-fill: #0047ab");
+		title.setStyle(FONT_TYPE + "-fx-font-size: 35; -fx-fill: #0047ab");
 		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -2313,7 +2380,7 @@ public class MainClass extends Application {
 
 		Button homeButton = new Button("", homeView);
 		homeButton.setStyle(PRIMARY_BACKGROUND_COLOR);
-		homeButton.setOnAction(e-> window.setScene(mainMenu));
+		homeButton.setOnAction(event -> window.setScene(mainMenu));
 
 		iconLayout = new HBox();
 		iconLayout.setAlignment(Pos.TOP_LEFT);
@@ -2327,9 +2394,11 @@ public class MainClass extends Application {
 		topLayout.setAlignment(Pos.TOP_LEFT);
 		topLayout.getChildren().addAll(iconLayout, titleLayout);
 
+		String resultsTextStyle = BOLD_FONT_STYLE + FONT_TYPE + "-fx-font-size: 18; -fx-fill: #0047ab";
+
 		//sets up statistics for FIFO
 		Text fifoTitle = new Text("FIFO Delivery");
-		fifoTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoTitle.setStyle(resultsTextStyle);
 		fifoTitle.setWrappingWidth(300);
 		fifoTitle.setTextAlignment(TextAlignment.CENTER);
 
@@ -2337,7 +2406,7 @@ public class MainClass extends Application {
 
 		Text fifoAverage = new Text(String.format("Average Delivery Time: %.1f minutes",
 				fifoAverageTime / SECONDS_PER_MINUTE));
-		fifoAverage.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoAverage.setStyle(resultsTextStyle);
 		fifoAverage.setWrappingWidth(300);
 		fifoAverage.setTextAlignment(TextAlignment.CENTER);
 
@@ -2345,7 +2414,7 @@ public class MainClass extends Application {
 
 		Text fifoWorst = new Text(String.format("Worst Delivery Time: %.1f minutes",
 				fifoWorstTime / SECONDS_PER_MINUTE));
-		fifoWorst.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoWorst.setStyle(resultsTextStyle);
 		fifoWorst.setWrappingWidth(300);
 		fifoWorst.setTextAlignment(TextAlignment.CENTER);
 
@@ -2355,7 +2424,7 @@ public class MainClass extends Application {
 
 		Text fifoExpired = new Text(String.format("Average Expired Orders: %.2f%%",
 				(fifoExpiredPercent*100)));
-		fifoExpired.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoExpired.setStyle(resultsTextStyle);
 		fifoExpired.setWrappingWidth(300);
 		fifoExpired.setTextAlignment(TextAlignment.CENTER);
 
@@ -2366,7 +2435,7 @@ public class MainClass extends Application {
 
 		//sets up statistics for knapsack packing
 		Text knapsackTitle = new Text("Knapsack Packing Delivery");
-		knapsackTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackTitle.setStyle(resultsTextStyle);
 		knapsackTitle.setWrappingWidth(300);
 		knapsackTitle.setTextAlignment(TextAlignment.CENTER);
 
@@ -2374,7 +2443,7 @@ public class MainClass extends Application {
 
 		Text knapsackAverage = new Text(String.format("Average Delivery Time: %.1f minutes",
 				knapsackAverageTime / SECONDS_PER_MINUTE));
-		knapsackAverage.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackAverage.setStyle(resultsTextStyle);
 		knapsackAverage.setWrappingWidth(300);
 		knapsackAverage.setTextAlignment(TextAlignment.CENTER);
 
@@ -2382,7 +2451,7 @@ public class MainClass extends Application {
 
 		Text knapsackWorst = new Text(String.format("Worst Delivery Time: %.1f minutes",
 				knapsackWorstTime / SECONDS_PER_MINUTE));
-		knapsackWorst.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackWorst.setStyle(resultsTextStyle);
 		knapsackWorst.setWrappingWidth(300);
 		knapsackWorst.setTextAlignment(TextAlignment.CENTER);
 
@@ -2391,7 +2460,7 @@ public class MainClass extends Application {
 
 		Text knapsackExpired = new Text(String.format("Average Expired Orders: %.2f%%",
 				(knapsackExpiredPercent*100)));
-		knapsackExpired.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackExpired.setStyle(resultsTextStyle);
 		knapsackExpired.setWrappingWidth(300);
 		knapsackExpired.setTextAlignment(TextAlignment.CENTER);
 
