@@ -20,36 +20,36 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
 
     private final Point origin;
     private final ArrayList<Point> points;
-    private final Random rand;
+    private final Random random;
 
     public DeliveryPoints() {
         points = new ArrayList<>();
-        rand = new Random();
+        random = new Random();
         origin = new Point("", 0, 0, null);
         _tmpLoadPoints(); //TODO: remove this when points are loaded in from a file
     }
 
     public DeliveryPoints(DeliveryPoints other) {
         points = new ArrayList<>();
-        rand = new Random();
+        random = new Random();
         origin = new Point("", 0, 0, null);
-        for (Point pt : other) points.add(new Point(pt, origin));
+        for (Point point : other) points.add(new Point(point, origin));
         setOrigin(other.origin.getName());
     }
 
     public DeliveryPoints(Element root) {
         origin = new Point("", 0, 0, null);
         points = new ArrayList<>();
-        rand = new Random();
+        random = new Random();
         String originName = root.getAttribute("origin");
         NodeList children = root.getElementsByTagName("point");
-        for (int i = 0; i < children.getLength(); i++) {
-            Point pt = new Point((Element) children.item(i), origin);
-            points.add(pt);
-            if (pt.getName().equals(originName)) {
+        for (int index = 0; index < children.getLength(); index++) {
+            Point point = new Point((Element) children.item(index), origin);
+            points.add(point);
+            if (point.getName().equals(originName)) {
                 origin.setName(originName);
-                origin.setLatitude(pt.getLatitude());
-                origin.setLongitude(pt.getLongitude());
+                origin.setLatitude(point.getLatitude());
+                origin.setLongitude(point.getLongitude());
                 points.forEach(Point::refreshOrigin);
             }
         }
@@ -88,21 +88,14 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
     }
 
     /**
-     * Returns the number of known delivery points.
-     */
-    public int numPoints() {
-        return points.size();
-    }
-
-    /**
      * Sets all points's coordinates relative to the location of the specified point.
      * @param name  name of the new origin point
      */
     public void setOrigin(String name) {
-        for (Point p : points) {
-            if (p.getName().equals(name)) {
-                origin.setLatitude(p.getLatitude());
-                origin.setLongitude(p.getLongitude());
+        for (Point point : points) {
+            if (point.getName().equals(name)) {
+                origin.setLatitude(point.getLatitude());
+                origin.setLongitude(point.getLongitude());
                 origin.setName(name);
                 points.forEach(Point::refreshOrigin);
                 return;
@@ -128,7 +121,7 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
      */
     public Point getRandomPoint() {
         if (points.size() == 0) return null;
-        return points.get(rand.nextInt(points.size()));
+        return points.get(random.nextInt(points.size()));
     }
 
     /**
@@ -179,7 +172,7 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
     public Element toXml(Document doc) {
         Element root = doc.createElement("deliverypoints");
         root.setAttribute("origin", origin.getName());
-        for (Point pt : points) root.appendChild(pt.toXml(doc));
+        for (Point point : points) root.appendChild(point.toXml(doc));
         return root;
     }
 }

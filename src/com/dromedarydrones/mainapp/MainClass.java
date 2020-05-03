@@ -179,8 +179,8 @@ public class MainClass extends Application {
 
 		//front page title is created to welcome users
 		title = new Text("Welcome to Dromedary Drones!");
-		title.setStyle("-fx-font-family: Serif; -fx-font-size: 50; -fx-fill: #0047ab");
-		title.setWrappingWidth(450);
+		title.setStyle("-fx-font-family: Helvetica; -fx-font-size: 55; -fx-fill: #0047ab");
+		title.setWrappingWidth(500);
 		title.setTextAlignment(TextAlignment.CENTER);
 
 		titleLayout = new HBox(20);
@@ -260,8 +260,8 @@ public class MainClass extends Application {
 	 */
 	public void startSimulation() {
 		title = new Text("Simulation is Running...");
-		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
-		title.setWrappingWidth(400);
+		title.setStyle("-fx-font-family: Helvetica; -fx-font-size: 35; -fx-fill: #0047ab");
+		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
 		titleLayout = new HBox(20);
@@ -326,7 +326,7 @@ public class MainClass extends Application {
 	 */
 	public String primaryButtonStyle() {
 		 return PRIMARY_BACKGROUND_COLOR +
-		"-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
+		"-fx-font-family: Helvetica; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
@@ -336,7 +336,7 @@ public class MainClass extends Application {
 	 * @author Izzy Patnode
 	 */
 	public String secondaryButtonStyle() {
-		return SECONDARY_BACKGROUND_COLOR + "-fx-font-family: Serif; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
+		return SECONDARY_BACKGROUND_COLOR + "-fx-font-family: Helvetica; -fx-font-size: 12; -fx-text-fill: #0047ab;" +
 				"-fx-border-width: 1; -fx-border-color: #0047ab";
 	}
 
@@ -346,8 +346,8 @@ public class MainClass extends Application {
 	 */
 	public void settingTitle() {
 		title = new Text("Simulation Settings");
-		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
-		title.setWrappingWidth(400);
+		title.setStyle("-fx-font-family: Helvetica, sans-serif; -fx-font-size: 35; -fx-fill: #0047ab");
+		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
 		titleLayout = new HBox();
@@ -446,7 +446,7 @@ public class MainClass extends Application {
 				try { Configuration.getInstance().saveConfigs(file);
 				} catch (IOException exception) { exception.printStackTrace(); }
 			}
-		});
+		}); //end of saving settings event
 
 		Button loadButton = new Button("Import Settings");
 		loadButton.setMinWidth(saveLoadButtons.getPrefWidth());
@@ -469,7 +469,7 @@ public class MainClass extends Application {
 				}
 				currentSimulation = Configuration.getInstance().getCurrentSimulation();
 			}
-		});
+		}); //end of loading settings event
 
 		saveLoadButtons.getChildren().addAll(saveButton, loadButton);
 
@@ -500,7 +500,7 @@ public class MainClass extends Application {
 
 		//table heading (outside of gridpane) for user to understand what is on the page
 		Text gridHeading = new Text("Order Volume per Hour");
-		gridHeading.setFont(Font.font("Serif", 15));
+		gridHeading.setFont(Font.font("Helvetica", 15));
 		gridHeading.setFill(Color.BLACK);
 		gridHeading.setWrappingWidth(200);
 		gridHeading.setTextAlignment(TextAlignment.CENTER);
@@ -513,16 +513,16 @@ public class MainClass extends Application {
 		generalSettings.setMaxSize(300, 300);
 
 		Text hourOne = new Text("Hour 1: ");
-		hourOne.setFont(Font.font("Serif", 15));
+		hourOne.setFont(Font.font("Helvetica", 15));
 
 		Text hourTwo = new Text("Hour 2: ");
-		hourTwo.setFont(Font.font("Serif", 15));
+		hourTwo.setFont(Font.font("Helvetica", 15));
 
 		Text hourThree = new Text("Hour 3: ");
-		hourThree.setFont(Font.font("Serif", 15));
+		hourThree.setFont(Font.font("Helvetica", 15));
 
 		Text hourFour = new Text("Hour 4: ");
-		hourFour.setFont(Font.font("Serif", 15));
+		hourFour.setFont(Font.font("Helvetica", 15));
 
 		//grabs current stochastic flow so that it can be added to the grid pane
 		ArrayList<Integer> currentModel = new ArrayList<>(currentSimulation.getStochasticFlow());
@@ -773,14 +773,14 @@ public class MainClass extends Application {
 
 		//necessary elements that allow the user to add a food item to the current list of food items
 		Text newFoodNameLabel = new Text("Food name: ");
-		newFoodNameLabel.setFont(Font.font("Serif", 15));
+		newFoodNameLabel.setFont(Font.font("Helvetica", 15));
 		newFoodNameLabel.setTextAlignment(TextAlignment.CENTER);
 
 		TextField newFoodName = new TextField();
 		newFoodName.setMaxWidth(80);
 
 		Text newFoodWeightLabel = new Text("Weight: ");
-		newFoodWeightLabel.setFont(Font.font("Serif", 15));
+		newFoodWeightLabel.setFont(Font.font("Helvetica", 15));
 		newFoodWeightLabel.setTextAlignment(TextAlignment.CENTER);
 
 		TextField newFoodWeight = new TextField();
@@ -882,9 +882,9 @@ public class MainClass extends Application {
 		HBox rightLayout = new HBox(10);
 		rightLayout.getChildren().addAll(addButton, deleteButton);
 		rightLayout.setAlignment(Pos.BOTTOM_RIGHT);
-		rightLayout.setPadding(new Insets(0, 50, 122, 0));
+		rightLayout.setPadding(new Insets(0, 50, 107, 0));
 
-		HBox mainLayout = new HBox(20);
+		HBox mainLayout = new HBox(10);
 		mainLayout.getChildren().addAll(centerLayout, rightLayout);
 
 		//arranges all elements of the page on the screen
@@ -984,6 +984,7 @@ public class MainClass extends Application {
 					errorIndex = 1;
 				}
 			}
+			//TODO: DO THE STUFF SAVE CHANGES DOES
 
 			//resets given meal's probability if the new value does not meet the necessary criteria
 			if (errorIndex == 1){
@@ -1047,7 +1048,7 @@ public class MainClass extends Application {
 
 		VBox rightLayout = new VBox(5);
 		rightLayout.setAlignment(Pos.CENTER_RIGHT);
-		rightLayout.setPadding(new Insets(10, 0, 0, 0));
+		rightLayout.setPadding(new Insets(30, 5, 0, 0));
 		rightLayout.getChildren().addAll(probabilityLayout, saveLayout);
 
 		//arranges all meals together
@@ -1059,7 +1060,7 @@ public class MainClass extends Application {
 			VBox singleMealLayout = new VBox();
 
 			TextField mealName = new TextField(meal.getName());
-			mealName.setFont(Font.font("Serif", 15));
+			mealName.setFont(Font.font("Helvetica", 15));
 			mealName.setMaxWidth(200);
 			mealName.setStyle(BOLD_FONT_STYLE);
 
@@ -1212,7 +1213,7 @@ public class MainClass extends Application {
 			//creates button for deleting meals
 			Button deleteButton = new Button("X");
 			deleteButton.setStyle(BOLD_FONT_STYLE + "-fx-background-color: #e0e0e0; -fx-font-size: 20; " +
-					"fx-font-family: Serif; -fx-border-style: hidden; -fx-border-color: #e0e0e0; -fx-border-width: 1");
+					"fx-font-family: Helvetica; -fx-border-style: hidden; -fx-border-color: #e0e0e0; -fx-border-width: 1");
 
 			deleteButton.setOnAction(event -> {
 				//total probability of meals after meal deletion should equal 1.0
@@ -1271,9 +1272,7 @@ public class MainClass extends Application {
 		//allows user to add a meal to the current simulation's list of meals
 		Button addButton = new Button("Add Meal");
 		addButton.setStyle(primaryButtonStyle());
-		addButton.setOnAction(event ->{
-			addMealPage();
-		});
+		addButton.setOnAction(event -> addMealPage());
 
 		VBox tableAddLayout = new VBox(5);
 		tableAddLayout.getChildren().addAll(mealLayout, addButton);
@@ -1308,8 +1307,8 @@ public class MainClass extends Application {
 	 */
 	public void addMealPage(){
 		title = new Text("Add Meal");
-		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
-		title.setWrappingWidth(400);
+		title.setStyle("-fx-font-family: Helvetica; -fx-font-size: 35; -fx-fill: #0047ab");
+		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
 		titleLayout = new HBox();
@@ -1318,7 +1317,7 @@ public class MainClass extends Application {
 
 		//user should name the food item
 		Text nameText = new Text("Food name: ");
-		nameText.setFont(Font.font("Serif", 15));
+		nameText.setFont(Font.font("Helvetica", 15));
 		TextField nameField = new TextField();
 		nameField.setMaxWidth(80);
 
@@ -1533,7 +1532,7 @@ public class MainClass extends Application {
 
 		settingTitle();
 
-		Font font = Font.font("Serif", 15);
+		Font font = Font.font("Helvetica", 15);
 
 		//creates gridpane containing the current drone settings
 		Text maxPayload = new Text("Max Cargo Weight (lbs): ");
@@ -1628,6 +1627,7 @@ public class MainClass extends Application {
 				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 				errorAlert.setTitle("Invalid Input");
 				errorAlert.setHeaderText("Invalid Input!");
+				errorAlert.setContentText("Input must be integers or decimals");
 
 				//resets drone settings to what they were before editing
 				currentSimulation.getDroneSettings().setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
@@ -2166,8 +2166,8 @@ public class MainClass extends Application {
 	public void resultsPage() {
 		//creates heading of page
 		title = new Text("Simulation Results");
-		title.setStyle("-fx-font-family: Serif; -fx-font-size: 30; -fx-fill: #0047ab");
-		title.setWrappingWidth(400);
+		title.setStyle("-fx-font-family: Helvetica; -fx-font-size: 35; -fx-fill: #0047ab");
+		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
 		//aligns title
@@ -2197,7 +2197,7 @@ public class MainClass extends Application {
 
 		//sets up statistics for FIFO
 		Text fifoTitle = new Text("FIFO Delivery");
-		fifoTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
 		fifoTitle.setWrappingWidth(300);
 		fifoTitle.setTextAlignment(TextAlignment.CENTER);
 
@@ -2205,7 +2205,7 @@ public class MainClass extends Application {
 
 		Text fifoAverage = new Text(String.format("Average Delivery Time: %.1f minutes",
 				fifoAverageTime / SECONDS_PER_MINUTE));
-		fifoAverage.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoAverage.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
 		fifoAverage.setWrappingWidth(300);
 		fifoAverage.setTextAlignment(TextAlignment.CENTER);
 
@@ -2213,7 +2213,7 @@ public class MainClass extends Application {
 
 		Text fifoWorst = new Text(String.format("Worst Delivery Time: %.1f minutes",
 				fifoWorstTime / SECONDS_PER_MINUTE));
-		fifoWorst.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoWorst.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
 		fifoWorst.setWrappingWidth(300);
 		fifoWorst.setTextAlignment(TextAlignment.CENTER);
 
@@ -2223,7 +2223,7 @@ public class MainClass extends Application {
 
 		Text fifoExpired = new Text(String.format("Average Expired Orders: %.2f%%",
 				(fifoExpiredPercent*100)));
-		fifoExpired.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		fifoExpired.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
 		fifoExpired.setWrappingWidth(300);
 		fifoExpired.setTextAlignment(TextAlignment.CENTER);
 
@@ -2234,7 +2234,7 @@ public class MainClass extends Application {
 
 		//sets up statistics for knapsack packing
 		Text knapsackTitle = new Text("Knapsack Packing Delivery");
-		knapsackTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackTitle.setStyle(BOLD_FONT_STYLE + "-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
 		knapsackTitle.setWrappingWidth(300);
 		knapsackTitle.setTextAlignment(TextAlignment.CENTER);
 
@@ -2242,7 +2242,7 @@ public class MainClass extends Application {
 
 		Text knapsackAverage = new Text(String.format("Average Delivery Time: %.1f minutes",
 				knapsackAverageTime / SECONDS_PER_MINUTE));
-		knapsackAverage.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackAverage.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
 		knapsackAverage.setWrappingWidth(300);
 		knapsackAverage.setTextAlignment(TextAlignment.CENTER);
 
@@ -2250,7 +2250,7 @@ public class MainClass extends Application {
 
 		Text knapsackWorst = new Text(String.format("Worst Delivery Time: %.1f minutes",
 				knapsackWorstTime / SECONDS_PER_MINUTE));
-		knapsackWorst.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackWorst.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
 		knapsackWorst.setWrappingWidth(300);
 		knapsackWorst.setTextAlignment(TextAlignment.CENTER);
 
@@ -2259,7 +2259,7 @@ public class MainClass extends Application {
 
 		Text knapsackExpired = new Text(String.format("Average Expired Orders: %.2f%%",
 				(knapsackExpiredPercent*100)));
-		knapsackExpired.setStyle("-fx-font-family: Serif; -fx-font-size: 18; -fx-fill: #0047ab");
+		knapsackExpired.setStyle("-fx-font-family: Helvetica; -fx-font-size: 18; -fx-fill: #0047ab");
 		knapsackExpired.setWrappingWidth(300);
 		knapsackExpired.setTextAlignment(TextAlignment.CENTER);
 
