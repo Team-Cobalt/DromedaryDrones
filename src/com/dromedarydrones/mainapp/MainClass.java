@@ -1609,17 +1609,85 @@ public class MainClass extends Application {
 		editButton.setStyle(primaryButtonStyle());
 
 		editButton.setOnAction(event -> {
+			Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+			errorAlert.setTitle("Invalid Input");
+			errorAlert.setHeaderText("Invalid Input!");
+
 			//attempts to change current drone settings to new drone settings
 			try {
-				currentSimulation.getDroneSettings().setMaxPayloadWeight((Double.parseDouble(dronePayload.getText())
-						* OUNCES_PER_POUND));
-				currentSimulation.getDroneSettings().setCruisingSpeed((Double.parseDouble(droneSpeed.getText())
-						* FEET_PER_MILE) / SECONDS_PER_HOUR);
-				currentSimulation.getDroneSettings().setFlightTime(Double.parseDouble(droneFlight.getText())
-						* SECONDS_PER_MINUTE);
-				currentSimulation.getDroneSettings().setTurnAroundTime(Double.parseDouble(droneTurnAround.getText())
-						* SECONDS_PER_MINUTE);
-				currentSimulation.getDroneSettings().setDeliveryTime(Double.parseDouble(droneUnload.getText()));
+				double newDronePayload = Double.parseDouble(dronePayload.getText());
+				double newCruisingSpeed = Double.parseDouble(droneSpeed.getText());
+				double newFlightTime = Double.parseDouble(droneFlight.getText());
+				double newTurnAround = Double.parseDouble(droneTurnAround.getText());
+				double newDeliveryTime = Double.parseDouble(droneUnload.getText());
+
+				int errorIndex = 0;
+
+				if(newDronePayload <= 0 || newCruisingSpeed <= 0 || newFlightTime <= 0 ||
+						newTurnAround <= 0 || newDeliveryTime <= 0) {
+					errorIndex = 1;
+					errorAlert.setContentText("Input must be greater than zero");
+
+				} //end of if statement where input is less than or equal to zero
+				else {
+					currentSimulation.getDroneSettings().setTurnAroundTime(newTurnAround
+							* SECONDS_PER_MINUTE);
+
+					double maxAllowedDistance = ((newFlightTime - newDeliveryTime) / 2) * 0.95 * newCruisingSpeed;
+
+					for(Point point: currentSimulation.getDeliveryPoints().getPoints()) {
+						if(maxAllowedDistance < point.distanceFromPoint(null)) {
+							errorAlert.setContentText("New drone settings do not allow for all points to be reached");
+							errorIndex = 1;
+						}
+					}
+
+					if(errorIndex == 0) {
+						currentSimulation.getDroneSettings().setDeliveryTime(newDeliveryTime);
+						currentSimulation.getDroneSettings().setCruisingSpeed((newCruisingSpeed
+								* FEET_PER_MILE) / SECONDS_PER_HOUR);
+						currentSimulation.getDroneSettings().setFlightTime(newFlightTime
+								* SECONDS_PER_MINUTE);
+
+						for(Meal meal: currentSimulation.getMealTypes()) {
+							if(errorIndex == 0) {
+								double mealWeight = 0.0;
+
+								for (FoodItem food : meal.getFoods()) {
+									mealWeight += food.getWeight();
+								}
+
+								if (mealWeight > newDronePayload) {
+									errorIndex = 1;
+									errorAlert.setContentText("Existing meal weights exceed new drone payload");
+								}
+							}
+						}
+					} //end of if statement where drone can reach all points
+
+					if(errorIndex == 0) {
+						currentSimulation.getDroneSettings().setMaxPayloadWeight(newDronePayload * OUNCES_PER_POUND);
+					}
+
+				} //end of else statement where inputs are valid numbers
+
+				if(errorIndex == 1) {
+					//resets drone settings to what they were before editing
+					currentSimulation.getDroneSettings().setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
+					currentSimulation.getDroneSettings().setCruisingSpeed((currentSpeed * FEET_PER_MILE)
+							/ SECONDS_PER_HOUR);
+					currentSimulation.getDroneSettings().setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
+					currentSimulation.getDroneSettings().setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
+					currentSimulation.getDroneSettings().setDeliveryTime(currentDelivery);
+
+					dronePayload.setText(String.format("%.2f", currentPayload));
+					droneSpeed.setText(String.format("%.2f", currentSpeed));
+					droneFlight.setText(String.format("%.2f", currentFlightTime));
+					droneTurnAround.setText(String.format("%.2f", currentTurnAround));
+					droneUnload.setText(String.format("%.2f", currentDelivery));
+
+					errorAlert.showAndWait();
+				}
 
 				//gives the user confirmation that their changes have been applied to the drone settings
 				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -1629,14 +1697,12 @@ public class MainClass extends Application {
 			} //end of try block
 			catch(NumberFormatException illegalFormat) {
 				//alerts user if the changed value(s) are not acceptable
-				Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-				errorAlert.setTitle("Invalid Input");
-				errorAlert.setHeaderText("Invalid Input!");
 				errorAlert.setContentText("Input must be integers or decimals");
 
 				//resets drone settings to what they were before editing
 				currentSimulation.getDroneSettings().setMaxPayloadWeight(currentPayload * OUNCES_PER_POUND);
-				currentSimulation.getDroneSettings().setCruisingSpeed((currentSpeed * FEET_PER_MILE) / SECONDS_PER_HOUR);
+				currentSimulation.getDroneSettings().setCruisingSpeed((currentSpeed * FEET_PER_MILE)
+						/ SECONDS_PER_HOUR);
 				currentSimulation.getDroneSettings().setFlightTime(currentFlightTime * SECONDS_PER_MINUTE);
 				currentSimulation.getDroneSettings().setTurnAroundTime(currentTurnAround * SECONDS_PER_MINUTE);
 				currentSimulation.getDroneSettings().setDeliveryTime(currentDelivery);
@@ -1771,8 +1837,22 @@ public class MainClass extends Application {
 		pointHeading.setCellFactory(TextFieldTableCell.forTableColumn());
 		pointHeading.setOnEditCommit(event -> {
 			int selectedRow = event.getTablePosition().getRow();
-			event.getTableView().getItems().get(selectedRow).setName(event.getNewValue() + "");
-		});
+			String oldName = event.getOldValue();
+			String newName = event.getNewValue();
+
+			if(newName.equals("")) {
+				Alert invalidName = new Alert(Alert.AlertType.ERROR);
+				invalidName.setTitle("Invalid Name");
+				invalidName.setHeaderText("Error: Invalid name");
+				invalidName.setContentText("Point name cannot be null");
+				event.getTableView().getItems().get(selectedRow).setName(oldName);
+			}
+			else {
+				event.getTableView().getItems().get(selectedRow).setName(newName);
+			}
+
+			event.getTableView().refresh();
+		});//end of changing point name event
 
 		TableColumn<Point, String> xyHeading = new TableColumn<>("(x,y)");
 		xyHeading.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
@@ -1791,14 +1871,15 @@ public class MainClass extends Application {
 				//checks that the point does not reside at the origin (0,0) since the origin must exist at all times
 				if((oldXValue != 0 || oldYValue != 0)) {
 					Drone currentDrone = currentSimulation.getDroneSettings();
-					double maxDistanceAllowed = (currentDrone.getFlightTime() * currentDrone.getCruisingSpeed()) / 2;
+					double maxDistanceAllowed = ((currentDrone.getFlightTime() - currentDrone.getDeliveryTime())
+							/ 2) * currentDrone.getCruisingSpeed() * 0.95;
 
 					event.getTableView().getItems().get(selectedRow).setCoordinates(event.getNewValue() + "");
 
 					Point newPoint = event.getTableView().getSelectionModel().getSelectedItem();
 
 					//checks that the new coordinates are in range of the drone (the drone can fly that distance)
-					if(newPoint.distanceFromPoint(newPoint.getOrigin()) <= maxDistanceAllowed) {
+					if(newPoint.distanceFromPoint(null) <= maxDistanceAllowed) {
 						int newXValue = newPoint.getX();
 						int newYValue = newPoint.getY();
 
@@ -1894,11 +1975,13 @@ public class MainClass extends Application {
 			newPointGrid.setHgap(10);
 			newPointGrid.setVgap(10);
 
-			TextField pointName = new TextField();
-			TextField coordinates = new TextField();
-
 			Text pointTitle = new Text("Name");
 			Text coordinateTitle = new Text("Coordinates");
+
+			TextField pointName = new TextField();
+			pointName.setPromptText("Enter Name");
+			TextField coordinates = new TextField();
+			coordinates.setPromptText("Enter coordinates: (x,y)");
 
 			newPointGrid.add(pointTitle, 0, 0);
 			newPointGrid.add(pointName, 1, 0);
@@ -1908,80 +1991,99 @@ public class MainClass extends Application {
 			//adds new point to simulation
 			Button confirmButton = new Button("Finish");
 			confirmButton.setOnAction(event1 -> {
-				//creates a new point with name and empty coordinates (since we have to parse the coordinate string)
-				Point newPoint = currentSimulation.getDeliveryPoints().
-						addPoint(pointName.getText(), Double.NaN, Double.NaN);
+				if(pointName.getText().equals("")) {
+					Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+					errorAlert.setTitle("Unspecified Point Name");
+					errorAlert.setHeaderText("Error: Unspecified point name");
+					errorAlert.setContentText("Point name cannot be null");
+				}
+				else {
+					//creates a new point with name and empty coordinates (since we have to parse coordinate string)
+					Point newPoint = currentSimulation.getDeliveryPoints().
+							addPoint(pointName.getText(), Double.NaN, Double.NaN);
 
-				//attempts to set new point's coordinates
-				try {
-					newPoint.setCoordinates(coordinates.getText());
+					//attempts to set new point's coordinates
+					try {
+						newPoint.setCoordinates(coordinates.getText());
 
-					Drone currentDrone = currentSimulation.getDroneSettings();
-					double maxDistanceAllowed = (currentDrone.getFlightTime() * currentDrone.getCruisingSpeed()) / 2;
+						if (newPoint.getX() == 0 && newPoint.getY() == 0) {
+							//alerts user that the inputted coordinates exceed the distance the drone can travel
+							Alert invalidCoordinates = new Alert(Alert.AlertType.ERROR);
+							invalidCoordinates.setTitle("Illegal coordinates");
+							invalidCoordinates.setHeaderText("Error: Illegal coordinates");
+							invalidCoordinates.setContentText("Attempting set new point at origin (0,0)");
+							currentSimulation.getDeliveryPoints().removePoint(newPoint);
+							invalidCoordinates.showAndWait();
+						} //end of if statement where user attempt to put a point at (0,0)
+						else {
+							Drone currentDrone = currentSimulation.getDroneSettings();
+							double maxDistanceAllowed = (currentDrone.getFlightTime() *
+									currentDrone.getCruisingSpeed()) / 2;
 
-					//checks that the distance to the point from the origin is within the drone's range
-					if(newPoint.distanceFromPoint(newPoint.getOrigin()) <= maxDistanceAllowed) {
-						int newXValue = newPoint.getX();
-						int newYValue = newPoint.getY();
+							//checks that the distance to the point from the origin is within the drone's range
+							if (newPoint.distanceFromPoint(newPoint.getOrigin()) <= maxDistanceAllowed) {
+								int newXValue = newPoint.getX();
+								int newYValue = newPoint.getY();
 
-						//adds new point to the map so the new point is visible
-						mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
+								//adds new point to the map so the new point is visible
+								mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
 
-						int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
-						int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
+								int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
+								int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
 
-						if(newXValue > currentUpperXBound) {
-							currentUpperXBound = newXValue;
-							xAxis.setUpperBound(currentUpperXBound + 100);
-						}
-						if(newXValue <= currentLowerXBound) {
-							currentLowerXBound = newXValue;
-							xAxis.setLowerBound(currentLowerXBound - 100);
-						}
+								if (newXValue > currentUpperXBound) {
+									currentUpperXBound = newXValue;
+									xAxis.setUpperBound(currentUpperXBound + 100);
+								}
+								if (newXValue <= currentLowerXBound) {
+									currentLowerXBound = newXValue;
+									xAxis.setLowerBound(currentLowerXBound - 100);
+								}
 
-						int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
-						int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
+								int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
+								int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
 
-						if(newYValue > currentUpperYBound) {
-							currentUpperYBound = newYValue;
-							yAxis.setUpperBound(currentUpperYBound + 100);
-						}
-						if(newYValue < currentLowerYBound) {
-							yAxis.setLowerBound(currentLowerYBound - 100);
-						}
+								if (newYValue > currentUpperYBound) {
+									currentUpperYBound = newYValue;
+									yAxis.setUpperBound(currentUpperYBound + 100);
+								}
+								if (newYValue < currentLowerYBound) {
+									yAxis.setLowerBound(currentLowerYBound - 100);
+								}
 
-						//resets table of points to include the new point
-						ObservableList<Point> newMapPoints = currentSimulation.getDeliveryPoints().getPoints();
+								//resets table of points to include the new point
+								ObservableList<Point> newMapPoints = currentSimulation.getDeliveryPoints().getPoints();
 
-						mapTable.setItems(newMapPoints);
+								mapTable.setItems(newMapPoints);
 
-						for(Node mapPoint : map.lookupAll(".series" + 0)) {
-							mapPoint.setStyle("-fx-background-color: #0047ab");
-						}
+								for (Node mapPoint : map.lookupAll(".series" + 0)) {
+									mapPoint.setStyle("-fx-background-color: #0047ab");
+								}
 
-						//closes dialog and takes user back to map settings page
-						addDialog.close();
-					} //end of if statement where inputted coordinates are valid and can be added to the simulation
-					else {
-						//alerts user that the inputted coordinates exceed the distance the drone can travel
-						Alert invalidCoordinates = new Alert(Alert.AlertType.ERROR);
-						invalidCoordinates.setTitle("Maximum Distance Exceeded");
-						invalidCoordinates.setHeaderText("Error: Maximum Distance Exceeded");
-						invalidCoordinates.setContentText("Coordinates are outside of drone range");
+								//closes dialog and takes user back to map settings page
+								addDialog.close();
+							} //end of statement where inputted coordinates are valid and can be added to simulation
+							else {
+								//alerts user that the inputted coordinates exceed the distance the drone can travel
+								Alert invalidCoordinates = new Alert(Alert.AlertType.ERROR);
+								invalidCoordinates.setTitle("Maximum Distance Exceeded");
+								invalidCoordinates.setHeaderText("Error: Maximum Distance Exceeded");
+								invalidCoordinates.setContentText("Coordinates are outside of drone range");
+								currentSimulation.getDeliveryPoints().removePoint(newPoint);
+								invalidCoordinates.showAndWait();
+							}
+						} //end of else statement where point being added is not at (0,0)
+					} //end of try block
+					catch (IllegalArgumentException illegalArgument) {
+						//alerts user that the inputted coordinates are invalid (illegal syntax, not integers, etc.)
+						Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+						invalidInput.setTitle("Invalid Coordinates");
+						invalidInput.setHeaderText("Error: Invalid Coordinates");
+						invalidInput.setContentText("Input must be a (x,y) integer pair");
 						currentSimulation.getDeliveryPoints().removePoint(newPoint);
-						invalidCoordinates.showAndWait();
-					}
-				} //end of try block
-				catch(IllegalArgumentException illegalArgument) {
-					//alerts user that the inputted coordinates are invalid (illegal syntax, not integers, etc.)
-					Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-					invalidInput.setTitle("Invalid Coordinates");
-					invalidInput.setHeaderText("Error: Invalid Coordinates");
-					invalidInput.setContentText("Input must be a (x,y) integer pair");
-					currentSimulation.getDeliveryPoints().removePoint(newPoint);
-
-					invalidInput.showAndWait();
-				} //end of cancel block
+						invalidInput.showAndWait();
+					} //end of cancel block
+				}//end of else statement where point name is valid
 			}); //end of confirmation button event (adding new point to current simulation)
 
 			//allows user to cancel (exit the popup) if they no longer want to add a new point
