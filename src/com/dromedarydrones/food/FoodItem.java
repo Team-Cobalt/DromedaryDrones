@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * Class pertaining to the creation of Food items
- * @author Isabella Patnode
+ * @author Izzy Patnode and Christian Burns
  *
  */
 public class FoodItem implements XmlSerializable {

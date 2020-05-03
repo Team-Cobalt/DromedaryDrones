@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * Class pertaining to the creation of meals
- * @author Isabella Patnode
+ * @author Izzy Patnode
  *
  */
 public class Meal implements XmlSerializable {
@@ -34,7 +34,6 @@ public class Meal implements XmlSerializable {
 	 * @param mealFoods //list of foods that make up the meal
 	 * @param name //name of the meal
 	 * @param probability //probability a customer orders the meal
-	 * @throws IllegalArgumentException if meal weight exceeds drone's cargo weight limit
 	 */
 	public Meal(List<FoodItem> mealFoods, String name, double probability) {
 		if(mealFoods == null)
@@ -52,8 +51,9 @@ public class Meal implements XmlSerializable {
 	/**
 	 * Method that updates the name of the meal
 	 * @param name the name of the meal
+	 * @throws IllegalArgumentException if name is invalid
 	 */
-	public void setName(String name) {
+	public void setName(String name) throws IllegalArgumentException {
 		if(name == null)
 			throw new IllegalArgumentException("Invalid name.");
 
@@ -63,8 +63,9 @@ public class Meal implements XmlSerializable {
 	/**
 	 * Method that updates the probability of the meal
 	 * @param prob new probability of the meal
+	 * @throws IllegalArgumentException if probability is less than zero
 	 */
-	public void setProbability(double prob) {
+	public void setProbability(double prob) throws IllegalArgumentException{
 		if(prob < 0)
 			throw new IllegalArgumentException("Invalid probability.");
 
@@ -109,7 +110,6 @@ public class Meal implements XmlSerializable {
 	/**
 	 * Method that adds a food item to the meal
 	 * @param food the food item to be added to the meal
-	 * @throws IllegalArgumentException if food causes weight to exceed 12 pounds
 	 */
 	public void addItem(FoodItem food) {
 		foods.add(food);
