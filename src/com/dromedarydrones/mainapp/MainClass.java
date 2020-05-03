@@ -1237,7 +1237,7 @@ public class MainClass extends Application {
 						}
 					}
 					mealsBox.getChildren().remove(singleMealLayout);
-					mealProbabilities.remove(mealToDelete);	//this isn't right - turn to entry <>
+					mealProbabilities.remove(mealToDelete);
 					probabilities.remove(mealToDelete);
 					probabilityTable.refresh();
 					currentSimulation.removeMeal(meal);
