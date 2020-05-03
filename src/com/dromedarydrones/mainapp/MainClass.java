@@ -1238,7 +1238,7 @@ public class MainClass extends Application {
 					}
 					mealsBox.getChildren().remove(singleMealLayout);
 					mealProbabilities.remove(mealToDelete);
-					probabilities.remove(mealToDelete);
+					probabilities.remove(mealToDelete.getKey());
 					probabilityTable.refresh();
 					currentSimulation.removeMeal(meal);
 				} //end of else statement (when user has set up probabilities for meal to be deleted)
