@@ -18,103 +18,76 @@ import java.util.function.Consumer;
  */
 public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
 
-    private Point origin;
-    private ArrayList<Point> points;
-    private Random rand;
+    private final ArrayList<Point> points;
+    private final Random random;
 
     public DeliveryPoints() {
         points = new ArrayList<>();
-        rand = new Random();
-        origin = new Point("", 0, 0, null);
-        _tmpLoadPoints(); //TODO: remove this when points are loaded in from a file
+        random = new Random();
+        _tmpLoadPoints();
     }
 
-    public DeliveryPoints(DeliveryPoints other) {
+    public DeliveryPoints(DeliveryPoints other) throws IllegalArgumentException {
+        if(other == null)
+            throw new IllegalArgumentException("Given DeliveryPoints object cannot be null");
+
         points = new ArrayList<>();
-        rand = new Random();
-        origin = new Point("", 0, 0, null);
-        for (Point pt : other) points.add(new Point(pt, origin));
-        setOrigin(other.origin.getName());
+        random = new Random();
+        for (Point point : other) points.add(new Point(point));
     }
 
     public DeliveryPoints(Element root) {
-        origin = new Point("", 0, 0, null);
         points = new ArrayList<>();
-        rand = new Random();
-        String originName = root.getAttribute("origin");
+        random = new Random();
         NodeList children = root.getElementsByTagName("point");
-        for (int i = 0; i < children.getLength(); i++) {
-            Point pt = new Point((Element) children.item(i), origin);
-            points.add(pt);
-            if (pt.getName().equals(originName)) {
-                origin.setName(originName);
-                origin.setLatitude(pt.getLatitude());
-                origin.setLongitude(pt.getLongitude());
-                points.forEach(Point::refreshOrigin);
-            }
+        for (int index = 0; index < children.getLength(); index++) {
+            Point point = new Point((Element) children.item(index));
+            points.add(point);
         }
     }
 
     private void _tmpLoadPoints() {
-        addPoint("Student Union", 41.155052, -80.077733);
-        addPoint("Hall of Arts and Letters", 41.154720, -80.077565);
-        addPoint("Physical Learning Center", 41.155366, -80.078120);
-        addPoint("Technological Learning Center", 41.153719, -80.079257);
-        addPoint("Pew Fine Arts Center", 41.152904, -80.077634);
-        addPoint("Hoyt Hall of Engineering", 41.154783, -80.078889);
-        addPoint("STEM", 41.155266, -80.078835);
-        addPoint("Hicks", 41.153567, -80.078721);
-        addPoint("Zerbe", 41.154398, -80.081240);
-        addPoint("Ketler", 41.155500, -80.080575);
-        addPoint("Library", 41.154333, -80.079528);
-        addPoint("Lincoln", 41.154640, -80.080575);
-        addPoint("Hopeman", 41.154200, -80.080382);
-        addPoint("Memorial", 41.155064, -80.081889);
-        addPoint("Crawford", 41.155868, -80.081664);
-        addPoint("Rockwell", 41.155564, -80.079522);
-        addPoint("Rathburn", 41.157172, -80.080232);
-        addPoint("Harbison Chapel", 41.156663, -80.080897);
-        addPoint("PLC Roundabout", 41.155958, -80.078417);
-        addPoint("Thorn Field", 41.157580, -80.084088);
-        addPoint("Tennis Court", 41.157983, -80.084659);
-        addPoint("Soccer Field", 41.157817, -80.078064);
-        addPoint("Random Field", 41.156990, -80.083239);
-        addPoint("Baseball Field", 41.158164, -80.079528);
-        addPoint("President's House", 41.154717, -80.082463);
-        addPoint("Helen Harker Residence Hall", 41.155926, -80.079190);
-        addPoint("MEP Residence Hall", 41.156695, -80.078691);
-        addPoint("MAP Residence Hall", 41.156829, -80.079570);
-        setOrigin("Student Union");
+        addPoint("Student Union", 0, 0);
+        addPoint("Hall of Arts and Letters", 46, -121);
+        addPoint("Physical Learning Center", -106, 115);
+        addPoint("Technological Learning Center", -419, -487);
+        addPoint("Pew Fine Arts Center", 27, -784);
+        addPoint("Hoyt Hall of Engineering", -318, -98);
+        addPoint("STEM", -303, 78);
+        addPoint("Hicks", -272, -542);
+        addPoint("Zerbe", -964, -239);
+        addPoint("Ketler", -781, 164);
+        addPoint("Library", -494, -263);
+        addPoint("Lincoln", -781, -150);
+        addPoint("Hopeman", -728, -311);
+        addPoint("Memorial", -1143, 4);
+        addPoint("Crawford", -1081, 298);
+        addPoint("Rockwell", -492, 187);
+        addPoint("Rathburn", -687, 774);
+        addPoint("Harbison Chapel", -870, 588);
+        addPoint("PLC Roundabout", -188, 331);
+        addPoint("Thorn Field", -1748, 923);
+        addPoint("Tennis Court", -1905, 1070);
+        addPoint("Soccer Field", -91, 1010);
+        addPoint("Random Field", -1514, 708);
+        addPoint("Baseball Field", -494, 1137);
+        addPoint("President's House", -1301, -122);
+        addPoint("Helen Harker Residence Hall", -401, 319);
+        addPoint("MEP Residence Hall", -263, 600);
+        addPoint("MAP Residence Hall", -505, 649);
     }
 
-    /**
-     * Returns the number of known delivery points.
-     */
-    public int numPoints() {
-        return points.size();
-    }
+    public Point addPoint(String name, int xPos, int yPos) throws IllegalArgumentException {
+        if(name == null)
+            throw new IllegalArgumentException("Point name cannot be null.");
 
-    /**
-     * Sets all points's coordinates relative to the location of the specified point.
-     * @param name  name of the new origin point
-     */
-    public void setOrigin(String name) {
-        for (Point p : points) {
-            if (p.getName().equals(name)) {
-                origin.setLatitude(p.getLatitude());
-                origin.setLongitude(p.getLongitude());
-                origin.setName(name);
-                points.forEach(Point::refreshOrigin);
-                return;
-            }
-        }
-        throw new IllegalArgumentException("Unknown point \"" + name + "\"");
-    }
-
-    public void addPoint(String name, double latitude, double longitude) {
-        Point newPoint = new Point(name, latitude, longitude, origin);
-        newPoint.refreshOrigin();
+        Point newPoint = new Point(name, xPos, yPos);
         points.add(newPoint);
+        return newPoint;
+    }
+
+    public void removePoint(Point point) {
+        points.remove(point);
     }
 
     /**
@@ -122,12 +95,12 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
      */
     public Point getRandomPoint() {
         if (points.size() == 0) return null;
-        return points.get(rand.nextInt(points.size()));
+        return points.get(random.nextInt(points.size()));
     }
 
     /**
      * Makes the current simulation's list of delivery points into a list for javafx
-     * @author Isabella Patnode
+     * @author Izzy Patnode
      * @return a list of points for javafx
      */
     public ObservableList<Point> getPoints() {
@@ -136,7 +109,6 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
 
     /**
      * Returns an iterator over elements of type {@code Point}.
-     *
      * @return an Iterator.
      */
     @Override
@@ -170,10 +142,9 @@ public class DeliveryPoints implements Iterable<Point>, XmlSerializable {
     }
 
     @Override
-    public Element toXml(Document doc) {
-        Element root = doc.createElement("deliverypoints");
-        root.setAttribute("origin", origin.getName());
-        for (Point pt : points) root.appendChild(pt.toXml(doc));
+    public Element toXml(Document document) {
+        Element root = document.createElement("deliverypoints");
+        for (Point point : points) root.appendChild(point.toXml(document));
         return root;
     }
 }

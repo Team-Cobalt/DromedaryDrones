@@ -12,15 +12,13 @@ import java.util.Map;
 
 /**
  * Class pertaining to the creation of meals
- * @author Isabella Patnode
+ * @author Izzy Patnode
  *
  */
 public class Meal implements XmlSerializable {
-	private ArrayList<FoodItem> foods; //list of foods in the meal
+	private final ArrayList<FoodItem> foods; //list of foods in the meal
 	private String name; //name of the meal
 	private double probability; //probability a customer orders the meal
-	private double totalWeight; //the weight of the meal
-	private final double DRONE_WEIGHT = 192; //max cargo weight in ounces
 	
 	/**
 	 * Default constructor for Meal class
@@ -29,7 +27,6 @@ public class Meal implements XmlSerializable {
 		foods = new ArrayList<>();
 		name = "";
 		probability = 0.0;
-		totalWeight = 0.0;
 	}
 	
 	/**
@@ -39,39 +36,41 @@ public class Meal implements XmlSerializable {
 	 * @param probability //probability a customer orders the meal
 	 * @throws IllegalArgumentException if meal weight exceeds drone's cargo weight limit
 	 */
-	public Meal(List<FoodItem> mealFoods, String name, double probability) {
-		double mealWeight = 0.0;
-		
-		for(FoodItem food: mealFoods) {
-			mealWeight += food.getWeight();
-		}
-		
-		if(mealWeight <= DRONE_WEIGHT) {
-			//MAKE SURE THIS COPYING DOESN'T RUIN ANYTHING
-			foods = new ArrayList<>(mealFoods);
-			this.name = name;
-			this.probability = probability;
-			totalWeight = mealWeight;
-		}
-		else {
-			throw new IllegalArgumentException(name + " exceeds maximum cargo weight");
-		}
+	public Meal(List<FoodItem> mealFoods, String name, double probability) throws IllegalArgumentException {
+		if(mealFoods == null)
+			throw new IllegalArgumentException("List of foods cannot be null.");
+		if(name == null)
+			throw new IllegalArgumentException("Name cannot be null.");
+		if(probability < 0.0)
+			throw new IllegalArgumentException("Probability cannot be negative.");
+
+		foods = new ArrayList<>(mealFoods);
+		this.name = name;
+		this.probability = probability;
 	}
 	
 	/**
 	 * Method that updates the name of the meal
 	 * @param name the name of the meal
+	 * @throws IllegalArgumentException if name is invalid
 	 */
-	public void setName(String name) {
+	public void setName(String name) throws IllegalArgumentException {
+		if(name == null)
+			throw new IllegalArgumentException("Invalid name.");
+
 		this.name = name;
 	}
 	
 	/**
 	 * Method that updates the probability of the meal
-	 * @param prob new probability of the meal
+	 * @param probability new probability of the meal
+	 * @throws IllegalArgumentException if probability is less than zero
 	 */
-	public void setProbability(double prob) {
-		this.probability = prob;
+	public void setProbability(double probability) throws IllegalArgumentException {
+		if(probability < 0)
+			throw new IllegalArgumentException("Invalid probability.");
+
+		this.probability = probability;
 	}
 	
 	/**
@@ -103,7 +102,10 @@ public class Meal implements XmlSerializable {
 	 * @return the total weight of the meal
 	 */
 	public double getTotalWeight() {
-		return totalWeight;
+		double weight = 0;
+		for (FoodItem food : foods)
+			weight += food.getWeight();
+		return weight;
 	}
 	
 	/**
@@ -111,15 +113,11 @@ public class Meal implements XmlSerializable {
 	 * @param food the food item to be added to the meal
 	 * @throws IllegalArgumentException if food causes weight to exceed 12 pounds
 	 */
-	public void addItem(FoodItem food) {
-		
-		if(totalWeight + food.getWeight() <= DRONE_WEIGHT) {
-			foods.add(food);
-		}
-		else { //THROW ERROR
-			throw new IllegalArgumentException("Unable to add " + food + " due to weight restrictions");
-		}
-	
+	public void addItem(FoodItem food) throws IllegalArgumentException {
+		if(food == null)
+			throw new IllegalArgumentException("Cannot add null food item.");
+
+		foods.add(food);
 	}
 	
 	/**
@@ -127,18 +125,12 @@ public class Meal implements XmlSerializable {
 	 * @param food the food item to be removed from the meal
 	 */
 	public void removeItem(FoodItem food) {
-		if(!foods.isEmpty() && foods.contains(food)) {
-			totalWeight -= food.getWeight();
-			foods.remove(food);
-		}
-		else {
-			System.out.println("Food not contained in meal");
-		}
+		foods.remove(food);
 	}
 
 	@Override
-	public Element toXml(Document doc) {
-		Element root = doc.createElement("meal");
+	public Element toXml(Document document) {
+		Element root = document.createElement("meal");
 		root.setAttribute("name", name);
 		root.setAttribute("probability", String.valueOf(probability));
 		HashMap<FoodItem, Integer> foodQuantities = new HashMap<>();
@@ -147,8 +139,8 @@ public class Meal implements XmlSerializable {
 			foodQuantities.put(food, foodQuantities.get(food) + 1);
 		}
 		for (Map.Entry<FoodItem, Integer> entry : foodQuantities.entrySet()) {
-			Element foodElem = doc.createElement(XmlFactory.toXmlTag(entry.getKey().getName()));
-			foodElem.appendChild(doc.createTextNode(entry.getValue().toString()));
+			Element foodElem = document.createElement(XmlFactory.toXmlTag(entry.getKey().getName()));
+			foodElem.appendChild(document.createTextNode(entry.getValue().toString()));
 			root.appendChild(foodElem);
 		}
 		return root;

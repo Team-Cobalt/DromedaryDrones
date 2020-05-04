@@ -15,67 +15,39 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.*;
 
 /**
  * A standalone configuration of a simulation containing
- * meals, food items, and delivery points.
- * @author  Christian Burns and Isabella Patnode
+ * meals, food items, delivery points, and drone settings.
+ * @author  Christian Burns and Izzy Patnode
  */
-public class Simulation implements XmlSerializable {
+public class Simulation implements XmlSerializable, Callable<SimulationResults> {
 
 	private String simulationName;          // name of the simulation
-    private ArrayList<Integer> stocFlow;   //stochastic flow for simulation
+    private ArrayList<Integer> stochasticFlow;   //stochastic flow for simulation
+    private Drone droneSettings;
     private ArrayList<FoodItem> foodItems;  // all known food items
     private ArrayList<Meal> mealTypes;      // all known meals
     private DeliveryPoints deliveryPoints;  // all known delivery points
+    private static final int NUMBER_OF_TRIALS = 50;
+    private static final int NUMBER_OF_SHIFTS = 4;
 
     /**
      * Creates a new simulation configuration with the specified name.
      * @author Christian Burns
      * @param name  name of the new configuration
      */
-    public Simulation(String name) {
+    public Simulation(String name) throws IllegalArgumentException {
+        if(name == null)
+            throw new IllegalArgumentException("Name cannot be null.");
+
         simulationName = name;
-        stocFlow = new ArrayList<>();
+        stochasticFlow = new ArrayList<>();
         foodItems = new ArrayList<>();
         mealTypes = new ArrayList<>();
         deliveryPoints = new DeliveryPoints();
-    }
-
-    /**
-     * Copy constructor to duplicate an existing simulation. All data
-     * is deep copied so modifying this new configuration will not
-     * change the data within the copied configuration.
-     * @author Christian Burns
-     * @param other  existing configuration to clone
-     */
-    public Simulation(Simulation other) {
-        this.simulationName = other.simulationName;
-
-        //copies stochastic flow of existing simulation
-        this.stocFlow = new ArrayList<>();
-        this.stocFlow.addAll(other.stocFlow);
-
-        //copies known foods from existing simulation
-        this.foodItems = new ArrayList<>();
-        for (FoodItem food : other.foodItems) {
-            this.foodItems.add(new FoodItem(food));
-        }
-
-        //copies known meals from existing simulation
-        this.mealTypes = new ArrayList<>();
-        for (Meal meal : other.mealTypes) {
-            ArrayList<FoodItem> foods = new ArrayList<>();
-            for (FoodItem food : meal.getFoods()) {
-                foods.add(getFoodItem(food.getName()));
-            }
-
-            Meal newType = new Meal(foods, meal.getName(), meal.getProbability());
-            mealTypes.add(newType);
-        }
-
-        //copies known delivery points from existing simulation
-        this.deliveryPoints = new DeliveryPoints(other.deliveryPoints);
+        droneSettings = new Drone();
     }
 
     /**
@@ -87,12 +59,14 @@ public class Simulation implements XmlSerializable {
         simulationName = root.getAttribute("name");
         foodItems = new ArrayList<>();
         mealTypes = new ArrayList<>();
-        stocFlow = new ArrayList<>();
+        stochasticFlow = new ArrayList<>();
+        int index; //loop variable
 
         NodeList stochasticNodeList = root.getElementsByTagName("stochastic");
         NodeList foodItemNodeList = root.getElementsByTagName("fooditems");
         NodeList mealTypeNodeList = root.getElementsByTagName("mealtypes");
         NodeList deliveryPointNodeList = root.getElementsByTagName("deliverypoints");
+        NodeList droneSettingsNodeList = root.getElementsByTagName("drone");
 
         // load stochastic values
         if (stochasticNodeList.getLength() > 0) {
@@ -101,20 +75,32 @@ public class Simulation implements XmlSerializable {
             NodeList stochasticHourNodes = stochasticRoot.getElementsByTagName("hour" + hourIndex);
             while (stochasticHourNodes.getLength() > 0) {
                 Element stochasticHour = (Element) stochasticHourNodes.item(0);
-                stocFlow.add(Integer.parseInt(stochasticHour.getAttribute("orders")));
+                stochasticFlow.add(Integer.parseInt(stochasticHour.getAttribute("orders")));
                 stochasticHourNodes = stochasticRoot.getElementsByTagName(String.format("hour%d", ++hourIndex));
             }
-        } else {
+        }
+        else {
             System.err.println(String.format("simulation \"%s\" missing the \"stochastic\" element", simulationName));
+        }
+
+        // load drone settings
+        if (droneSettingsNodeList.getLength() > 0) {
+            Element droneSettingsRoot = (Element) droneSettingsNodeList.item(0);
+            droneSettings = new Drone(droneSettingsRoot);
+        }
+        else {
+            droneSettings = new Drone();
+            System.err.println(String.format("simulation \"%s\" missing the \"drone\" element", simulationName));
         }
 
         // load food items
         if (foodItemNodeList.getLength() > 0) {
             Element foodItemRoot = (Element) foodItemNodeList.item(0);
             NodeList foodChildren = foodItemRoot.getElementsByTagName("fooditem");
-            for (int i = 0; i < foodChildren.getLength(); i++)
-                foodItems.add(new FoodItem((Element) foodChildren.item(i)));
-        } else {
+            for (index = 0; index < foodChildren.getLength(); index++)
+                foodItems.add(new FoodItem((Element) foodChildren.item(index)));
+        }
+        else {
             System.err.println(String.format("simulation \"%s\" missing the \"fooditems\" element", simulationName));
         }
 
@@ -122,31 +108,32 @@ public class Simulation implements XmlSerializable {
         if (mealTypeNodeList.getLength() > 0) {
             Element mealTypeRoot = (Element) mealTypeNodeList.item(0);
             NodeList mealChildren = mealTypeRoot.getElementsByTagName("meal");
-            for (int i = 0; i < mealChildren.getLength(); i++) {
-                Element mealChild = (Element) mealChildren.item(i);
+            for (index = 0; index < mealChildren.getLength(); index++) {
+                Element mealChild = (Element) mealChildren.item(index);
                 String mealName = mealChild.getAttribute("name");
                 double mealProb = Double.parseDouble(mealChild.getAttribute("probability"));
                 ArrayList<FoodItem> mealFoodItems = new ArrayList<>();
 
                 // load foods within the meal
                 NodeList mealFoods = mealChild.getChildNodes();
-                for (int f = 0; f < mealFoods.getLength(); f++) {
-                    if (mealFoods.item(f).getNodeType() == Node.ELEMENT_NODE) {
-                        Element mealFood = (Element) mealFoods.item(f);
+                for (int foodIndex = 0; foodIndex < mealFoods.getLength(); foodIndex++) {
+                    if (mealFoods.item(foodIndex).getNodeType() == Node.ELEMENT_NODE) {
+                        Element mealFood = (Element) mealFoods.item(foodIndex);
                         String foodName = mealFood.getTagName();
                         int amount = Integer.parseInt(mealFood.getTextContent());
                         FoodItem food = foodItems.stream()
                                 .filter(fi -> XmlFactory.toXmlTag(fi.getName()).equals(foodName))
                                 .findFirst().orElse(null);
                         if (food != null) {
-                            for (int a = 0; a < amount; a++)
+                            for (int counter = 0; counter < amount; counter++)
                                 mealFoodItems.add(food);
                         }
                     }
                 }
                 mealTypes.add(new Meal(mealFoodItems, mealName, mealProb));
             }
-        } else {
+        }
+        else {
             System.err.println(String.format("simulation \"%s\" missing the \"mealtypes\" element", simulationName));
         }
 
@@ -154,39 +141,55 @@ public class Simulation implements XmlSerializable {
         if (deliveryPointNodeList.getLength() > 0) {
             Element deliveryPointRoot = (Element) deliveryPointNodeList.item(0);
             deliveryPoints = new DeliveryPoints(deliveryPointRoot);
-        } else {
+        }
+        else {
             deliveryPoints = new DeliveryPoints();
-            System.err.println(String.format("simulation \"%s\" missing the \"deliverypoints\" element", simulationName));
+            System.err.println(String.format("simulation \"%s\" missing the " +
+                    "\"deliverypoints\" element", simulationName));
         }
     }
 
     /**
-     * Runs the simulation and returns the results.
-     */
-    public SimulationResults run() {
-        ArrayList<TrialResults> trialResults = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            Trial trial = new Trial(mealTypes, stocFlow, deliveryPoints);
-            trialResults.add(trial.run());
-        }
-        return new SimulationResults(trialResults);
-    }
-
-    /**
-     * Returns the name of the simulation state.
+     * Runs the simulation and returns the result.
      * @author Christian Burns
      */
-    public String getName() {
-        return simulationName;
+    @Override
+    public SimulationResults call() {
+        // create and load an executor service
+        ExecutorService service = Executors.newFixedThreadPool(3);
+        List<Callable<TrialResults>> tasks = new ArrayList<>();
+        for (int index = 0; index < NUMBER_OF_TRIALS; index++)
+            tasks.add(() -> new Trial(this).run());
+
+        ArrayList<TrialResults> results = new ArrayList<>();
+
+        try {
+            // collect all the results
+            List<Future<TrialResults>> futures = service.invokeAll(tasks);
+            for (Future<TrialResults> result : futures) {
+                try {
+                    results.add(result.get());
+                }
+                catch (ExecutionException exception) {
+                    exception.printStackTrace();
+                }
+            }
+        }
+        catch (CancellationException | InterruptedException ignore) {
+        }
+        finally {
+            service.shutdown();
+        }
+
+        return new SimulationResults(results);
     }
 
     /**
-     * Changes the name of the simulation state to the one specified.
-     * @author  Christian Burns
-     * @param name  new name to use
+     * Returns the drone settings.
+     * @author Christian Burns
      */
-    public void setName(String name) {
-        simulationName = name;
+    public Drone getDroneSettings() {
+        return droneSettings;
     }
 
     /**
@@ -194,7 +197,10 @@ public class Simulation implements XmlSerializable {
      * @author Christian Burns
      * @param food  food item to be added
      */
-    public void addFoodItem(FoodItem food) {
+    public void addFoodItem(FoodItem food) throws IllegalArgumentException {
+        if(food == null)
+            throw new IllegalArgumentException("Food item cannot be null.");
+
         if (!foodItems.contains(food))
             foodItems.add(food);
     }
@@ -213,7 +219,10 @@ public class Simulation implements XmlSerializable {
      * @author Christian Burns
      * @param meal  the meal to be added
      */
-    public void addMealType(Meal meal) {
+    public void addMealType(Meal meal) throws IllegalArgumentException {
+        if(meal == null)
+            throw new IllegalArgumentException("Meal cannot be null.");
+
         if (!mealTypes.contains(meal))
             mealTypes.add(meal);
     }
@@ -237,35 +246,49 @@ public class Simulation implements XmlSerializable {
 
     /**
      * Makes specified stochastic flow the model for current simulation
-     * @author Isabella Patnode
-     * @param numMeals the number of meals per hour for each hour
+     * @author Izzy Patnode
+     * @param numberMeals the number of meals per hour for each hour
      * @throws IllegalArgumentException  if number of hours per shift is not 4
      */
-    public void addStochasticFlow(List<Integer> numMeals) {
+    public void addStochasticFlow(List<Integer> numberMeals) throws IllegalArgumentException {
+        if(numberMeals == null)
+            throw new IllegalArgumentException("numberMeals cannot be null.");
+
         //throws exception if number of hours per shift is not 4
-        if(numMeals.size() != 4) {
+        if(numberMeals.size() != NUMBER_OF_SHIFTS)
             throw new IllegalArgumentException("Number of hours per shift must be 4");
-        }
 
         //copies over number of meals per hour
-        this.stocFlow = new ArrayList<>(numMeals);
+        this.stochasticFlow = new ArrayList<>(numberMeals);
     }
 
     /**
      * Method to get the simulation's stochastic flow
-     * @author Isabella Patnode
+     * @author Izzy Patnode
      * @return the simulation's stochastic flow model
      */
     public ArrayList<Integer> getStochasticFlow() {
-        return stocFlow;
+        return stochasticFlow;
     }
 
+
     /**Method to get list of simulation's delivery points
-     * @author Isabella Patnode
+     * @author Izzy Patnode
      * @return the simulation's list of delivery points
      */
     public DeliveryPoints getDeliveryPoints() {
         return deliveryPoints;
+    }
+
+    /**
+     * Specifies a new collection of delivery points to use.
+     * @author Christian Burns
+     */
+    public void setDeliveryPoints(DeliveryPoints other) throws IllegalArgumentException {
+        if(other == null)
+            throw new IllegalArgumentException("DeliveryPoints cannot be null.");
+
+        deliveryPoints = new DeliveryPoints(other);
     }
 
     /**Method to get list of simulation's food items
@@ -277,22 +300,6 @@ public class Simulation implements XmlSerializable {
     }
 
     /**
-     * Creates a brand new food item with the specified name and weight.
-     * @author Christian Burns
-     * @param name    name of the new food
-     * @param weight  weight of the food in ounces
-     * @return        the newly created food item
-     * @throws IllegalArgumentException  if the food already exists
-     */
-      public FoodItem createFoodItem(String name, double weight) {
-          FoodItem food = new FoodItem(name, weight);
-          if (foodItems.contains(food))
-              throw new IllegalArgumentException("food item " + name + " already exists");
-          foodItems.add(food);
-          return food;
-      }
-
-    /**
      * Removes the specified food item from the simulation.
      * @author Christian Burns
      * @param food  food item to be removed
@@ -301,6 +308,11 @@ public class Simulation implements XmlSerializable {
      * @see Simulation#getFoodItem(String name)
      */
     public boolean removeFoodItem(FoodItem food) {
+        for(Meal meal: mealTypes) {
+            while(meal.getFoods().contains(food)) {
+                meal.removeItem(food);
+            }
+        }
         return foodItems.remove(food);
     }
 
@@ -315,23 +327,6 @@ public class Simulation implements XmlSerializable {
     }
 
     /**
-     * Creates a brand new meal type with the specified probability.
-     * @author Christian Burns
-     * @param probability  probability of occurrence
-     * @return  the newly created meal
-     * @throws IllegalArgumentException  if the meal type already exists
-     */
-    public Meal createMeal(ArrayList<FoodItem> mealFoods, String name, double probability) {
-        Meal type = new Meal(mealFoods, name, probability);
-        if(mealTypes.contains(type)) {
-            throw new IllegalArgumentException(("Meal type " + name + " already exists"));
-        }
-
-        mealTypes.add(type);
-        return type;
-    }
-
-    /**
      * Removes the specified meal type from the simulation.
      * @author Christian Burns
      * @param meal  meal to be removed
@@ -343,23 +338,28 @@ public class Simulation implements XmlSerializable {
     }
 
     @Override
-    public Element toXml(Document doc) {
-        Element root = doc.createElement("simulation");
+    public Element toXml(Document document) {
+        Element root = document.createElement("simulation");
         root.setAttribute("name", simulationName);
-        Element stocElement = doc.createElement("stochastic");
-        for (int i = 0; i < stocFlow.size(); i++) {
-            Element hr = doc.createElement("hour"+i);
-            hr.setAttribute("orders", String.valueOf(stocFlow.get(i)));
-            stocElement.appendChild(hr);
+
+        Element stochasticElement = document.createElement("stochastic");
+        for (int index = 0; index < stochasticFlow.size(); index++) {
+            Element hour = document.createElement("hour" + index);
+            hour.setAttribute("orders", String.valueOf(stochasticFlow.get(index)));
+            stochasticElement.appendChild(hour);
         }
-        Element foods = doc.createElement("fooditems");
-        for (FoodItem food : foodItems) foods.appendChild(food.toXml(doc));
-        Element meals = doc.createElement("mealtypes");
-        for (Meal meal : mealTypes) meals.appendChild(meal.toXml(doc));
-        root.appendChild(stocElement);
+
+        Element foods = document.createElement("fooditems");
+        for (FoodItem food : foodItems) foods.appendChild(food.toXml(document));
+
+        Element meals = document.createElement("mealtypes");
+        for (Meal meal : mealTypes) meals.appendChild(meal.toXml(document));
+
+        root.appendChild(stochasticElement);
+        root.appendChild(droneSettings.toXml(document));
         root.appendChild(foods);
         root.appendChild(meals);
-        root.appendChild(deliveryPoints.toXml(doc));
+        root.appendChild(deliveryPoints.toXml(document));
         return root;
     }
 
@@ -369,10 +369,10 @@ public class Simulation implements XmlSerializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Simulation that = (Simulation) o;
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        Simulation that = (Simulation) other;
         return simulationName.equals(that.simulationName);
     }
 

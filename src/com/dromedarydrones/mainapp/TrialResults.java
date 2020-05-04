@@ -2,8 +2,8 @@ package com.dromedarydrones.mainapp;
 
 import com.dromedarydrones.food.Order;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Results class to hold information from one specific trial.
@@ -11,11 +11,13 @@ import java.util.Collections;
  */
 public class TrialResults {
 
-    private ArrayList<Order> fifoDeliveries;
+    private static final int TWO_HOURS = 60 * 60 * 2;   // 60 seconds * 60 minutes * 2 hours
+
+    private final List<Order> fifoDeliveries;
     private double averageFifoTime;
     private double worstFifoTime;
 
-    private ArrayList<Order> knapsackDeliveries;
+    private final List<Order> knapsackDeliveries;
     private double averageKnapsackTime;
     private double worstKnapsackTime;
 
@@ -24,7 +26,7 @@ public class TrialResults {
      * @param fifoDeliveries      order results of running the fifo simulation
      * @param knapsackDeliveries  order results of running the knapsack simulation
      */
-    public TrialResults(ArrayList<Order> fifoDeliveries, ArrayList<Order> knapsackDeliveries) {
+    public TrialResults(List<Order> fifoDeliveries, List<Order> knapsackDeliveries) {
 
         averageFifoTime = 0.0;
         averageKnapsackTime = 0.0;
@@ -57,15 +59,8 @@ public class TrialResults {
     /**
      * Returns the fifo orders.
      */
-    public ArrayList<Order> getFifoDeliveries() {
+    public List<Order> getFifoDeliveries() {
         return fifoDeliveries;
-    }
-
-    /**
-     * Returns the knapsack orders.
-     */
-    public ArrayList<Order> getKnapsackDeliveries() {
-        return knapsackDeliveries;
     }
 
     /**
@@ -83,6 +78,23 @@ public class TrialResults {
     }
 
     /**
+     * Returns the number of fifo orders that had
+     * a delivery time exceeding two hours.
+     * @author Christian Burns
+     */
+    public int numExpiredFifoOrders() {
+        return (int) fifoDeliveries.stream()
+                .filter(delivery -> delivery.getWaitTime() > TWO_HOURS).count();
+    }
+
+    /**
+     * Returns the knapsack orders.
+     */
+    public List<Order> getKnapsackDeliveries() {
+        return knapsackDeliveries;
+    }
+
+    /**
      * Returns the average knapsack wait time
      */
     public double getAverageKnapsackTime() {
@@ -94,5 +106,15 @@ public class TrialResults {
      */
     public double getWorstKnapsackTime() {
         return worstKnapsackTime;
+    }
+
+    /**
+     * Returns the number of knapsack orders that
+     * had a delivery time exceeding two hours.
+     * @author Christian Burns
+     */
+    public int numExpiredKnapsackOrders() {
+        return (int) knapsackDeliveries.stream()
+                .filter(delivery -> delivery.getWaitTime() > TWO_HOURS).count();
     }
 }

@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * Class pertaining to the creation of Food items
- * @author Isabella Patnode
+ * @author Izzy Patnode and Christian Burns
  *
  */
 public class FoodItem implements XmlSerializable {
@@ -29,7 +29,13 @@ public class FoodItem implements XmlSerializable {
 	 * @param name the name of the food item
 	 * @param weight the weight of the food item
 	 */
-	public FoodItem(String name, double weight) {
+	public FoodItem(String name, double weight) throws IllegalArgumentException {
+		if(name == null)
+			throw new IllegalArgumentException("Name cannot be null.");
+
+		if(weight <= 0.0)
+			throw new IllegalArgumentException("Weight cannot be less than or equal to 0.");
+
 		this.name = name;
 		this.weight = weight;
 	}
@@ -53,7 +59,10 @@ public class FoodItem implements XmlSerializable {
 	 * Updates the name of the current food item
 	 * @param name the new name of the food item
 	 */
-	public void setName(String name) {
+	public void setName(String name) throws IllegalArgumentException {
+		if(name == null)
+			throw new IllegalArgumentException("Name cannot be null.");
+
 		this.name = name;
 	}
 	
@@ -61,7 +70,10 @@ public class FoodItem implements XmlSerializable {
 	 * Updates the weight of the current food item
 	 * @param weight the new weight of the food item
 	 */
-	public void setWeight(double weight) {
+	public void setWeight(double weight) throws IllegalArgumentException {
+		if(weight <= 0.0)
+			throw new IllegalArgumentException("Weight cannot be less than or equal to 0.");
+
 		this.weight = weight;
 	}
 	
@@ -82,8 +94,8 @@ public class FoodItem implements XmlSerializable {
 	}
 
 	@Override
-	public Element toXml(Document doc) {
-		Element root = doc.createElement("fooditem");
+	public Element toXml(Document document) {
+		Element root = document.createElement("fooditem");
 		root.setAttribute("name", name);
 		root.setAttribute("weight", String.valueOf(weight));
 		return root;
@@ -95,10 +107,10 @@ public class FoodItem implements XmlSerializable {
 	}
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FoodItem foodItem = (FoodItem) o;
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        FoodItem foodItem = (FoodItem) other;
         return name.equals(foodItem.name);
     }
 
