@@ -300,23 +300,6 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     /**
-     * Creates a brand new food item with the specified name and weight.
-     * @author Christian Burns
-     * @param name    name of the new food
-     * @param weight  weight of the food in ounces
-     * @return        the newly created food item
-     * @throws IllegalArgumentException  if the food already exists
-     */
-      public FoodItem createFoodItem(String name, double weight) {
-          FoodItem food = new FoodItem(name, weight);
-          if (foodItems.contains(food))
-              throw new IllegalArgumentException("food item " + name + " already exists");
-          foodItems.add(food);
-          return food;
-      }
-
-    /**
-     * DO WE NEED THIS RETURN????
      * Removes the specified food item from the simulation.
      * @author Christian Burns
      * @param food  food item to be removed
@@ -344,24 +327,6 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     /**
-     * DO WE NEED THIS????
-     * Creates a brand new meal type with the specified probability.
-     * @author Christian Burns
-     * @param probability  probability of occurrence
-     * @return  the newly created meal
-     * @throws IllegalArgumentException  if the meal type already exists
-     */
-    public Meal createMeal(ArrayList<FoodItem> mealFoods, String name, double probability) {
-        Meal type = new Meal(mealFoods, name, probability);
-        if(mealTypes.contains(type)) {
-            throw new IllegalArgumentException(("Meal type " + name + " already exists"));
-        }
-
-        mealTypes.add(type);
-        return type;
-    }
-
-    /**
      * Removes the specified meal type from the simulation.
      * @author Christian Burns
      * @param meal  meal to be removed
@@ -373,28 +338,28 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     @Override
-    public Element toXml(Document doc) {
-        Element root = doc.createElement("simulation");
+    public Element toXml(Document document) {
+        Element root = document.createElement("simulation");
         root.setAttribute("name", simulationName);
 
-        Element stochasticElement = doc.createElement("stochastic");
+        Element stochasticElement = document.createElement("stochastic");
         for (int index = 0; index < stochasticFlow.size(); index++) {
-            Element hour = doc.createElement("hour" + index);
+            Element hour = document.createElement("hour" + index);
             hour.setAttribute("orders", String.valueOf(stochasticFlow.get(index)));
             stochasticElement.appendChild(hour);
         }
 
-        Element foods = doc.createElement("fooditems");
-        for (FoodItem food : foodItems) foods.appendChild(food.toXml(doc));
+        Element foods = document.createElement("fooditems");
+        for (FoodItem food : foodItems) foods.appendChild(food.toXml(document));
 
-        Element meals = doc.createElement("mealtypes");
-        for (Meal meal : mealTypes) meals.appendChild(meal.toXml(doc));
+        Element meals = document.createElement("mealtypes");
+        for (Meal meal : mealTypes) meals.appendChild(meal.toXml(document));
 
         root.appendChild(stochasticElement);
-        root.appendChild(droneSettings.toXml(doc));
+        root.appendChild(droneSettings.toXml(document));
         root.appendChild(foods);
         root.appendChild(meals);
-        root.appendChild(deliveryPoints.toXml(doc));
+        root.appendChild(deliveryPoints.toXml(document));
         return root;
     }
 

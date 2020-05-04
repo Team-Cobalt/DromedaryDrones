@@ -69,7 +69,7 @@ public class MainClass extends Application {
 	private HBox titleLayout; //layout regarding title of page
 	private HBox iconLayout; //layout of home icon
 	private VBox buttonLayout; //layout of setting's menu buttons
-	private HBox settingLayout; //layout of all icons in setting pages
+	private HBox settingLayout; //layout of all elements in setting pages
 	private Simulation currentSimulation; //current simulation being run
 	private SimulationResults results;	//results of simulation
 
@@ -90,7 +90,6 @@ public class MainClass extends Application {
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private Future<SimulationResults> futureResults;
 
-	//COMPLETED, REFACTORED, AND TESTED
 	public static void main(String[] args) {
 
 		//configuration are the settings which are loaded in
@@ -101,7 +100,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Runs the simulation asynchronously so as not to block the UI thread.
 	 * Once the simulation finishes, the result is retrieved and the results
 	 * page is navigated to.
@@ -128,7 +126,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Cancels the simulation currently running.
 	 * @author Christian Burns
 	 */
@@ -137,7 +134,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Main screen page where the user can decide what to do (i.e. run simulation, go to settings, etc.)
 	 * @author Izzy Patnode
 	 */
@@ -231,7 +227,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Called when the program is told to shutdown.
 	 * Shuts down the executor service.
 	 * @author Christian Burns
@@ -308,7 +303,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not writing out the style of each button each time we create a button
 	 * @return a string with the style in css of each button
 	 * @author Izzy Patnode
@@ -319,7 +313,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not writing out the secondary style of a button each time we create one
 	 * @return a string with the secondary style for a button in css
 	 * @author Izzy Patnode
@@ -330,7 +323,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not writing out the style of a table for each table
 	 * @return a string with the style of a table in css
 	 * @author Izzy Patnode
@@ -341,7 +333,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not having to recreate the title (Simulation Settings) for every settings page
 	 * @author Izzy Patnode
 	 */
@@ -357,7 +348,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not having to recreate the home button for every settings page
 	 * @author Izzy Patnode
 	 */
@@ -378,7 +368,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Allows for not having to recreate the menu buttons for every settings page
 	 * @author Izzy Patnode
 	 */
@@ -423,7 +412,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED AND TESTED
 	 * Decreases redundancy of code used for importing and exporting settings
 	 * @return Vbox containing buttons for importing and exporting buttons
 	 * @author Izzy Patnode
@@ -543,7 +531,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Reduces redundancy of creating layout for sidebar
 	 * @param currentSceneName the name of the current scene so we can refresh the page when importing settings
 	 * @return the layout of the sidebar
@@ -566,8 +553,7 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
-	 * Reduces reduncancy in creating error alerts
+	 * Reduces redundancy in creating error alerts
 	 * @param errorName the title and header of the error alert
 	 * @param errorMessage the message for the error alert
 	 * @return an alert with the given title, header, and message
@@ -585,7 +571,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Creates GUI page for general settings (i.e. stochastic flow)
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -744,7 +729,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Creates GUI page for food items settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -1025,7 +1009,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * NEEDS TO BE REFACTORED AND TESTED
 	 * Creates GUI page for meal settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -1034,137 +1017,144 @@ public class MainClass extends Application {
 
 		settingTitle();
 
-		//formats display of meal probabilities
-		HashMap<String, Double> probabilities = new HashMap<>();
+		int mealIndex = 0;
 
-		for (Meal item : currentSimulation.getMealTypes()){
-			probabilities.put(item.getName(), item.getProbability());
+		Text probabilityTitle = new Text("Meal Probabilities");
+		probabilityTitle.setTextAlignment(TextAlignment.CENTER);
+		probabilityTitle.setStyle(FONT_TYPE + BOLD_FONT_STYLE + "-fx-font-size: 15; -fx-text-fill: black");
+
+		HBox probabilityTitleLayout = new HBox();
+		probabilityTitleLayout.getChildren().add(probabilityTitle);
+		probabilityTitleLayout.setAlignment(Pos.CENTER);
+
+		GridPane mealProbabilities = new GridPane();
+		mealProbabilities.setAlignment(Pos.CENTER);
+		mealProbabilities.setHgap(5);
+
+		//adds meal's probabilities to the gridpane
+		for(Meal meal : currentSimulation.getMealTypes()) {
+			Text mealName = new Text(meal.getName());
+			mealName.setStyle(FONT_TYPE + "-fx-font-size: 12; -fx-text-fill: black");
+			TextField mealProbability = new TextField(meal.getProbability() + "");
+			mealProbability.setMaxWidth(50);
+			mealProbabilities.add(mealName, 0, mealIndex);
+			mealProbabilities.add(mealProbability, 1, mealIndex);
+			mealIndex++;
 		}
-		ObservableList<HashMap.Entry<String, Double>> mealProbabilities = FXCollections
-				.observableArrayList(probabilities.entrySet());
 
-		//probabilities shown separate from meal contents due to nuances with editing
-		TableView<HashMap.Entry<String, Double>> probabilityTable = new TableView<>(mealProbabilities);
-		probabilityTable.setMaxSize(205, 300);
-		probabilityTable.setEditable(true);
-		probabilityTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
-				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
+		ScrollPane probabilityPane = new ScrollPane();
+		probabilityPane.setContent(mealProbabilities);
+		probabilityPane.setMinWidth(185);
+		probabilityPane.setMinHeight(200);
+		probabilityPane.setMaxHeight(200);
+		probabilityPane.setStyle("-fx-background: #e0e0e0; -fx-border-style: solid; " +
+				"-fx-border-width: 1; -fx-border-color: black");
 
-		// creates the table column displaying meal types
-		TableColumn<HashMap.Entry<String, Double>, String> itemColumn = new TableColumn<>("Meal Type");
-		itemColumn.setCellValueFactory(
-				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, String> item) ->
-						new SimpleStringProperty(item.getValue().getKey()));
-		itemColumn.setPrefWidth(100);
 
-		// creates the table column displaying meal probabilities
-		TableColumn<HashMap.Entry<String, Double>, Double> probabilityColumn = new TableColumn<>("Probability");
-		probabilityColumn.setCellValueFactory(
-				(TableColumn.CellDataFeatures<HashMap.Entry<String, Double>, Double> item) ->
-						new ReadOnlyObjectWrapper<>(item.getValue().getValue()));
-		probabilityColumn.setPrefWidth(100);
-		probabilityColumn.setEditable(true);
-
-		probabilityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter(){
-			@Override
-			public Double fromString(String value){
-				try {
-					return super.fromString(value);
-				} catch(Exception e){
-					return Double.NaN;
-				}
-			}
-		}));
-
-		//we don't want to save the probabilities yet -- just to the table
-		probabilityColumn.setOnEditCommit(event -> {
-			int errorIndex = 0;
-			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-			double oldValue = event.getOldValue();
-			double newValue;
-
-			//alerts user if inputted value is not a decimal
-			if (event.getNewValue().isNaN()){
-				invalidInput.setTitle("Invalid Input");
-				invalidInput.setHeaderText("Error: Invalid Input");
-				invalidInput.setContentText("Input must be a decimal.");
-				errorIndex = 1;
-			}
-			//alerts user if new value (when added to all the other probabilities) does not equal 1
-			else{
-				newValue = event.getNewValue();
-				if (newValue > 1.0){
-					invalidInput.setTitle("Invalid Input");
-					invalidInput.setHeaderText("Error: Invalid Input");
-					invalidInput.setContentText("A probability cannot be greater than 1.");
-					errorIndex = 1;
-				}
-			}
-
-			//resets given meal's probability if the new value does not meet the necessary criteria
-			if (errorIndex == 1){
-				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(oldValue);
-				invalidInput.showAndWait();
-			}
-			//sets given meal's probability to new value if the new value meets the necessary criteria
-			else{
-				newValue = event.getNewValue();
-				event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(newValue);
-			}
-		}); //end of event where user edits probabilities
-
-		probabilityTable.getColumns().setAll(itemColumn, probabilityColumn);
-
-		StackPane probabilityLayout = new StackPane();
-		probabilityLayout.setAlignment(Pos.TOP_RIGHT);
-		probabilityLayout.setMaxSize(202, 300);
-		probabilityLayout.getChildren().add(probabilityTable);
-
+		//allows user to save their changes to the meal probabilities
 		Button saveProbabilityButton = new Button("Save Changes");
 		saveProbabilityButton.setStyle(primaryButtonStyle());
+
 		saveProbabilityButton.setOnAction(event -> {
 			BigDecimal totalProbability = BigDecimal.ZERO;
+			ArrayList<Meal> currentMealTypes = currentSimulation.getMealTypes();
+			ArrayList<Double> oldProbabilities = new ArrayList<>();
+			int errorIndex = 0;
 
-			for (HashMap.Entry<String, Double> item : mealProbabilities) {
-				totalProbability = totalProbability.add(BigDecimal.valueOf(item.getValue()));
+			Alert invalidInput;
+			String errorTitle = "Invalid Input";
+			String errorMessage = "";
+
+			//allows for access to the old probability values if the new values are invalid
+			for(Meal currentMeal : currentMealTypes) {
+				oldProbabilities.add(currentMeal.getProbability());
 			}
 
-			if (totalProbability.compareTo(BigDecimal.ONE) == 0){
-				//update settings with new values
-				for (Meal item : currentSimulation.getMealTypes()){
-					for (HashMap.Entry<String, Double> tableCell : mealProbabilities){
-						if (tableCell.getKey().equals(item.getName())){
-							item.setProbability(tableCell.getValue());
+			try {
+				//finds all the nodes that contain the probabilities (textfields) and adds those probabilities up
+				for (Node node : mealProbabilities.getChildren()) {
+					if (mealProbabilities.getColumnIndex(node) == 1) {
+						TextField mealProbability = (TextField) node;
+						double currentProbability = Double.parseDouble(mealProbability.getText());
+
+						//alerts user if probability value is negative or greater than one
+						if (currentProbability < 0 || currentProbability > 1) {
+							errorMessage = "Probabilities must be between 0 and 1 (inclusive).";
+							errorIndex = 1;
+						} else {
+							totalProbability = totalProbability.add(BigDecimal.valueOf(currentProbability));
 						}
 					}
 				}
-			}
-			//alerts user if the new probability does not equal 1
-			else{
-				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-				invalidInput.setTitle("Invalid Input");
-				invalidInput.setHeaderText("Error: Invalid Input");
-				invalidInput.setContentText("Total probability of meals should equal 1.");
-				invalidInput.showAndWait();
+				if (errorIndex == 0) {
+					//check to make sure all probabilities add up to one (using BigDecimal so we can get exactly one)
+					if (totalProbability.compareTo(BigDecimal.ONE) == 0) {
+						Text currentMealName = new Text("");
+						for (Node currentMeal : mealProbabilities.getChildren()) {
+							TextField currentMealProbability;
 
-				//reset table with old values if new values do not eqaul 1
-				mealProbabilities.clear();
-				for (Meal item : currentSimulation.getMealTypes()){
-					probabilities.put(item.getName(), item.getProbability());
+							//finds the name of the meal (names of meals are text in the first column)
+							if (mealProbabilities.getColumnIndex(currentMeal) == 0) {
+								currentMealName = (Text) currentMeal;
+							}
+							//finds the probability of the correspond meal (in second column)
+							if(mealProbabilities.getColumnIndex(currentMeal) == 1) {
+								currentMealProbability = (TextField) currentMeal;
+								for (Meal meal : currentMealTypes) {
+									/* since the node for the name comes before the node of the probability,
+									** we know that the name of the previous node corresponds to the
+									** current probability*/
+									if (meal.getName().equals(currentMealName.getText())) {
+										meal.setProbability(Double.parseDouble(currentMealProbability.getText()));
+									}
+								}
+							}
+						} //end of nodes for loop
+					} //end of if statement where total probability is equal to one
+					else {
+						//alerts user if probabilities of all meals do not add up to one
+						errorMessage = "Total probability must equal 1.";
+						errorIndex = 1;
+					}
+				} //end of if statement where inputted probabilities are between 0 and 1 (inclusive)
+			} //end of try block
+			catch(IllegalArgumentException exception) {
+				//alerts user if probability is not a number
+				errorMessage = "Inputted probabilities must be a number";
+				errorIndex = 1;
+			}
+
+			/* once errorIndex is equal to one, checking values stops so we can initialize the alert,
+			** reset the probabilities, and show the alert here rather than after every error */
+			if(errorIndex == 1) {
+				invalidInput = setErrorAlert(errorTitle, errorMessage);
+
+				int currentIndex = 0;
+
+				/* nodes go in order of meals (based on meal arrays) so we don't have to find
+				** the specific meal to reset the probabilities */
+				for(Node node: mealProbabilities.getChildren()) {
+					if(mealProbabilities.getColumnIndex(node) == 1) {
+						TextField currentProbability = (TextField) node;
+						currentProbability.setText(oldProbabilities.get(currentIndex) + "");
+						currentIndex++;
+					}
 				}
-				mealProbabilities.addAll(probabilities.entrySet());
+				invalidInput.showAndWait();
+			} //end of if statement where error dialog is shown
+			else {
+				//alerts user the changes have been save so they know the probabilities have been updated
+				Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
+				saveAlert.setTitle("Confirm Changes");
+				saveAlert.setHeaderText("Changes Saved!");
+				saveAlert.showAndWait();
 			}
+		}); //end of editing meal probabilities event
 
-		}); //end of event
 
-		HBox saveLayout = new HBox();
-		saveLayout.getChildren().add(saveProbabilityButton);
-		saveLayout.setAlignment(Pos.CENTER);
-
-		VBox rightLayout = new VBox(5);
-		rightLayout.setAlignment(Pos.CENTER_RIGHT);
-		rightLayout.setPadding(new Insets(30, 5, 0, 0));
-		rightLayout.getChildren().addAll(probabilityLayout, saveLayout);
+		VBox probabilityLayout = new VBox(5);
+		probabilityLayout.getChildren().addAll(probabilityTitleLayout, probabilityPane, saveProbabilityButton);
+		probabilityLayout.setAlignment(Pos.CENTER);
 
 		//arranges all meals together
 		VBox mealsBox = new VBox(10);
@@ -1182,10 +1172,53 @@ public class MainClass extends Application {
 			//user should be able to edit meal name
 			mealName.setOnAction(event -> {
 				String newName = mealName.getText();
-				meal.setName(newName);
-				//when user presses enter
-				mealName.setText(newName);
-			});
+				int errorIndex = 0;
+
+				Alert errorAlert;
+				String errorTitle = "Invalid Input";
+				String errorMessage = "";
+
+				if(newName.equals("")) {
+					errorMessage = "Meal must have a name.";
+					errorIndex = 1;
+				}
+				else {
+					for(Meal currentMeal: currentSimulation.getMealTypes()) {
+						if(currentMeal.getName().equals(newName) && (currentMeal.getFoods().equals(meal.getFoods())
+								|| currentMeal.getProbability() != meal.getProbability())) {
+							errorMessage = "Meal with name already exists.";
+							errorIndex = 1;
+							break;
+						}
+					}
+
+					if(errorIndex == 0) {
+						//resets the node in the gridpane of the meal name that is being changed
+						for(Node currentMeal: mealProbabilities.getChildren()) {
+							//all meal names reside in the first column (column zero)
+							if(mealProbabilities.getColumnIndex(currentMeal) == 0) {
+								Text name = (Text) currentMeal;
+								if(meal.getName().equals(name.getText())) {
+									name.setText(newName);
+								}
+							}
+						}
+
+						meal.setName(newName);
+
+						Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
+						saveAlert.setTitle("Confirm Changes");
+						saveAlert.setHeaderText("Changes Saved!");
+						saveAlert.showAndWait();
+					} //end of if statement where name does not already exist
+				} //end of else statement where name is not null
+
+				if(errorIndex == 1) {
+					errorAlert = setErrorAlert(errorTitle, errorMessage);
+					mealName.setText(meal.getName());
+					errorAlert.showAndWait();
+				}
+			}); //end of event handling meal name change
 
 			HBox titleFormat = new HBox();
 			titleFormat.getChildren().add(mealName);
@@ -1214,8 +1247,7 @@ public class MainClass extends Application {
 			//when maxwidth = prefwidth, horizontal scroll bar shows up -- make maxWidth > prefWidth
 			mealTable.setMaxSize(205, 300);
 			mealTable.setEditable(true);
-			mealTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
-					"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
+			mealTable.setStyle(tableStyle());
 
 			//table holds food items and counts for each meal
 			TableColumn<HashMap.Entry<String, Integer>, String> foodColumn = new TableColumn<>("Food Item");
@@ -1239,34 +1271,31 @@ public class MainClass extends Application {
 				public Integer fromString(String value){
 					try {
 						return super.fromString(value);
-					} catch(Exception e){
+					} catch(Exception exception){
 						return null;
 					}
 				}
 			}));
 			countColumn.setOnEditCommit(event ->{
 				int errorIndex = 0;
-				Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+				Alert invalidInput;
+				String alertTitle = "Invalid Input";
+				String alertMessage = "";
 				int oldValue = event.getOldValue();
 				String itemName = event.getTableView().getItems().get(event.getTablePosition().getRow()).getKey();
 
 				//user must input an integer
 				if (event.getNewValue() == null){
-					invalidInput.setTitle("Invalid Input");
-					invalidInput.setHeaderText("Error: Invalid Input");
-					invalidInput.setContentText("Input must be an integer.");
+					alertMessage = "Input must be an integer.";
 					errorIndex = 1;
 				}
 				else {
-
 					double maxPayload = currentSimulation.getDroneSettings().getMaxPayloadWeight();
 					int newValue = event.getNewValue();
 
 					//Cannot have negative amounts of an item
 					if (newValue < 0){
-						invalidInput.setTitle("Invalid Input");
-						invalidInput.setHeaderText("Error: Invalid Input");
-						invalidInput.setContentText("Input must be non-negative.");
+						alertMessage = "Input must be non-negative.";
 						errorIndex = 1;
 					}
 
@@ -1276,10 +1305,7 @@ public class MainClass extends Application {
 						double itemWeight = currentSimulation.getFoodItem(itemName).getWeight();
 						mealWeight = meal.getTotalWeight() - (oldValue * itemWeight) + (newValue * itemWeight);
 						if (mealWeight > maxPayload){
-							invalidInput.setTitle("Invalid Input");
-							invalidInput.setHeaderText("Error: Invalid Input");
-							invalidInput.setContentText("Meal weight must not exceed maximum payload. ("
-									+ maxPayload + " oz.)");
+							alertMessage = "Meal weight must not exceed maximum payload. (" + maxPayload + " oz.)";
 							errorIndex = 1;
 						}
 					}
@@ -1311,10 +1337,10 @@ public class MainClass extends Application {
 							meal.addItem(item);
 						}
 					}
-
 					//if the value is the same, don't do anything
 				}
 				else {
+					invalidInput = setErrorAlert(alertTitle, alertMessage);
 					//invalid input means value doesn't change
 					event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(oldValue);
 					invalidInput.showAndWait();
@@ -1329,7 +1355,8 @@ public class MainClass extends Application {
 			//creates button for deleting meals
 			Button deleteButton = new Button("X");
 			deleteButton.setStyle(BOLD_FONT_STYLE + "-fx-background-color: #e0e0e0; -fx-font-size: 20; " +
-					"fx-font-family: Helvetica; -fx-border-style: hidden; -fx-border-color: #e0e0e0; -fx-border-width: 1");
+					"fx-font-family: Helvetica; -fx-border-style: hidden; -fx-border-color: #e0e0e0; " +
+					"-fx-border-width: 1");
 
 			deleteButton.setOnAction(event -> {
 				//total probability of meals after meal deletion should equal 1.0
@@ -1337,27 +1364,37 @@ public class MainClass extends Application {
 				/* alerts user that they must set the probability of the deleted meal to zero and refactor the
 				** other meal's probabilities to equal 1 */
 				if (mealProbability.compareTo(BigDecimal.valueOf(0.0)) != 0){
-					Alert probabilityAlert = new Alert(Alert.AlertType.ERROR);
-					probabilityAlert.setTitle("Error");
-					probabilityAlert.setContentText("This meal's probability must be set to 0 before it can be " +
+					String alertMessage = "This meal's probability must be set to 0 before it can be " +
 							"deleted. Please refactor the probabilities so that this meal's probability is 0 and " +
-							"the rest are equivalent to 1.0.");
+							"the rest are equivalent to 1.0.";
+					Alert probabilityAlert = setErrorAlert("Meal not ready to delete", alertMessage);
 					probabilityAlert.showAndWait();
 				}
 				else{
 					String nameToDelete = meal.getName();
-					HashMap.Entry<String, Double> mealToDelete = mealProbabilities.get(0);
-					for (var probability : mealProbabilities) {
-						mealToDelete = probability;
-						if (mealToDelete.getKey().equals(nameToDelete)) {
-							break;
+
+					mealsBox.getChildren().remove(singleMealLayout);
+					currentSimulation.removeMeal(meal);
+
+					Text deletedMealName = new Text("");
+					Node nameNodeToDelete = new Node() {};
+					/* since there is no way to remove an entire row at once in a gridpane, we need to find both
+					** nodes that are in the row to be deleted and delete them together */
+					for(Node deletedMeal : mealProbabilities.getChildren()) {
+						if (mealProbabilities.getColumnIndex(deletedMeal) == 0) {
+							nameNodeToDelete = deletedMeal;
+							deletedMealName = (Text) deletedMeal;
+						}
+						if (mealProbabilities.getColumnIndex(deletedMeal) == 1) {
+							if (nameToDelete.equals(deletedMealName.getText())) {
+								mealProbabilities.getChildren().remove(nameNodeToDelete);
+								mealProbabilities.getChildren().remove(deletedMeal);
+								/* we need to break after the specified meal has been removed from the gridpane so the
+								** program does not try to keep removing nodes */
+								break;
+							}
 						}
 					}
-					mealsBox.getChildren().remove(singleMealLayout);
-					mealProbabilities.remove(mealToDelete);
-					probabilities.remove(mealToDelete.getKey());
-					probabilityTable.refresh();
-					currentSimulation.removeMeal(meal);
 				} //end of else statement (when user has set up probabilities for meal to be deleted)
 			}); //end of deleting meal event
 
@@ -1401,7 +1438,7 @@ public class MainClass extends Application {
 		centerLayout.getChildren().addAll(titleLayout, tableAddLayout);
 
 		HBox mainLayout = new HBox();
-		mainLayout.getChildren().addAll(centerLayout, rightLayout);
+		mainLayout.getChildren().addAll(centerLayout, probabilityLayout);
 
 		//arranges all elements of the page on the screen
 		settingLayout = new HBox(130);
@@ -1418,13 +1455,12 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * NEEDS TO BE REFACTORED AND TESTED
 	 * Creates page for adding a meal
 	 * @author Rachel Franklin
 	 */
 	public void addMealPage(){
 		title = new Text("Add Meal");
-		title.setStyle("-fx-font-family: Helvetica; -fx-font-size: 35; -fx-fill: #0047ab");
+		title.setStyle(FONT_TYPE + "-fx-font-size: 35; -fx-fill: #0047ab");
 		title.setWrappingWidth(450);
 		title.setTextAlignment(TextAlignment.CENTER);
 
@@ -1455,8 +1491,7 @@ public class MainClass extends Application {
 		TableView<HashMap.Entry<FoodItem, Integer>> foodTable = new TableView<>(foodInMeal);
 		foodTable.setMaxSize(205, 300);
 		foodTable.setEditable(true);
-		foodTable.setStyle("-fx-control-inner-background: #bdbdbd; -fx-control-inner-background-alt: #e0e0e0;" +
-				"-fx-border-style: solid; -fx-border-width: 1; -fx-border-color: #e0e0e0");
+		foodTable.setStyle(tableStyle());
 
 		// creates the table column showing the name of the food item
 		TableColumn<HashMap.Entry<FoodItem, Integer>, String> foodColumn = new TableColumn<>("Food Item");
@@ -1479,21 +1514,21 @@ public class MainClass extends Application {
 			public Integer fromString(String value){
 				try {
 					return super.fromString(value);
-				} catch(Exception e){
+				} catch(Exception exception){
 					return null;
 				}
 			}
 		}));
 		countColumn.setOnEditCommit(event -> {
 			int errorIndex = 0;
-			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
+			Alert invalidInput;
+			String errorTitle = "Invalid Input";
+			String errorMessage = "";
 			int oldValue = event.getOldValue();
 
 			//alerts user if they do not put input an integer
 			if (event.getNewValue() == null){
-				invalidInput.setTitle("Invalid Input");
-				invalidInput.setHeaderText("Error: Invalid Input");
-				invalidInput.setContentText("Input must be an integer.");
+				errorMessage = "Input must be an integer.";
 				errorIndex = 1;
 			}
 			//if given an integer value, proceed
@@ -1516,16 +1551,12 @@ public class MainClass extends Application {
 
 				//alerts user if current meal's weight exceeds drone's maximum capacity
 				if (mealWeight > maxPayload) {
-					invalidInput.setTitle("Invalid Input");
-					invalidInput.setHeaderText("Error: Invalid Input");
-					invalidInput.setContentText("Meal weight cannot exceed " + maxPayload + " oz.");
+					errorMessage = "Meal weight cannot exceed " + maxPayload + " oz.";
 					errorIndex = 1;
 				}
 				//alerts user if the number of the specified food item is a negative number
 				else if (newValue <= 0) {
-					invalidInput.setTitle("Invalid Input");
-					invalidInput.setHeaderText("Error: Invalid Input");
-					invalidInput.setContentText("Negative values or 0 not permitted.");
+					errorMessage = "Negative values or 0 not permitted";
 					errorIndex = 1;
 				}
 			}
@@ -1537,6 +1568,7 @@ public class MainClass extends Application {
 			}
 			//reset table if new value does not meet the necessary criteria
 			else {
+				invalidInput = setErrorAlert(errorTitle, errorMessage);
 				event.getTableView().getItems().get(event.getTablePosition().getRow()).
 						setValue(oldValue);
 				foodTable.refresh();
@@ -1558,8 +1590,9 @@ public class MainClass extends Application {
 		save.setStyle(primaryButtonStyle());
 		save.setOnAction(event ->{
 			int errorIndex = 0;
-			Alert invalidInput = new Alert(Alert.AlertType.ERROR);
-			invalidInput.setTitle("Invalid Meal Input");
+			Alert invalidInput;
+			String errorTitle = "Invalid Meal Input";
+			String errorMessage = "";
 
 			double mealWeight = 0;
 			HashMap.Entry <FoodItem, Integer> currentItem;
@@ -1568,15 +1601,26 @@ public class MainClass extends Application {
 				mealWeight += currentItem.getValue() * (currentItem.getKey().getWeight());
 			}
 
+			String newMealName = nameField.getText();
+
 			//alerts user if meal does not have a name
-			if (nameField.getText().equals("")){
+			if (newMealName.equals("")) {
 				errorIndex = 1;
-				invalidInput.setContentText("Meal must be given a name.");
+				errorMessage = "Meal must be given a name.";
 			}
 			//alerts user if meal does not contain any food items
 			else if(mealWeight <= 0){
 				errorIndex = 1;
-				invalidInput.setContentText("Meal must have food items.");
+				errorMessage = "Meal must have food items.";
+			}
+			else {
+				for(Meal meal: currentSimulation.getMealTypes()) {
+					if(newMealName.equals(meal.getName())) {
+						errorIndex = 1;
+						errorMessage = "Meal with name already exists.";
+						break;
+					}
+				}
 			}
 
 			if (errorIndex == 0){
@@ -1590,7 +1634,7 @@ public class MainClass extends Application {
 				}
 
 				//add new meal to simulation
-				currentSimulation.addMealType(new Meal(foodToAdd, nameField.getText(), 0));
+				currentSimulation.addMealType(new Meal(foodToAdd, newMealName, 0));
 
 				//alerts user that probability of new meal is zero
 				Alert probabilityNotice = new Alert(Alert.AlertType.INFORMATION);
@@ -1604,6 +1648,7 @@ public class MainClass extends Application {
 				editMealsPage();
 			} //end of if statement for when meal values are acceptable
 			else{
+				invalidInput = setErrorAlert(errorTitle, errorMessage);
 				invalidInput.showAndWait();
 			}
 		}); //end of event for adding meal to table

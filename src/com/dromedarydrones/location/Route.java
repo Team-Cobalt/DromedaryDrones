@@ -15,8 +15,8 @@ public class Route {
         if(points == null)
             throw new IllegalArgumentException("List of points cannot be null.");
 
-        route = calculateRouteSA(new LinkedList<>(points));
         // Calculate the optimal route using simulated annealing
+        route = calculateRouteSA(new LinkedList<>(points));
     }
 
     /**
@@ -80,7 +80,8 @@ public class Route {
             if(distance < bestDistance)
                 bestDistance = distance;
             else if(Math.exp((bestDistance - distance) / temperature) < Math.random())
-                swapPoints(pointBIndex, pointAIndex, points); // SA allows for "bad" trades under the above criterion: if false, reverse the swap
+                // SA allows for "bad" trades under the above criterion: if false, reverse the swap
+                swapPoints(pointBIndex, pointAIndex, points);
 
             temperature *= 0.99; // "Cooling" function to lower temperature iteratively
             //temperature = (temperature / Math.log(numIterations + 1));
