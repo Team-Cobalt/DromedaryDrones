@@ -1025,6 +1025,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * NEEDS TO BE REFACTORED AND TESTED
 	 * Creates GUI page for meal settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -1417,6 +1418,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * NEEDS TO BE REFACTORED AND TESTED
 	 * Creates page for adding a meal
 	 * @author Rachel Franklin
 	 */
@@ -1631,7 +1633,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Creates GUI page for drone settings
 	 * @author Izzy Patnode
 	 */
@@ -1846,7 +1847,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Determines the bounds of the x and y axis, used when creating the table and when shrinking the bounds is
 	 * necessary, gives the map a good range so all points are visible
 	 * @param mapPoints a list of points to determine the bounds of the map's axes from
@@ -1885,7 +1885,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Changes bounds of map if the new coordinate resides outside of the map's current scope
 	 * @param newXValue the updated x coordinate
 	 * @param newYValue the updated y coordinate
@@ -1916,7 +1915,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Creates GUI page for map settings
 	 * @author Izzy Patnode
 	 */
@@ -2381,6 +2379,7 @@ public class MainClass extends Application {
 					if (answer.isPresent()) {
 						if (answer.get().getText().equals("OK")) {
 							currentSimulation.setDeliveryPoints(points);
+							editMapPage();
 						}
 					}
 				} else {
@@ -2415,7 +2414,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Displays results from simulation
 	 * @author Rachel Franklin
 	 */

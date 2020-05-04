@@ -185,43 +185,6 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     /**
-     * Runs the simulation and returns the result.
-     * @author Christian Burns
-     */
-    @Deprecated
-    public SimulationResults run() {
-
-        // create and load an executor service
-        ExecutorService service = Executors.newFixedThreadPool(3);
-        List<Callable<TrialResults>> tasks = new ArrayList<>();
-        for (int index = 0; index < NUMBER_OF_TRIALS; index++)
-            tasks.add(() -> new Trial(this).run());
-
-        ArrayList<TrialResults> results = new ArrayList<>();
-
-        try {
-            // collect all the results
-            List<Future<TrialResults>> futures = service.invokeAll(tasks);
-            for (Future<TrialResults> result : futures) {
-                try {
-                    results.add(result.get());
-                }
-                catch (ExecutionException exception) {
-                    exception.printStackTrace();
-                }
-            }
-        }
-        catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
-        }
-        finally {
-            service.shutdown();
-        }
-
-        return new SimulationResults(results);
-    }
-
-    /**
      * Returns the drone settings.
      * @author Christian Burns
      */
