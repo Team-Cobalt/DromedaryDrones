@@ -1025,6 +1025,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * NEEDS TO BE REFACTORED AND TESTED
 	 * Creates GUI page for meal settings
 	 * @author Izzy Patnode and Rachel Franklin
 	 */
@@ -1417,6 +1418,7 @@ public class MainClass extends Application {
 	}
 
 	/**
+	 * NEEDS TO BE REFACTORED AND TESTED
 	 * Creates page for adding a meal
 	 * @author Rachel Franklin
 	 */
@@ -1631,7 +1633,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Creates GUI page for drone settings
 	 * @author Izzy Patnode
 	 */
@@ -1845,45 +1846,16 @@ public class MainClass extends Application {
 		window.setScene(droneEditPage);
 	}
 
-	public void setNewBounds(int newXValue, int newYValue, NumberAxis xAxis, NumberAxis yAxis) {
-		//changes bounds of map if the coordinate resides outside of the map's current scope
-		int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
-		int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
-
-		if(newXValue >= currentUpperXBound) {
-			currentUpperXBound = newXValue;
-			xAxis.setUpperBound(currentUpperXBound + 100);
-		}
-		if(newXValue <= currentLowerXBound) {
-			currentLowerXBound = newXValue;
-			xAxis.setLowerBound(currentLowerXBound - 100);
-		}
-
-		int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
-		int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
-
-		if(newYValue >= currentUpperYBound) {
-			currentUpperYBound = newYValue;
-			yAxis.setUpperBound(currentUpperYBound + 100);
-		}
-		if(newYValue <= currentLowerYBound) {
-			yAxis.setLowerBound(currentLowerYBound - 100);
-		}
-	}
-
 	/**
-	 * Creates GUI page for map settings
+	 * Determines the bounds of the x and y axis, used when creating the table and when shrinking the bounds is
+	 * necessary, gives the map a good range so all points are visible
+	 * @param mapPoints a list of points to determine the bounds of the map's axes from
+	 * @return the x-axis and y-axis bounds
 	 * @author Izzy Patnode
 	 */
-	public void editMapPage() {
-		VBox leftLayout = sideBarLayout("Map");
+	public ArrayList<Integer> setAxes(ObservableList<Point> mapPoints) {
+		ArrayList<Integer> axesBounds = new ArrayList<>();
 
-		settingTitle();
-
-		//gets list of current map destinations
-		ObservableList<Point> mapPoints = currentSimulation.getDeliveryPoints().getPoints();
-
-		//finds maximum and minimum x and y values to make axes of map have a good range
 		int upperYBound = mapPoints.get(0).getY();
 		int upperXBound = mapPoints.get(0).getX();
 		int lowerYBound = mapPoints.get(0).getY();
@@ -1907,11 +1879,63 @@ public class MainClass extends Application {
 			}
 		}
 
+		axesBounds.addAll(List.of(lowerXBound, upperXBound, lowerYBound, upperYBound));
+
+		return axesBounds;
+	}
+
+	/**
+	 * Changes bounds of map if the new coordinate resides outside of the map's current scope
+	 * @param newXValue the updated x coordinate
+	 * @param newYValue the updated y coordinate
+	 * @param xAxis used to set x axes
+	 * @param yAxis used to set y axes
+	 * @author Izzy Patnode
+	 */
+	public void setNewBounds(int newXValue, int newYValue, NumberAxis xAxis, NumberAxis yAxis) {
+		int currentUpperXBound = (int) xAxis.getUpperBound() - 100;
+		int currentLowerXBound = (int) xAxis.getLowerBound() + 100;
+
+		if(newXValue >= currentUpperXBound) {
+			xAxis.setUpperBound(newXValue + 100);
+		}
+		if(newXValue <= currentLowerXBound) {
+			xAxis.setLowerBound(newXValue - 100);
+		}
+
+		int currentUpperYBound = (int) yAxis.getUpperBound() - 100;
+		int currentLowerYBound = (int) yAxis.getLowerBound() + 100;
+
+		if(newYValue >= currentUpperYBound) {
+			yAxis.setUpperBound(newYValue + 100);
+		}
+		if(newYValue <= currentLowerYBound) {
+			yAxis.setLowerBound(newYValue - 100);
+		}
+	}
+
+	/**
+	 * Creates GUI page for map settings
+	 * @author Izzy Patnode
+	 */
+	public void editMapPage() {
+		VBox leftLayout = sideBarLayout("Map");
+
+		settingTitle();
+
+		//gets list of current map destinations
+		ObservableList<Point> mapPoints = currentSimulation.getDeliveryPoints().getPoints();
+
+		//finds maximum and minimum x and y values to make axes of map have a good range
+		ArrayList<Integer> bounds = setAxes(mapPoints);
+
 		//creates the axes for the map scatter plot using the
-		NumberAxis xAxis = new NumberAxis(lowerXBound - 100, upperXBound + 100, 100);
+		NumberAxis xAxis = new NumberAxis(bounds.get(0) - 100,
+				bounds.get(1) + 100, 100);
 		xAxis.setLabel("");
 		xAxis.setTickMarkVisible(false);
-		NumberAxis yAxis = new NumberAxis(lowerYBound - 100, upperYBound + 100, 100);
+		NumberAxis yAxis = new NumberAxis(bounds.get(2) - 100,
+				bounds.get(3) + 100, 100);
 		yAxis.setLabel("");
 		yAxis.setTickMarkVisible(false);
 
@@ -1960,14 +1984,33 @@ public class MainClass extends Application {
 			int selectedRow = event.getTablePosition().getRow();
 			String oldName = event.getOldValue();
 			String newName = event.getNewValue();
+			Point updatedPoint = event.getTableView().getItems().get(selectedRow);
 
 			if(newName.equals("")) {
 				Alert invalidName = setErrorAlert("Invalid Name", "Point name cannot be null.");
-				event.getTableView().getItems().get(selectedRow).setName(oldName);
+				updatedPoint.setName(oldName);
 				invalidName.showAndWait();
 			}
 			else {
-				event.getTableView().getItems().get(selectedRow).setName(newName);
+				int errorIndex = 0;
+				//alerts user if a point with the inputted name exists
+				for(Point point: mapPoints) {
+					if(newName.equals(point.getName()) && (updatedPoint.getX() != point.getX()
+							|| updatedPoint.getY() != updatedPoint.getY())) {
+						errorIndex = 1;
+						break;
+					}
+				}
+
+				if(errorIndex == 0) {
+					updatedPoint.setName(newName);
+				}
+				else {
+					Alert invalidName = setErrorAlert("Invalid Name",
+							"Point with inputted name already exists.");
+					updatedPoint.setName(oldName);
+					invalidName.showAndWait();
+				}
 			}
 
 			event.getTableView().refresh();
@@ -1983,8 +2026,10 @@ public class MainClass extends Application {
 			String oldCoordinates = event.getOldValue();
 
 			Alert invalidInput;
-			String alertTitle;
-			String alertMessage;
+			String alertTitle = "";
+			String alertMessage = "";
+
+			int errorIndex = 0;
 
 			//attempts to update specified point's coordinates to given values
 			try {
@@ -2001,30 +2046,48 @@ public class MainClass extends Application {
 
 					Point newPoint = event.getTableView().getSelectionModel().getSelectedItem();
 
-					//TODO: MAKE SURE POINT DOESN"T ALREADY EXIST!!!!
-
 					//checks that the new coordinates are in range of the drone (the drone can fly that distance)
 					if(newPoint.distanceFromPoint(null) <= maxDistanceAllowed) {
 						int newXValue = newPoint.getX();
 						int newYValue = newPoint.getY();
 
-						//updates map so the point is now located at its new coordinates
-						XYChart.Data<Number, Number> selectedPoint = mapValues.getData().get(selectedRow);
-						selectedPoint.setXValue(newXValue);
-						selectedPoint.setYValue(newYValue);
+						//checks that a point does not already have the given coordinates
+						for(Point point: mapPoints) {
+							if(!point.getName().equals(newPoint.getName()) && newXValue == point.getX()
+									&& newYValue == point.getY()) {
+								alertTitle = "Invalid Input";
+								alertMessage = "Point with inputted coordinates already exists.";
+								errorIndex = 1;
+								break;
+							}
+						}
 
-						//changes bounds of map if the coordinate resides outside of the map's current scope
-						setNewBounds(newXValue, newYValue, xAxis, yAxis);
+						if(errorIndex == 0) {
+							//updates map so the point is now located at its new coordinates
+							XYChart.Data<Number, Number> selectedPoint = mapValues.getData().get(selectedRow);
+							selectedPoint.setXValue(newXValue);
+							selectedPoint.setYValue(newYValue);
+
+							if((Math.abs(newXValue) > Math.abs(oldXValue)) ||
+									(Math.abs(newYValue) > Math.abs(oldYValue))){
+								setNewBounds(newXValue, newYValue, xAxis, yAxis);
+							}
+							else {
+								ArrayList<Integer> newBounds = setAxes(mapPoints);
+
+								xAxis.setLowerBound(newBounds.get(0) - 100);
+								xAxis.setUpperBound(newBounds.get(1) + 100);
+
+								yAxis.setLowerBound(newBounds.get(2) - 100);
+								yAxis.setUpperBound(newBounds.get(3) + 100);
+							}
+						}
 					} //end of if statement where new coordinates are legal
 					else {
 						//alerts user that the new coordinates are not in range of the drone
 						alertTitle = "Maximum Distance Exceeded";
 						alertMessage = "Coordinates are outside the maximum distance the drone can fly";
-
-						invalidInput = setErrorAlert(alertTitle, alertMessage);
-
-						event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
-						invalidInput.showAndWait();
+						errorIndex = 1;
 					}
 
 				} //end of if statement where coordinates being changed are not the origin
@@ -2032,9 +2095,7 @@ public class MainClass extends Application {
 					//alerts user that they are attempting to change the coordinates of the origin (not allowed)
 					alertTitle = "Origin Change Attempted";
 					alertMessage = "Origin must be at (0,0) and cannot be changed";
-					invalidInput = setErrorAlert(alertTitle, alertMessage);
-					event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
-					invalidInput.showAndWait();
+					errorIndex = 1;
 				}
 
 			} //end of try block
@@ -2042,10 +2103,14 @@ public class MainClass extends Application {
 				//alerts the user that the new coordinates are not valid (incorrect syntax, not integers, etc.)
 				alertTitle = "Invalid Coordinates";
 				alertMessage = "Input must be a (x,y) integer pair";
+				errorIndex = 1;
+			} //end of catch block
+
+			if(errorIndex == 1) {
 				invalidInput = setErrorAlert(alertTitle, alertMessage);
 				event.getTableView().getItems().get(selectedRow).setCoordinates(oldCoordinates);
 				invalidInput.showAndWait();
-			} //end of catch block
+			}
 
 			event.getTableView().refresh();
 
@@ -2096,8 +2161,9 @@ public class MainClass extends Application {
 			Button confirmButton = new Button("Finish");
 			confirmButton.setOnAction(event1 -> {
 				Alert errorAlert;
-				String alertTitle;
-				String alertMessage;
+				String alertTitle = "";
+				String alertMessage = "";
+
 				if(pointName.getText().equals("")) {
 					alertTitle = "Unspecified Point Name";
 					alertMessage = "Point name cannot be null.";
@@ -2108,8 +2174,7 @@ public class MainClass extends Application {
 					//creates a new point with name and empty coordinates (since we have to parse coordinate string)
 					Point newPoint = currentSimulation.getDeliveryPoints().
 							addPoint(pointName.getText(), 0, 0);
-
-					//TODO: MAKE SURE POINT DOESN"T ALREADY EXIST!!!!
+					int errorIndex = 0;
 
 					//attempts to set new point's coordinates
 					try {
@@ -2118,12 +2183,8 @@ public class MainClass extends Application {
 						if (newPoint.getX() == 0 && newPoint.getY() == 0) {
 							//alerts user that the inputted coordinates exceed the distance the drone can travel
 							alertTitle = "Illegal Coordinates";
-							alertMessage = "Attempting to set new point at origin (0,0) which already exists";
-
-							errorAlert = setErrorAlert(alertTitle, alertMessage);
-
-							currentSimulation.getDeliveryPoints().removePoint(newPoint);
-							errorAlert.showAndWait();
+							alertMessage = "Attempting to set new point at origin (0,0) which already exists.";
+							errorIndex = 1;
 						} //end of if statement where user attempt to put a point at (0,0)
 						else {
 							Drone currentDrone = currentSimulation.getDroneSettings();
@@ -2135,27 +2196,35 @@ public class MainClass extends Application {
 								int newXValue = newPoint.getX();
 								int newYValue = newPoint.getY();
 
-								//adds new point to the map so the new point is visible
-								mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
-
-								setNewBounds(newXValue, newYValue, xAxis, yAxis);
-
-								//resets table of points to include the new point
-								ObservableList<Point> newMapPoints = currentSimulation.getDeliveryPoints().getPoints();
-
-								mapTable.setItems(newMapPoints);
-
-								for (Node mapPoint : map.lookupAll(".series" + 0)) {
-									mapPoint.setStyle("-fx-background-color: #0047ab");
+								for(Point point: mapPoints) {
+									if(!newPoint.getName().equals(point.getName()) &&newXValue == point.getX()
+											&& newYValue == point.getY()) {
+										errorIndex = 1;
+										alertTitle = "Invalid Input";
+										alertMessage = "Point already exists.";
+										break;
+									}
 								}
+								if(errorIndex == 0) {
+									//adds new point to the map so the new point is visible
+									mapValues.getData().add(new XYChart.Data<>(newPoint.getX(), newPoint.getY()));
 
-								//closes dialog and takes user back to map settings page
-								addDialog.close();
+									setNewBounds(newXValue, newYValue, xAxis, yAxis);
+
+									mapTable.setItems(currentSimulation.getDeliveryPoints().getPoints());
+
+									for (Node mapPoint : map.lookupAll(".series" + 0)) {
+										mapPoint.setStyle("-fx-background-color: #0047ab");
+									}
+
+									//closes dialog and takes user back to map settings page
+									addDialog.close();
+								}
 							} //end of statement where inputted coordinates are valid and can be added to simulation
 							else {
 								//alerts user that the inputted coordinates exceed the distance the drone can travel
 								alertTitle = "Maximum Distance Exceeded";
-								alertMessage = "Coordinates are outside the range of the drone";
+								alertMessage = "Coordinates are outside the range of the drone.";
 								errorAlert = setErrorAlert(alertTitle, alertMessage);
 								currentSimulation.getDeliveryPoints().removePoint(newPoint);
 								errorAlert.showAndWait();
@@ -2166,10 +2235,15 @@ public class MainClass extends Application {
 						//alerts user that the inputted coordinates are invalid (illegal syntax, not integers, etc.)
 						alertTitle = "Invalid Coordinates";
 						alertMessage = "Input must be a (x,y) integer pair.";
+						errorIndex = 1;
+					} //end of cancel block
+
+					//reduces having to initialize the alert for every error
+					if(errorIndex == 1) {
 						errorAlert = setErrorAlert(alertTitle, alertMessage);
 						currentSimulation.getDeliveryPoints().removePoint(newPoint);
 						errorAlert.showAndWait();
-					} //end of cancel block
+					}
 				}//end of else statement where point name is valid
 			}); //end of confirmation button event (adding new point to current simulation)
 
@@ -2203,7 +2277,7 @@ public class MainClass extends Application {
 			//alerts user if they attempt to delete a point without selecting the point first
 			if(deletedRow < 0) {
 				alertTitle = "Invalid Deletion";
-				alertMessage = "Map point not selected";
+				alertMessage = "Map point not selected.";
 				errorAlert = setErrorAlert(alertTitle, alertMessage);
 				errorAlert.showAndWait();
 			}
@@ -2215,38 +2289,19 @@ public class MainClass extends Application {
 					//removes point from map
 					mapValues.getData().remove(deletedRow);
 
-					//changes scope of map if necessary
-					int newUpperXBound = mapPoints.get(0).getX();
-					int newUpperYBound = mapPoints.get(0).getY();
-					int newLowerXBound = mapPoints.get(0).getX();
-					int newLowerYBound = mapPoints.get(0).getY();
-
-					//TODO: PUT THIS IN A DIFFERENT METHOD!!!!
-					//calculates new lower and upper bounds for map's axes
-					for (Point point : mapPoints) {
-						if (point.getX() >= newUpperXBound) {
-							newUpperXBound = point.getX();
-						}
-						if (point.getX() <= newLowerXBound) {
-							newLowerXBound = point.getX();
-						}
-						if (point.getY() >= newUpperYBound) {
-							newUpperYBound = point.getY();
-						}
-						if (point.getY() <= newLowerYBound) {
-							newLowerYBound = point.getY();
-						}
-
-						xAxis.setUpperBound(newUpperXBound + 100);
-						xAxis.setLowerBound(newLowerXBound - 100);
-
-						yAxis.setUpperBound(newUpperYBound + 100);
-						yAxis.setLowerBound(newLowerYBound - 100);
-					} //end of for loop
-
-					//removes point from table and current simulation
-					mapPoints.remove(deletedRow);
 					currentSimulation.getDeliveryPoints().removePoint(deletedPoint);
+					mapPoints.remove(deletedPoint);
+
+					ArrayList<Integer> newBounds = setAxes(mapPoints);
+
+					xAxis.setLowerBound(newBounds.get(0) - 100);
+					xAxis.setUpperBound(newBounds.get(1) + 100);
+
+					yAxis.setLowerBound(newBounds.get(2) - 100);
+					yAxis.setUpperBound(newBounds.get(3) + 100);
+
+					mapTable.refresh();
+
 				}
 				else {
 					//alerts user if they attempt to delete the origin
@@ -2324,6 +2379,7 @@ public class MainClass extends Application {
 					if (answer.isPresent()) {
 						if (answer.get().getText().equals("OK")) {
 							currentSimulation.setDeliveryPoints(points);
+							editMapPage();
 						}
 					}
 				} else {
@@ -2358,7 +2414,6 @@ public class MainClass extends Application {
 	}
 
 	/**
-	 * COMPLETED, REFACTORED, AND TESTED
 	 * Displays results from simulation
 	 * @author Rachel Franklin
 	 */
