@@ -15,9 +15,8 @@ public class Route {
         if(points == null)
             throw new IllegalArgumentException("List of points cannot be null.");
 
-        route = new LinkedList<>(points);
-        calculateRouteDFS(route, 0, 0, getTotalDistance(route));
-        // Calculate the optimal route using DFS w/pruning
+        route = calculateRouteSA(new LinkedList<>(points));
+        // Calculate the optimal route using simulated annealing
     }
 
     /**
@@ -25,7 +24,7 @@ public class Route {
      * using recursive backtracking and alpha-beta pruning.
      * Adapted from <a href="https://www.win.tue.nl/~kbuchin/teaching/2IL15/backtracking.pdf">this paper</a>.
      * @author Brendan Ortmann
-     * @param currentRoute the list of {@code Point}s
+     * @param currentRoute the list of {@link Point}s
      * @param index the current index being looked at in the current cycle construction
      * @param distanceSoFar the distance so far in the current cycle construction
      * @param bestDistance the smallest distance we've seen in any cycle so far
@@ -56,31 +55,38 @@ public class Route {
         return currentRoute;
     }
 
-    // Simulated Annealing from Baeldung
-    // TODO: IGNORE FOR NOW
-    private LinkedList<Point> calculateRouteSA() {
-        double startingTemperature = 100; // Starting temperature
-        int numberIterations = 10000; // Number of iterations before stopping
-        double bestDistance = getTotalDistance(route);
+    /**
+     * Function that calculates the minimum weight Hamiltonian cycle for the given list of {@link Point}s
+     * using simulated annealing. Adapted from
+     * <a href=https://www.baeldung.com/java-simulated-annealing-for-traveling-salesman>this Baeldung article</a>.
+     * @param points the list of {@link Point}s to be routed
+     * @return {@code LinkedList} of {@code Point}s which gives approximately the shortest possible distance when
+     * traversed in order
+     */
+    private LinkedList<Point> calculateRouteSA(LinkedList<Point> points) {
+        double temperature = 100; // Starting temperature
+        int numIterations = 10000; // Number of iterations before stopping
+        double bestDistance = getTotalDistance(points);
         Random random = new Random();
 
-        for(int index = 0; index < numberIterations; index++) {
-            if(startingTemperature < 0.1)
+        for(int index = 0; index < numIterations; index++) {
+            if(temperature < 0.1)
                 break;
 
-            int pointAIndex = random.nextInt(route.size()), pointBIndex = random.nextInt(route.size());
-            swapPoints(pointAIndex, pointBIndex, route); // Swap two random indices in route
+            int pointAIndex = random.nextInt(points.size()), pointBIndex = random.nextInt(points.size());
+            swapPoints(pointAIndex, pointBIndex, points); // Swap two random indices in route
 
-            double distance = getTotalDistance(route);
+            double distance = getTotalDistance(points);
             if(distance < bestDistance)
                 bestDistance = distance;
-            else if(Math.exp((bestDistance - distance) / startingTemperature) < Math.random())
-                swapPoints(pointBIndex, pointAIndex, route); // SA allows for "bad" trades under the above criterion: if false, reverse the swap
+            else if(Math.exp((bestDistance - distance) / temperature) < Math.random())
+                swapPoints(pointBIndex, pointAIndex, points); // SA allows for "bad" trades under the above criterion: if false, reverse the swap
 
-            startingTemperature = (startingTemperature / Math.log(numberIterations)); // "Cooling" function to lower temperature iteratively
+            temperature *= 0.99; // "Cooling" function to lower temperature iteratively
+            //temperature = (temperature / Math.log(numIterations + 1));
         }
 
-        return route;
+        return points;
     }
 
     /**
