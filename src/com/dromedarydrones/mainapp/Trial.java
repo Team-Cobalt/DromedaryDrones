@@ -29,7 +29,9 @@ public class Trial {
      * @author Izzy Patnode, Christian Burns
      * @param simulationConfiguration  simulation configuration to use
      */
-    public Trial(Simulation simulationConfiguration) {
+    public Trial(Simulation simulationConfiguration) throws IllegalArgumentException {
+        if(simulationConfiguration == null)
+            throw new IllegalArgumentException("Simulation configuration cannot be null.");
 
         drone = simulationConfiguration.getDroneSettings();
         mealTypes = simulationConfiguration.getMealTypes();
