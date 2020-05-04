@@ -99,7 +99,10 @@ public class Drone implements XmlSerializable {
      * @throws RuntimeException  if payload exceeds max takeoff weight or
      *                           if the flight time exceeded the set limit
      */
-    public double deliver(List<Order> orders, double currentTime) {
+    public double deliver(List<Order> orders, double currentTime) throws IllegalArgumentException {
+        if(orders == null)
+            throw new IllegalArgumentException("Order list cannot be null.");
+
         // ensure the drone can take off
         if (!isSafePayloadCapacity(orders))
             throw new RuntimeException(
@@ -150,7 +153,10 @@ public class Drone implements XmlSerializable {
      * @param route  route to be flown
      * @return       {@code true} if an acceptable flight time
      */
-    public boolean isSafeFlightTime(Route route) {
+    public boolean isSafeFlightTime(Route route) throws IllegalArgumentException {
+        if(route == null)
+            throw new IllegalArgumentException("Route cannot be null.");
+
         LinkedList<Point> flightPlan = route.getRoute();
         double distance, seconds;
         double duration = 0;
@@ -180,7 +186,10 @@ public class Drone implements XmlSerializable {
      * @param orders  orders to check for
      * @return        {@code true} if safe
      */
-    public boolean isEstimatedSafeFlightTime(List<Order> orders) {
+    public boolean isEstimatedSafeFlightTime(List<Order> orders) throws IllegalArgumentException {
+        if(orders == null)
+            throw new IllegalArgumentException("Order list cannot be null.");
+
         // filter out duplicate points
         ArrayList<Point> unique = new ArrayList<>();
         for (Order order : orders)
@@ -219,7 +228,10 @@ public class Drone implements XmlSerializable {
      * @param orders  orders to use
      * @return        {@code true} if weight is safe
      */
-    public boolean isSafePayloadCapacity(List<Order> orders) {
+    public boolean isSafePayloadCapacity(List<Order> orders) throws IllegalArgumentException {
+        if(orders == null)
+            throw new IllegalArgumentException("Order list cannot be null.");
+
         double weight = orders.stream().mapToDouble(
                 order -> order.getMealOrdered().getTotalWeight()).sum();
         return weight <= maxPayloadWeight;
@@ -231,7 +243,10 @@ public class Drone implements XmlSerializable {
      * @param orders  orders to use
      * @return        ordered route containing unique points
      */
-    public Route ordersToRoute(List<Order> orders) {
+    public Route ordersToRoute(List<Order> orders) throws IllegalArgumentException {
+        if(orders == null)
+            throw new IllegalArgumentException("Order list cannot be null.");
+
         LinkedList<Point> waypoints = new LinkedList<>();
         for (Order order : orders) {
             Point waypoint = order.getDestination();
@@ -254,7 +269,10 @@ public class Drone implements XmlSerializable {
      * @author Christian Burns
      * @param weight  cargo weight in ounces
      */
-    public void setMaxPayloadWeight(double weight) {
+    public void setMaxPayloadWeight(double weight) throws IllegalArgumentException {
+        if(weight < 0)
+            throw new IllegalArgumentException("Max payload weight cannot be negative.");
+
         maxPayloadWeight = weight;
     }
 
@@ -271,7 +289,10 @@ public class Drone implements XmlSerializable {
      * @author Christian Burns
      * @param speed  speed in feet per second
      */
-    public void setCruisingSpeed(double speed) {
+    public void setCruisingSpeed(double speed) throws IllegalArgumentException {
+        if(speed < 0)
+            throw new IllegalArgumentException("Cruising speed cannot be negative.");
+
         cruisingSpeed = speed;
     }
 
@@ -288,7 +309,10 @@ public class Drone implements XmlSerializable {
      * @author Christian Burns
      * @param time  time in seconds
      */
-    public void setFlightTime(double time) {
+    public void setFlightTime(double time) throws IllegalArgumentException {
+        if(time < 0)
+            throw new IllegalArgumentException("Max flight time cannot be negative.");
+
         flightTime = time;
     }
 
@@ -305,7 +329,10 @@ public class Drone implements XmlSerializable {
      * @author Christian Burns
      * @param time  time in seconds
      */
-    public void setTurnAroundTime(double time) {
+    public void setTurnAroundTime(double time) throws IllegalArgumentException {
+        if(time < 0)
+            throw new IllegalArgumentException("Turnaround time cannot be negative.");
+
         turnAroundTime = time;
     }
 
@@ -322,7 +349,10 @@ public class Drone implements XmlSerializable {
      * @author Christian Burns
      * @param time  time in seconds
      */
-    public void setDeliveryTime(double time) {
+    public void setDeliveryTime(double time) throws IllegalArgumentException {
+        if(time < 0)
+            throw new IllegalArgumentException("Delivery time cannot be negative.");
+
         deliveryTime = time;
     }
 

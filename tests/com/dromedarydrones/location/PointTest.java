@@ -24,11 +24,16 @@ public class PointTest {
         point.setName(null);
     }
 
+    @Test
+    public void testSetCoordinates(){
+        point.setCoordinates("(1, 1)");
+        assertEquals(1, point.getX());
+        assertEquals(1, point.getY());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSetCoordinatesWeird(){
         point.setCoordinates("((((1     ,1((()  -909   ) ( 1000000");
-        assertEquals(1, point.getX());
-        assertEquals(1, point.getY());
     }
 
     @Test(expected = NullPointerException.class)

@@ -5,47 +5,66 @@ import org.junit.Test;
 
 public class DroneTest {
 
+    private Drone drone;
+
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        drone = new Drone();
     }
 
-    @Test
-    public void deliver() {
+    @Test(expected = NullPointerException.class)
+    public void testNullDroneInCopyConstructor(){
+        Drone d = null;
+        new Drone(d);
     }
 
-    @Test
-    public void isSafeFlightTime() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullOrderList() {
+        drone.deliver(null, 0);
     }
 
-    @Test
-    public void isEstimatedSafeFlightTime() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullRouteIsSafe() {
+        drone.isSafeFlightTime(null);
     }
 
-    @Test
-    public void isSafePayloadCapacity() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullOrderListIsSafeTime() {
+        drone.isEstimatedSafeFlightTime(null);
     }
 
-    @Test
-    public void ordersToRoute() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullOrdersIsSafePayload() {
+        drone.isSafePayloadCapacity(null);
     }
 
-    @Test
-    public void setMaxPayloadWeight() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullOrdersToRoute() {
+        drone.ordersToRoute(null);
     }
 
-    @Test
-    public void setCruisingSpeed() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNegativeMaxPayload() {
+        drone.setMaxPayloadWeight(-12);
     }
 
-    @Test
-    public void setFlightTime() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNegativeCruiseSpeed() {
+        drone.setCruisingSpeed(-100);
     }
 
-    @Test
-    public void setTurnAroundTime() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNegativeFlightTime() {
+        drone.setFlightTime(-10);
     }
 
-    @Test
-    public void setDeliveryTime() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNegativeTurnaroundTime() {
+        drone.setTurnAroundTime(-100);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNegativeDeliveryTime() {
+        drone.setDeliveryTime(-10);
     }
 }
