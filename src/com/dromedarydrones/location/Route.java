@@ -75,9 +75,11 @@ public class Route {
             if(distance < bestDistance)
                 bestDistance = distance;
             else if(Math.exp((bestDistance - distance) / startingTemperature) < Math.random())
-                swapPoints(pointBIndex, pointAIndex, route); // SA allows for "bad" trades under the above criterion: if false, reverse the swap
+                // SA allows for "bad" trades under the above criterion: if false, reverse the swap
+                swapPoints(pointBIndex, pointAIndex, route);
 
-            startingTemperature = (startingTemperature / Math.log(numberIterations)); // "Cooling" function to lower temperature iteratively
+            // "Cooling" function to lower temperature iteratively
+            startingTemperature = (startingTemperature / Math.log(numberIterations));
         }
 
         return route;
@@ -95,7 +97,8 @@ public class Route {
 
     /**
      * Function that returns the total distance when traversing the given list of points in order. Since the list does
-     * not include the starting {@link Point}, {@code null} is used to calculate the distance between the given {@code Point} and the starting
+     * not include the starting {@link Point}, {@code null} is used to calculate the distance
+     * between the given {@code Point} and the starting
      * {@code Point} at the beginning of the path and the end.
      * @param points the list of {@code Point}s for which we are calculating the distance
      * @return the total distance when traversing the {@code Point}s in order

@@ -67,28 +67,10 @@ public class Point implements XmlSerializable {
     }
 
     /**
-     * DO WE NEED THIS????
-     * Sets the latitudinal offset from origin in feet
-     * @param x  offset in feet
-     */
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    /**
      * Returns the longitudinal offset from the origin in feet
      */
     public int getY() {
         return y;
-    }
-
-    /**
-     * DO WE NEED THIS???
-     * Sets the longitudinal offset from origin in feet
-     * @param y  offset in feet
-     */
-    public void setY(int y) {
-        this.y = y;
     }
 
     /**
@@ -111,7 +93,7 @@ public class Point implements XmlSerializable {
     }
 
     /**
-     * DO WE NEED THIS???
+     * Necessary for creating the column of coordinates in map settings (even though it doesn't say that it is used)
      * @author Izzy Patnode
      * @return the x,y coordinates formatted as a string
      */
