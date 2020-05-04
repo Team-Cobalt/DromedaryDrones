@@ -5,47 +5,36 @@ import org.junit.Test;
 
 public class SimulationTest {
 
+    private Simulation simulation;
+
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        simulation = new Simulation("");
     }
 
-    @Test
-    public void run() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullNameInConstructor(){
+        new Simulation((String) null);
     }
 
-    @Test
-    public void setName() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullFoodItem() {
+        simulation.addFoodItem(null);
     }
 
-    @Test
-    public void addFoodItem() {
-    }
-
-    @Test
-    public void addFoodItems() {
-    }
-
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void addMealType() {
+        simulation.addMealType(null);
     }
 
-    @Test
-    public void addMealTypes() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullStochasticFlow() {
+        simulation.addStochasticFlow(null);
     }
 
-    @Test
-    public void addStochasticFlow() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullDeliveryPoints() {
+        simulation.setDeliveryPoints(null);
     }
 
-    @Test
-    public void setDeliveryPoints() {
-    }
-
-    @Test
-    public void createFoodItem() {
-    }
-
-    @Test
-    public void createMeal() {
-    }
 }

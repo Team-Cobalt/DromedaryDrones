@@ -38,7 +38,10 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
      * @author Christian Burns
      * @param name  name of the new configuration
      */
-    public Simulation(String name) {
+    public Simulation(String name) throws IllegalArgumentException {
+        if(name == null)
+            throw new IllegalArgumentException("Name cannot be null.");
+
         simulationName = name;
         stochasticFlow = new ArrayList<>();
         foodItems = new ArrayList<>();
@@ -231,7 +234,10 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
      * @author Christian Burns
      * @param food  food item to be added
      */
-    public void addFoodItem(FoodItem food) {
+    public void addFoodItem(FoodItem food) throws IllegalArgumentException {
+        if(food == null)
+            throw new IllegalArgumentException("Food item cannot be null.");
+
         if (!foodItems.contains(food))
             foodItems.add(food);
     }
@@ -250,7 +256,10 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
      * @author Christian Burns
      * @param meal  the meal to be added
      */
-    public void addMealType(Meal meal) {
+    public void addMealType(Meal meal) throws IllegalArgumentException {
+        if(meal == null)
+            throw new IllegalArgumentException("Meal cannot be null.");
+
         if (!mealTypes.contains(meal))
             mealTypes.add(meal);
     }
@@ -278,11 +287,13 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
      * @param numberMeals the number of meals per hour for each hour
      * @throws IllegalArgumentException  if number of hours per shift is not 4
      */
-    public void addStochasticFlow(List<Integer> numberMeals) {
+    public void addStochasticFlow(List<Integer> numberMeals) throws IllegalArgumentException {
+        if(numberMeals == null)
+            throw new IllegalArgumentException("numberMeals cannot be null.");
+
         //throws exception if number of hours per shift is not 4
-        if(numberMeals.size() != NUMBER_OF_SHIFTS) {
+        if(numberMeals.size() != NUMBER_OF_SHIFTS)
             throw new IllegalArgumentException("Number of hours per shift must be 4");
-        }
 
         //copies over number of meals per hour
         this.stochasticFlow = new ArrayList<>(numberMeals);
@@ -310,7 +321,10 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
      * Specifies a new collection of delivery points to use.
      * @author Christian Burns
      */
-    public void setDeliveryPoints(DeliveryPoints other) {
+    public void setDeliveryPoints(DeliveryPoints other) throws IllegalArgumentException {
+        if(other == null)
+            throw new IllegalArgumentException("DeliveryPoints cannot be null.");
+
         deliveryPoints = new DeliveryPoints(other);
     }
 
@@ -323,7 +337,6 @@ public class Simulation implements XmlSerializable, Callable<SimulationResults> 
     }
 
     /**
-     * DO WE NEED THIS????
      * Creates a brand new food item with the specified name and weight.
      * @author Christian Burns
      * @param name    name of the new food
