@@ -17,6 +17,7 @@ public class Route {
 
         // Calculate the optimal route using simulated annealing
         route = calculateRouteSA(new LinkedList<>(points));
+        //route = calculateRouteDFS(new LinkedList<>(points), 0, 0, getTotalDistance(points));
     }
 
     /**
